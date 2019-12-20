@@ -13,9 +13,9 @@ class Course {
         'id': id,
         'title': title,
       };
-  
+
   @override
-  String toString() => 'Course: $title';
+  String toString() => 'Course $id: $title';
 }
 
 class Question {
@@ -57,5 +57,5 @@ class Question {
       };
 
   @override
-  String toString() => 'Question: $id $courseId';
+  String toString() => 'Question $id: $courseId';
 }
