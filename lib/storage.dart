@@ -31,19 +31,23 @@ class Storage {
     );
   }
 
-  static Future<void> insertCourse(Course course) async =>
-      await _database.insert(
-        'Course',
-        course.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+  static Future<Course> insertCourse(Course course) async {
+    int id = await _database.insert(
+      'Course',
+      course.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+    return course..id = id;
+  }
 
-  static Future<void> insertQuestion(Question question) async =>
-      await _database.insert(
-        'Question',
-        question.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+  static Future<Question> insertQuestion(Question question) async {
+    int id = await _database.insert(
+      'Question',
+      question.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+    return question..id = id;
+  }
 
   static Future<List<Course>> getCourses({int id}) => _database
       .query('Course')
