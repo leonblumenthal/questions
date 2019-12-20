@@ -49,11 +49,11 @@ class Storage {
     return question..id = id;
   }
 
-  static Future<List<Course>> getCourses({int id}) => _database
+  static Future<List<Course>> getCourses() => _database
       .query('Course')
       .then((v) => v.map((map) => Course.fromMap(map)).toList());
 
-  static Future<List<Question>> getQuestions({int id, Course course}) =>
+  static Future<List<Question>> getQuestions() =>
       _database
           .query('Question')
           .then((v) => v.map((map) => Question.fromMap(map)).toList());
