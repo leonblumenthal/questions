@@ -9,7 +9,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  Future<List<Course>> courses = Storage.getCourses();
+  Future<List<Course>> coursesFuture = Storage.getCourses();
 
   @override
   Widget build(BuildContext context) {
@@ -19,24 +19,20 @@ class _HomeState extends State<Home> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.add),
-            onPressed: () async {
-              await Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => CourseWidget(Course())),
-              );
-              // Reload courses list.
-              courses = Storage.getCourses();
-              setState(() {} );
-            },
+            onPressed: () => goToCourse(Course()),
           )
         ],
       ),
       body: FutureBuilder(
-        future: courses,
+        future: coursesFuture,
         builder: (BuildContext context, AsyncSnapshot<List<Course>> snapshot) {
           if (snapshot.hasData) {
             List<Course> courses = snapshot.data;
             return ListView.builder(
-              itemBuilder: (_, i) => ListTile(title: Text(courses[i].title)),
+              itemBuilder: (_, i) => ListTile(
+                title: Text(courses[i].title),
+                onTap: () => goToCourse(courses[i]),
+              ),
               itemCount: courses.length,
             );
           }
@@ -44,5 +40,15 @@ class _HomeState extends State<Home> {
         },
       ),
     );
+  }
+
+  /// Navigate to the course widget and
+  /// reload the course list after returning from it.
+  Future<void> goToCourse(Course course) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => CourseWidget(course)),
+    );
+    coursesFuture = Storage.getCourses();
+    setState(() {});
   }
 }
