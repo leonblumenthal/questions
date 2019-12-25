@@ -1,23 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:questions/home.dart';
+import 'package:questions/storage.dart';
 
-void main() => runApp(
-      MaterialApp(
-        title: 'Questions',
-        home: Home(),
-      ),
-    );
-
-
-class Home extends StatefulWidget {
-  @override
-  _HomeState createState() => _HomeState();
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Storage.init();
+  runApp(
+    MaterialApp(
+      title: 'Questions',
+      home: Home(),
+    ),
+  );
 }
 
-class _HomeState extends State<Home> {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      
-    );
-  }
-}
+
