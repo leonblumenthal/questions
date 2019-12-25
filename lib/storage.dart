@@ -6,11 +6,11 @@ class Storage {
   static List<String> _createTables = [
     'CREATE TABLE Course('
         'id INTEGER PRIMARY KEY AUTOINCREMENT,'
-        'title TEST'
+        'title TEXT'
         ');',
     'CREATE TABLE Question('
         'id INTEGER PRIMARY KEY AUTOINCREMENT,'
-        'text TEST,'
+        'text TEXT,'
         'created INTEGER,'
         'totalTries INTEGER,'
         'correctTries INTEGER,'
@@ -23,7 +23,7 @@ class Storage {
 
   static Future<void> init() async {
     _database = await openDatabase(
-      join(await getDatabasesPath(), 'mood.db'),
+      join(await getDatabasesPath(), 'questions.db'),
       onCreate: (db, version) async {
         for (String s in _createTables) await db.execute(s);
       },
