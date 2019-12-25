@@ -56,4 +56,10 @@ class Storage {
   static Future<List<Question>> getQuestions() => _database
       .query('Question')
       .then((v) => v.map((map) => Question.fromMap(map)).toList());
+
+  static Future<void> deleteCourse(Course course) =>
+      _database.delete('Course', where: 'id = ?', whereArgs: [course.id]);
+
+  static Future<void> deleteQuestion(Question question) =>
+      _database.delete('Question', where: 'id = ?', whereArgs: [question.id]);
 }

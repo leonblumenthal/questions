@@ -29,6 +29,12 @@ class CourseWidget extends StatelessWidget {
           textCapitalization: TextCapitalization.sentences,
           onSubmitted: (String title) => saveTitle(title, context),
         ),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: () => deleteCourse(context),
+          )
+        ],
       ),
     );
   }
@@ -37,5 +43,13 @@ class CourseWidget extends StatelessWidget {
     course.title = title;
     await Storage.insertCourse(course);
     Toast.show('Saved $course', context, duration: 2);
+  }
+
+  void deleteCourse(BuildContext context) async {
+    if (course.id != null) {
+      await Storage.deleteCourse(course);
+      Toast.show('Deleted $course', context, duration: 2);
+    }
+    Navigator.of(context).pop();
   }
 }
