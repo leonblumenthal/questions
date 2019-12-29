@@ -39,10 +39,10 @@ class Question {
   Question.fromMap(Map<String, dynamic> map) {
     id = map['id'];
     text = map['text'];
-    created = _fromMillistoDateTime(map['created']);
+    created = _fromMillisToDateTime(map['created']);
     totalTries = map['totalTries'];
     correctTries = map['correctTries'];
-    lastAnswered = _fromMillistoDateTime(map['lastAnswered']);
+    lastAnswered = _fromMillisToDateTime(map['lastAnswered']);
     courseId = map['courseId'];
   }
 
