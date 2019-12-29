@@ -39,10 +39,10 @@ class Question {
   Question.fromMap(Map<String, dynamic> map) {
     id = map['id'];
     text = map['text'];
-    created = DateTime.fromMillisecondsSinceEpoch(map['created']);
+    created = _fromMillistoDateTime(map['created']);
     totalTries = map['totalTries'];
     correctTries = map['correctTries'];
-    lastAnswered = DateTime.fromMillisecondsSinceEpoch(map['lastAnswered']);
+    lastAnswered = _fromMillistoDateTime(map['lastAnswered']);
     courseId = map['courseId'];
   }
 
@@ -57,5 +57,8 @@ class Question {
       };
 
   @override
-  String toString() => 'Question $id: $courseId';
+  String toString() => 'Question $id: $text';
 }
+
+DateTime _fromMillistoDateTime(millis) =>
+    millis == null ? null : DateTime.fromMillisecondsSinceEpoch(millis);
