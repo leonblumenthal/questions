@@ -60,5 +60,5 @@ class Question {
   String toString() => 'Question $id: $text';
 }
 
-DateTime _fromMillistoDateTime(millis) =>
+DateTime _fromMillisToDateTime(millis) =>
     millis == null ? null : DateTime.fromMillisecondsSinceEpoch(millis);
