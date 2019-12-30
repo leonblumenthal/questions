@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:questions/models.dart';
+import 'package:questions/question.dart';
 import 'package:questions/storage.dart';
 import 'package:toast/toast.dart';
 
@@ -53,8 +54,7 @@ class _CourseWidgetState extends State<CourseWidget> {
               child: Icon(Icons.add),
               onPressed: () async {
                 await addQuestion(context);
-                questionsFuture = Storage.getQuestions(widget.course);
-                setState((() {}));
+                reloadQuestions();
               },
             ),
       body: buildQuestionsList(),
@@ -69,7 +69,12 @@ class _CourseWidgetState extends State<CourseWidget> {
             return ListView.builder(
               itemBuilder: (_, i) => ListTile(
                 title: Text(questions[i].text),
-                onTap: () {},
+                onTap: () async {
+                  await Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => QuestionWidget(questions[i]),
+                  ));
+                  reloadQuestions();
+                },
               ),
               itemCount: questions.length,
             );
@@ -77,6 +82,11 @@ class _CourseWidgetState extends State<CourseWidget> {
           return Center(child: CircularProgressIndicator());
         },
       );
+
+  void reloadQuestions() {
+    questionsFuture = Storage.getQuestions(widget.course);
+    setState(() {});
+  }
 
   Future saveTitle(String title, BuildContext context) async {
     await Storage.insertCourse(widget.course..title = title);
