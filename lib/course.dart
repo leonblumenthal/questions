@@ -47,14 +47,16 @@ class _CourseWidgetState extends State<CourseWidget> {
           )
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () async {
-          await addQuestion(context);
-          questionsFuture = Storage.getQuestions(widget.course);
-          setState((() {}));
-        },
-      ),
+      floatingActionButton: widget.course.id == null
+          ? null
+          : FloatingActionButton(
+              child: Icon(Icons.add),
+              onPressed: () async {
+                await addQuestion(context);
+                questionsFuture = Storage.getQuestions(widget.course);
+                setState((() {}));
+              },
+            ),
       body: buildQuestionsList(),
     );
   }
@@ -79,15 +81,40 @@ class _CourseWidgetState extends State<CourseWidget> {
   Future saveTitle(String title, BuildContext context) async {
     await Storage.insertCourse(widget.course..title = title);
     Toast.show('Saved ${widget.course}', context, duration: 2);
+    setState(() {});
   }
 
   Future deleteCourse(BuildContext context) async {
     if (widget.course.id != null) {
-      await Storage.deleteCourse(widget.course);
-      Toast.show('Deleted ${widget.course}', context, duration: 2);
+      bool result = await showDialog(
+        context: context,
+        builder: buildDeleteDialog,
+      );
+      if (result != null && result) {
+        await Storage.deleteCourse(widget.course);
+        Toast.show('Deleted ${widget.course}', context, duration: 2);
+        Navigator.of(context).pop();
+      }
+    } else {
+      Navigator.of(context).pop();
     }
-    Navigator.of(context).pop();
   }
+
+  Widget buildDeleteDialog(BuildContext context) => AlertDialog(
+        title: Text('Delete course'),
+        content:
+            Text('Are you sure that you want to delete ${widget.course} ?'),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('No'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          FlatButton(
+            child: Text('Yes'),
+            onPressed: () => Navigator.of(context).pop(true),
+          )
+        ],
+      );
 
   /// Show dialog to enter new question and save it.
   Future addQuestion(BuildContext context) async {
