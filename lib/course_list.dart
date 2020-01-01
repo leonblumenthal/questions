@@ -3,12 +3,12 @@ import 'package:questions/course.dart';
 import 'package:questions/models.dart';
 import 'package:questions/storage.dart';
 
-class Home extends StatefulWidget {
+class CourseList extends StatefulWidget {
   @override
-  _HomeState createState() => _HomeState();
+  _CourseListState createState() => _CourseListState();
 }
 
-class _HomeState extends State<Home> {
+class _CourseListState extends State<CourseList> {
   Future<List<Course>> coursesFuture = Storage.getCourses();
 
   @override
