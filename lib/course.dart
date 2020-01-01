@@ -71,7 +71,7 @@ class _CourseWidgetState extends State<CourseWidget> {
                 title: Text(questions[i].text),
                 onTap: () async {
                   await Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => QuestionWidget(questions[i]),
+                    builder: (_) => QuestionWidget(questions[i], widget.course),
                   ));
                   reloadQuestions();
                 },

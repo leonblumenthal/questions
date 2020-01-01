@@ -5,8 +5,9 @@ import 'package:toast/toast.dart';
 
 class QuestionWidget extends StatefulWidget {
   final Question question;
+  final Course course;
 
-  QuestionWidget(this.question);
+  QuestionWidget(this.question, this.course);
 
   @override
   _QuestionWidgetState createState() => _QuestionWidgetState();
@@ -16,16 +17,55 @@ class _QuestionWidgetState extends State<QuestionWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Question ${widget.question.id}'),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.delete),
-            onPressed: () => deleteQuestion(context),
-          )
-        ],
-      ),
-    );
+        appBar: AppBar(
+          title: Text('Question'),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.delete),
+              onPressed: () => deleteQuestion(context),
+            )
+          ],
+        ),
+        body: buildQuestionDetail());
+  }
+
+  Widget buildQuestionDetail() => Container(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            TextField(
+              controller: TextEditingController(text: widget.question.text),
+              decoration: InputDecoration(labelText: 'Question text'),
+              style: TextStyle(fontSize: 18),
+              maxLines: 3,
+              minLines: 1,
+              onChanged: (String text) async {
+                widget.question.text = text.trim();
+                await Storage.insertQuestion(widget.question);
+              },
+            ),
+            Container(height: 32),
+            buildLastAnswered(),
+            Container(height: 16),
+            Text(widget.course.toString(), style: TextStyle(fontSize: 16))
+          ],
+        ),
+      );
+
+  Widget buildLastAnswered() {
+    String text = 'Not answered';
+    if (widget.question.lastAnswered != null) {
+      Duration duration =
+          DateTime.now().difference(widget.question.lastAnswered);
+      int days = duration.inDays;
+      String daysString = '$days ' + (days == 1 ? 'day' : 'days');
+      int totalTries = widget.question.totalTries;
+      int correctTries = widget.question.correctTries;
+      text = 'Last answered: $daysString ago\n' +
+          'Correct tries: $correctTries / $totalTries';
+    }
+    return Text(text, style: TextStyle(fontSize: 16));
   }
 
   Future deleteQuestion(BuildContext context) async {
