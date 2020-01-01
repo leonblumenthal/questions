@@ -63,7 +63,7 @@ class _QuestionWidgetState extends State<QuestionWidget> {
       String daysString = '$days ' + (days == 1 ? 'day' : 'days');
       int totalTries = widget.question.totalTries;
       int correctTries = widget.question.correctTries;
-      text = 'Last answered: $daysString ago\n' +
+      text = 'Last answered: $daysString ago\n'
           'Correct tries: $correctTries / $totalTries';
     }
     return Text(text, style: const TextStyle(fontSize: 16));
