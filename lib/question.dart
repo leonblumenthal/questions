@@ -22,7 +22,7 @@ class _QuestionWidgetState extends State<QuestionWidget> {
           actions: <Widget>[
             IconButton(
               icon: const Icon(Icons.delete),
-              onPressed: () => deleteQuestion(context),
+              onPressed: deleteQuestion,
             )
           ],
         ),
@@ -69,7 +69,7 @@ class _QuestionWidgetState extends State<QuestionWidget> {
     return Text(text, style: const TextStyle(fontSize: 16));
   }
 
-  Future deleteQuestion(BuildContext context) async {
+  Future deleteQuestion() async {
     bool result = await showDialog(
       context: context,
       builder: buildDeleteDialog,

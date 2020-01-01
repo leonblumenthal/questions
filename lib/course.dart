@@ -39,12 +39,12 @@ class _CourseWidgetState extends State<CourseWidget> {
           cursorColor: Colors.white,
           autofocus: controller.text.isEmpty,
           textCapitalization: TextCapitalization.sentences,
-          onSubmitted: (String title) => saveTitle(title, context),
+          onSubmitted: saveTitle,
         ),
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.delete),
-            onPressed: () => deleteCourse(context),
+            onPressed: () => deleteCourse(),
           )
         ],
       ),
@@ -53,7 +53,7 @@ class _CourseWidgetState extends State<CourseWidget> {
           : FloatingActionButton(
               child: const Icon(Icons.add),
               onPressed: () async {
-                await addQuestion(context);
+                await addQuestion();
                 reloadQuestions();
               },
             ),
@@ -88,13 +88,13 @@ class _CourseWidgetState extends State<CourseWidget> {
     setState(() {});
   }
 
-  Future saveTitle(String title, BuildContext context) async {
+  Future saveTitle(String title) async {
     await Storage.insertCourse(widget.course..title = title);
     Toast.show('Saved ${widget.course}', context, duration: 2);
     setState(() {});
   }
 
-  Future deleteCourse(BuildContext context) async {
+  Future deleteCourse() async {
     if (widget.course.id != null) {
       bool result = await showDialog(
         context: context,
@@ -127,7 +127,7 @@ class _CourseWidgetState extends State<CourseWidget> {
       );
 
   /// Show dialog to enter new question and save it.
-  Future addQuestion(BuildContext context) async {
+  Future addQuestion() async {
     String questionText = await showDialog(
       context: context,
       builder: buildQuestionDialog,
@@ -160,7 +160,8 @@ class _CourseWidgetState extends State<CourseWidget> {
         width: 1000,
       ),
       actions: <Widget>[
-        FlatButton(child: const Text('Cancel'), onPressed: Navigator.of(context).pop),
+        FlatButton(
+            child: const Text('Cancel'), onPressed: Navigator.of(context).pop),
         FlatButton(
           child: const Text('Add'),
           onPressed: () => Navigator.of(context).pop(controller.text),
