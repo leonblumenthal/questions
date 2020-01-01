@@ -44,6 +44,7 @@ class _QuestionWidgetState extends State<QuestionWidget> {
                 widget.question.text = text.trim();
                 await Storage.insertQuestion(widget.question);
               },
+              textCapitalization: TextCapitalization.sentences,
             ),
             Container(height: 32),
             buildLastAnswered(),

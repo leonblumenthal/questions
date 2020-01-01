@@ -138,8 +138,6 @@ class _CourseWidgetState extends State<CourseWidget> {
         text: questionText,
         courseId: widget.course.id,
         created: DateTime.now(),
-        totalTries: 0,
-        correctTries: 0,
       );
       await Storage.insertQuestion(question);
 
@@ -157,6 +155,7 @@ class _CourseWidgetState extends State<CourseWidget> {
           maxLines: 1,
           style: const TextStyle(fontSize: 16),
           autofocus: true,
+          textCapitalization: TextCapitalization.words,
         ),
         width: 1000,
       ),

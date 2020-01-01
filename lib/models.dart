@@ -25,15 +25,17 @@ class Question {
   int totalTries;
   int correctTries;
   DateTime lastAnswered;
+  bool correctlyAnswered;
   int courseId;
 
   Question(
       {this.id,
       this.text,
       this.created,
-      this.totalTries,
-      this.correctTries,
+      this.totalTries = 0,
+      this.correctTries = 0,
       this.lastAnswered,
+      this.correctlyAnswered = false,
       this.courseId});
 
   Question.fromMap(Map<String, dynamic> map) {
@@ -43,6 +45,7 @@ class Question {
     totalTries = map['totalTries'];
     correctTries = map['correctTries'];
     lastAnswered = _fromMillisToDateTime(map['lastAnswered']);
+    correctlyAnswered = map['correctlyAnswered'] == 1;
     courseId = map['courseId'];
   }
 
@@ -53,6 +56,7 @@ class Question {
         'totalTries': totalTries,
         'correctTries': correctTries,
         'lastAnswered': lastAnswered?.millisecondsSinceEpoch,
+        'correctlyAnswered': correctlyAnswered ? 1 : 0,
         'courseId': courseId,
       };
 

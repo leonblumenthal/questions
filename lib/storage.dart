@@ -15,6 +15,7 @@ class Storage {
         'totalTries INTEGER,'
         'correctTries INTEGER,'
         'lastAnswered INTEGER,'
+        'correctlyAnswered INTEGER,'
         'courseId INTEGER REFERENCES Course(id) ON DELETE SET NULL'
         ');'
   ];
