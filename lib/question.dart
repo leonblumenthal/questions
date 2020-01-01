@@ -18,10 +18,10 @@ class _QuestionWidgetState extends State<QuestionWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Question'),
+          title: const Text('Question'),
           actions: <Widget>[
             IconButton(
-              icon: Icon(Icons.delete),
+              icon: const Icon(Icons.delete),
               onPressed: () => deleteQuestion(context),
             )
           ],
@@ -30,14 +30,14 @@ class _QuestionWidgetState extends State<QuestionWidget> {
   }
 
   Widget buildQuestionDetail() => Container(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             TextField(
               controller: TextEditingController(text: widget.question.text),
-              decoration: InputDecoration(labelText: 'Question text'),
-              style: TextStyle(fontSize: 18),
+              decoration: const InputDecoration(labelText: 'Question text'),
+              style: const TextStyle(fontSize: 18),
               maxLines: 3,
               minLines: 1,
               onChanged: (String text) async {
@@ -48,7 +48,7 @@ class _QuestionWidgetState extends State<QuestionWidget> {
             Container(height: 32),
             buildLastAnswered(),
             Container(height: 16),
-            Text(widget.course.toString(), style: TextStyle(fontSize: 16))
+            Text(widget.course.toString(), style: const TextStyle(fontSize: 16))
           ],
         ),
       );
@@ -65,7 +65,7 @@ class _QuestionWidgetState extends State<QuestionWidget> {
       text = 'Last answered: $daysString ago\n' +
           'Correct tries: $correctTries / $totalTries';
     }
-    return Text(text, style: TextStyle(fontSize: 16));
+    return Text(text, style: const TextStyle(fontSize: 16));
   }
 
   Future deleteQuestion(BuildContext context) async {
@@ -81,16 +81,16 @@ class _QuestionWidgetState extends State<QuestionWidget> {
   }
 
   Widget buildDeleteDialog(BuildContext context) => AlertDialog(
-        title: Text('Delete course'),
+        title: const Text('Delete course'),
         content:
             Text('Are you sure that you want to delete ${widget.question} ?'),
         actions: <Widget>[
           FlatButton(
-            child: Text('No'),
+            child: const Text('No'),
             onPressed: () => Navigator.of(context).pop(),
           ),
           FlatButton(
-            child: Text('Yes'),
+            child: const Text('Yes'),
             onPressed: () => Navigator.of(context).pop(true),
           )
         ],

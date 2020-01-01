@@ -15,10 +15,10 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Courses'),
+        title: const Text('Courses'),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.add),
+            icon: const Icon(Icons.add),
             onPressed: () => goToCourse(Course()),
           )
         ],
@@ -36,7 +36,7 @@ class _HomeState extends State<Home> {
               itemCount: courses.length,
             );
           }
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         },
       ),
     );

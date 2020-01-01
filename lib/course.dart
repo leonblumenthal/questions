@@ -30,8 +30,8 @@ class _CourseWidgetState extends State<CourseWidget> {
       appBar: AppBar(
         title: TextField(
           controller: controller,
-          decoration: InputDecoration(border: InputBorder.none),
-          style: TextStyle(
+          decoration: const InputDecoration(border: InputBorder.none),
+          style: const TextStyle(
             fontSize: 22,
             color: Colors.white,
             fontWeight: FontWeight.w500,
@@ -43,7 +43,7 @@ class _CourseWidgetState extends State<CourseWidget> {
         ),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.delete),
+            icon: const Icon(Icons.delete),
             onPressed: () => deleteCourse(context),
           )
         ],
@@ -51,7 +51,7 @@ class _CourseWidgetState extends State<CourseWidget> {
       floatingActionButton: widget.course.id == null
           ? null
           : FloatingActionButton(
-              child: Icon(Icons.add),
+              child: const Icon(Icons.add),
               onPressed: () async {
                 await addQuestion(context);
                 reloadQuestions();
@@ -79,7 +79,7 @@ class _CourseWidgetState extends State<CourseWidget> {
               itemCount: questions.length,
             );
           }
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         },
       );
 
@@ -111,16 +111,16 @@ class _CourseWidgetState extends State<CourseWidget> {
   }
 
   Widget buildDeleteDialog(BuildContext context) => AlertDialog(
-        title: Text('Delete course'),
+        title: const Text('Delete course'),
         content:
             Text('Are you sure that you want to delete ${widget.course} ?'),
         actions: <Widget>[
           FlatButton(
-            child: Text('No'),
+            child: const Text('No'),
             onPressed: () => Navigator.of(context).pop(),
           ),
           FlatButton(
-            child: Text('Yes'),
+            child: const Text('Yes'),
             onPressed: () => Navigator.of(context).pop(true),
           )
         ],
@@ -150,20 +150,20 @@ class _CourseWidgetState extends State<CourseWidget> {
   Widget buildQuestionDialog(BuildContext context) {
     TextEditingController controller = TextEditingController();
     return AlertDialog(
-      title: Text('Add Question'),
+      title: const Text('Add Question'),
       content: Container(
         child: TextField(
           controller: controller,
           maxLines: 1,
-          style: TextStyle(fontSize: 16),
+          style: const TextStyle(fontSize: 16),
           autofocus: true,
         ),
         width: 1000,
       ),
       actions: <Widget>[
-        FlatButton(child: Text('Cancel'), onPressed: Navigator.of(context).pop),
+        FlatButton(child: const Text('Cancel'), onPressed: Navigator.of(context).pop),
         FlatButton(
-          child: Text('Add'),
+          child: const Text('Add'),
           onPressed: () => Navigator.of(context).pop(controller.text),
         )
       ],

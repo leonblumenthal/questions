@@ -3,7 +3,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 class Storage {
-  static List<String> _createTables = [
+  static const List<String> _createTables = [
     'CREATE TABLE Course('
         'id INTEGER PRIMARY KEY AUTOINCREMENT,'
         'title TEXT'
@@ -19,7 +19,7 @@ class Storage {
         ');'
   ];
 
-  static Database _database;
+  static  Database _database;
 
   static Future<void> init() async {
     _database = await openDatabase(
