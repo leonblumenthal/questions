@@ -20,7 +20,7 @@ class Storage {
         ');'
   ];
 
-  static  Database _database;
+  static Database _database;
 
   static Future<void> init() async {
     _database = await openDatabase(
@@ -54,9 +54,20 @@ class Storage {
       .query('Course')
       .then((v) => v.map((map) => Course.fromMap(map)).toList());
 
-  static Future<List<Question>> getQuestions(Course course) => _database
-      .query('Question', where: 'courseId = ?', whereArgs: [course.id ?? -1]).then(
-          (v) => v.map((map) => Question.fromMap(map)).toList());
+  static Future<List<Question>> getQuestions(Course course) =>
+      _database.query('Question', where: 'courseId = ?', whereArgs: [
+        course.id ?? -1
+      ]).then((v) => v.map((map) => Question.fromMap(map)).toList());
+
+  static Future<Course> getCourse(int id) =>
+      _database.query('Course', where: 'id = ?', whereArgs: [id]).then(
+        (v) => v.length == 0 ? null : Course.fromMap(v.first),
+      );
+
+  static Future<Question> getQuestion(int id) =>
+      _database.query('Question', where: 'id = ?', whereArgs: [id]).then(
+        (v) => v.length == 0 ? null : Question.fromMap(v.first),
+      );
 
   static Future<void> deleteCourse(Course course) =>
       _database.delete('Course', where: 'id = ?', whereArgs: [course.id]);
