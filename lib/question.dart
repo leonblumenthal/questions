@@ -23,6 +23,10 @@ class _QuestionWidgetState extends State<QuestionWidget> {
             IconButton(
               icon: const Icon(Icons.delete),
               onPressed: deleteQuestion,
+            ),
+            IconButton(
+              icon: const Icon(Icons.restore),
+              onPressed: resetQuestion,
             )
           ],
         ),
@@ -60,7 +64,10 @@ class _QuestionWidgetState extends State<QuestionWidget> {
       Duration duration =
           DateTime.now().difference(widget.question.lastAnswered);
       int days = duration.inDays;
-      String daysString = '$days ' + (days == 1 ? 'day' : 'days');
+      String correctString =
+          widget.question.correctlyAnswered ? 'correctly' : 'incorrectly';
+      String daysString =
+          '$correctString $days ' + (days == 1 ? 'day' : 'days');
       int totalTries = widget.question.totalTries;
       int correctTries = widget.question.correctTries;
       text = 'Last answered: $daysString ago\n'
@@ -74,7 +81,7 @@ class _QuestionWidgetState extends State<QuestionWidget> {
       context: context,
       builder: buildDeleteDialog,
     );
-    if (result != null && result) {
+    if (result == true) {
       await Storage.deleteQuestion(widget.question);
       Toast.show('Deleted ${widget.question}', context, duration: 2);
       Navigator.of(context).pop();
@@ -82,9 +89,42 @@ class _QuestionWidgetState extends State<QuestionWidget> {
   }
 
   Widget buildDeleteDialog(BuildContext context) => AlertDialog(
-        title: const Text('Delete course'),
+        title: const Text('Delete question'),
         content:
             Text('Are you sure that you want to delete ${widget.question} ?'),
+        actions: <Widget>[
+          FlatButton(
+            child: const Text('No'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          FlatButton(
+            child: const Text('Yes'),
+            onPressed: () => Navigator.of(context).pop(true),
+          )
+        ],
+      );
+
+  Future resetQuestion() async {
+    bool result = await showDialog(
+      context: context,
+      builder: buildResetDialog,
+    );
+    if (result == true) {
+      await Storage.insertQuestion(
+        widget.question
+          ..lastAnswered = null
+          ..correctlyAnswered = false
+          ..correctTries = 0,
+      );
+      Toast.show('Reset ${widget.question}', context, duration: 2);
+      setState(() {});
+    }
+  }
+
+  Widget buildResetDialog(BuildContext context) => AlertDialog(
+        title: const Text('Reset question'),
+        content:
+            Text('Are you sure that you want to reset ${widget.question} ?'),
         actions: <Widget>[
           FlatButton(
             child: const Text('No'),
