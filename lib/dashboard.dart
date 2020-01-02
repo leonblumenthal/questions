@@ -53,7 +53,8 @@ class _DashboardState extends State<Dashboard> {
         .where((q) =>
             q.streak == 0 ||
             Utils.getDate().difference(q.lastAnswered).inDays >= q.streak)
-        .toList();
+        .toList()
+          ..sort((a, b) => a.streak - b.streak);
   }
 
   Widget buildCourseCard(Course course, List<Question> questions) => Card(
