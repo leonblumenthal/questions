@@ -44,7 +44,11 @@ class _CourseWidgetState extends State<CourseWidget> {
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.delete),
-            onPressed: () => deleteCourse(),
+            onPressed: deleteCourse,
+          ),
+          IconButton(
+            icon: const Icon(Icons.restore),
+            onPressed: resetAllQuestions,
           )
         ],
       ),
@@ -114,6 +118,46 @@ class _CourseWidgetState extends State<CourseWidget> {
         title: const Text('Delete course'),
         content:
             Text('Are you sure that you want to delete ${widget.course} ?'),
+        actions: <Widget>[
+          FlatButton(
+            child: const Text('No'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          FlatButton(
+            child: const Text('Yes'),
+            onPressed: () => Navigator.of(context).pop(true),
+          )
+        ],
+      );
+
+  Future resetAllQuestions() async {
+    if (widget.course.id != null) {
+      bool result = await showDialog(
+        context: context,
+        builder: buildResetDialog,
+      );
+      if (result == true) {
+        for (Question question in await Storage.getQuestions(widget.course)) {
+          await Storage.insertQuestion(
+            question
+              ..lastAnswered = null
+              ..streak = 0,
+          );
+        }
+        Toast.show(
+          'Reset all questions of ${widget.course}',
+          context,
+          duration: 2,
+        );
+        reloadQuestions();
+      }
+    }
+  }
+
+  Widget buildResetDialog(BuildContext context) => AlertDialog(
+        title: const Text('Reset all question'),
+        content: Text(
+            'Are you sure that you want to reset all questions of ${widget.course} ?'),
         actions: <Widget>[
           FlatButton(
             child: const Text('No'),
