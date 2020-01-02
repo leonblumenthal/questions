@@ -59,24 +59,6 @@ class Storage {
         course.id ?? -1
       ]).then((v) => v.map((map) => Question.fromMap(map)).toList());
 
-  static Future<List<Question>> getQuestionsWhere(
-    List<WhereArg> whereArgs, {
-    String connection = 'AND',
-  }) =>
-      _database
-          .query(
-            'Question',
-            where: whereArgs
-                .map((x) =>
-                    x.value == null ? '${x.column} IS NULL' : '${x.column} = ?')
-                .join(' $connection '),
-            whereArgs: whereArgs
-                .map((x) => x.value)
-                .where((it) => it != null)
-                .toList(),
-          )
-          .then((v) => v.map((map) => Question.fromMap(map)).toList());
-
   static Future<Course> getCourse(int id) =>
       _database.query('Course', where: 'id = ?', whereArgs: [id]).then(
         (v) => v.length == 0 ? null : Course.fromMap(v.first),
@@ -92,10 +74,4 @@ class Storage {
 
   static Future<void> deleteQuestion(Question question) =>
       _database.delete('Question', where: 'id = ?', whereArgs: [question.id]);
-}
-
-class WhereArg {
-  final String column;
-  final value;
-  WhereArg(this.column, this.value);
 }
