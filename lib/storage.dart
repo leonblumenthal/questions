@@ -59,7 +59,10 @@ class Storage {
         course.id ?? -1
       ]).then((v) => v.map((map) => Question.fromMap(map)).toList());
 
-  static Future<List<Question>> getQuestionsWhere(List<WhereArg> whereArgs, {String connection = 'AND'}) =>
+  static Future<List<Question>> getQuestionsWhere(
+    List<WhereArg> whereArgs, {
+    String connection = 'AND',
+  }) =>
       _database
           .query(
             'Question',
