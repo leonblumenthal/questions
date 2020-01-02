@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:questions/models.dart';
 import 'package:questions/question.dart';
 import 'package:questions/storage.dart';
+import 'package:questions/utils.dart';
 import 'package:toast/toast.dart';
 
 class CourseWidget extends StatefulWidget {
@@ -102,7 +103,10 @@ class _CourseWidgetState extends State<CourseWidget> {
     if (widget.course.id != null) {
       bool result = await showDialog(
         context: context,
-        builder: buildDeleteDialog,
+        builder: Utils.boolDialogBuilder(
+          'Delete course',
+          'Are you sure that you want to delete ${widget.course} ?',
+        ),
       );
       if (result != null && result) {
         await Storage.deleteCourse(widget.course);
@@ -114,27 +118,14 @@ class _CourseWidgetState extends State<CourseWidget> {
     }
   }
 
-  Widget buildDeleteDialog(BuildContext context) => AlertDialog(
-        title: const Text('Delete course'),
-        content:
-            Text('Are you sure that you want to delete ${widget.course} ?'),
-        actions: <Widget>[
-          FlatButton(
-            child: const Text('No'),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          FlatButton(
-            child: const Text('Yes'),
-            onPressed: () => Navigator.of(context).pop(true),
-          )
-        ],
-      );
-
   Future resetAllQuestions() async {
     if (widget.course.id != null) {
       bool result = await showDialog(
         context: context,
-        builder: buildResetDialog,
+        builder: Utils.boolDialogBuilder(
+          'Reset all question',
+          'Are you sure that you want to reset all questions of ${widget.course} ?',
+        ),
       );
       if (result == true) {
         for (Question question in await Storage.getQuestions(widget.course)) {
@@ -153,22 +144,6 @@ class _CourseWidgetState extends State<CourseWidget> {
       }
     }
   }
-
-  Widget buildResetDialog(BuildContext context) => AlertDialog(
-        title: const Text('Reset all question'),
-        content: Text(
-            'Are you sure that you want to reset all questions of ${widget.course} ?'),
-        actions: <Widget>[
-          FlatButton(
-            child: const Text('No'),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          FlatButton(
-            child: const Text('Yes'),
-            onPressed: () => Navigator.of(context).pop(true),
-          )
-        ],
-      );
 
   /// Show dialog to enter new question and save it.
   Future addQuestion() async {

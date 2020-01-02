@@ -75,7 +75,10 @@ class _QuestionWidgetState extends State<QuestionWidget> {
   Future deleteQuestion() async {
     bool result = await showDialog(
       context: context,
-      builder: buildDeleteDialog,
+      builder: Utils.boolDialogBuilder(
+        'Delete question',
+        'Are you sure that you want to delete ${widget.question} ?',
+      ),
     );
     if (result == true) {
       await Storage.deleteQuestion(widget.question);
@@ -84,26 +87,13 @@ class _QuestionWidgetState extends State<QuestionWidget> {
     }
   }
 
-  Widget buildDeleteDialog(BuildContext context) => AlertDialog(
-        title: const Text('Delete question'),
-        content:
-            Text('Are you sure that you want to delete ${widget.question} ?'),
-        actions: <Widget>[
-          FlatButton(
-            child: const Text('No'),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          FlatButton(
-            child: const Text('Yes'),
-            onPressed: () => Navigator.of(context).pop(true),
-          )
-        ],
-      );
-
   Future resetQuestion() async {
     bool result = await showDialog(
       context: context,
-      builder: buildResetDialog,
+      builder: Utils.boolDialogBuilder(
+        'Reset question',
+        'Are you sure that you want to reset ${widget.question} ?',
+      ),
     );
     if (result == true) {
       await Storage.insertQuestion(
@@ -115,20 +105,4 @@ class _QuestionWidgetState extends State<QuestionWidget> {
       setState(() {});
     }
   }
-
-  Widget buildResetDialog(BuildContext context) => AlertDialog(
-        title: const Text('Reset question'),
-        content:
-            Text('Are you sure that you want to reset ${widget.question} ?'),
-        actions: <Widget>[
-          FlatButton(
-            child: const Text('No'),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          FlatButton(
-            child: const Text('Yes'),
-            onPressed: () => Navigator.of(context).pop(true),
-          )
-        ],
-      );
 }
