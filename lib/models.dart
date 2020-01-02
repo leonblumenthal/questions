@@ -21,42 +21,26 @@ class Course {
 class Question {
   int id;
   String text;
-  DateTime created;
-  int totalTries;
-  int correctTries;
+  int streak;
   DateTime lastAnswered;
-  bool correctlyAnswered;
   int courseId;
 
   Question(
-      {this.id,
-      this.text,
-      this.created,
-      this.totalTries = 0,
-      this.correctTries = 0,
-      this.lastAnswered,
-      this.correctlyAnswered = false,
-      this.courseId});
+      {this.id, this.text, this.streak = 0, this.lastAnswered, this.courseId});
 
   Question.fromMap(Map<String, dynamic> map) {
     id = map['id'];
     text = map['text'];
-    created = _fromMillisToDateTime(map['created']);
-    totalTries = map['totalTries'];
-    correctTries = map['correctTries'];
+    streak = map['streak'];
     lastAnswered = _fromMillisToDateTime(map['lastAnswered']);
-    correctlyAnswered = map['correctlyAnswered'] == 1;
     courseId = map['courseId'];
   }
 
   Map<String, dynamic> toMap() => {
         'id': id,
         'text': text,
-        'created': created?.millisecondsSinceEpoch,
-        'totalTries': totalTries,
-        'correctTries': correctTries,
+        'streak': streak,
         'lastAnswered': lastAnswered?.millisecondsSinceEpoch,
-        'correctlyAnswered': correctlyAnswered ? 1 : 0,
         'courseId': courseId,
       };
 

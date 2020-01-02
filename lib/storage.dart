@@ -11,11 +11,8 @@ class Storage {
     'CREATE TABLE Question('
         'id INTEGER PRIMARY KEY AUTOINCREMENT,'
         'text TEXT,'
-        'created INTEGER,'
-        'totalTries INTEGER,'
-        'correctTries INTEGER,'
+        'streak INTEGER,'
         'lastAnswered INTEGER,'
-        'correctlyAnswered INTEGER,'
         'courseId INTEGER REFERENCES Course(id) ON DELETE SET NULL'
         ');'
   ];
