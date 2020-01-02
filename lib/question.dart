@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:questions/models.dart';
 import 'package:questions/storage.dart';
+import 'package:questions/utils.dart';
 import 'package:toast/toast.dart';
 
 class QuestionWidget extends StatefulWidget {
@@ -62,7 +63,7 @@ class _QuestionWidgetState extends State<QuestionWidget> {
     String text = 'Not answered';
     if (widget.question.lastAnswered != null) {
       Duration duration =
-          DateTime.now().difference(widget.question.lastAnswered);
+          Utils.getDate().difference(widget.question.lastAnswered);
       int days = duration.inDays;
       String daysString = '$days ' + (days == 1 ? 'day' : 'days');
       text = 'Last answered: $daysString ago\n'

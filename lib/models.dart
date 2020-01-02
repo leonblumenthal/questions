@@ -24,7 +24,10 @@ class Question {
 
   /// correct consecutive answers.
   int streak;
+
+  /// date of last answer
   DateTime lastAnswered;
+
   int courseId;
 
   Question({

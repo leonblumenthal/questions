@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:questions/models.dart';
 import 'package:questions/question.dart';
 import 'package:questions/storage.dart';
+import 'package:questions/utils.dart';
 
 class Answer extends StatefulWidget {
   final List<Question> questions;
@@ -109,7 +110,7 @@ class _AnswerState extends State<Answer> {
         // Update question based on answer.
         await Storage.insertQuestion(
           widget.questions[currentIndex]
-            ..lastAnswered = answeredCorrectly ? DateTime.now() : null
+            ..lastAnswered = answeredCorrectly ? Utils.getDate() : null
             ..streak = answeredCorrectly
                 ? widget.questions[currentIndex].streak + 1
                 : 0,
