@@ -21,12 +21,19 @@ class Course {
 class Question {
   int id;
   String text;
+
+  /// correct consecutive answers.
   int streak;
   DateTime lastAnswered;
   int courseId;
 
-  Question(
-      {this.id, this.text, this.streak = 0, this.lastAnswered, this.courseId});
+  Question({
+    this.id,
+    this.text,
+    this.streak = 0,
+    this.lastAnswered,
+    this.courseId,
+  });
 
   Question.fromMap(Map<String, dynamic> map) {
     id = map['id'];
