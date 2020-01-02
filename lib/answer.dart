@@ -35,7 +35,10 @@ class _AnswerState extends State<Answer> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[buildQuestionCard(), buildAnswerButtons()],
+          children: <Widget>[
+            buildQuestionCard(widget.questions[currentIndex]),
+            buildAnswerButtons(),
+          ],
         ),
       ),
     );
@@ -62,7 +65,7 @@ class _AnswerState extends State<Answer> {
     setState(() {});
   }
 
-  Widget buildQuestionCard() => Card(
+  Widget buildQuestionCard(Question question) => Card(
         margin: const EdgeInsets.all(16),
         child: Column(
           children: <Widget>[
@@ -80,11 +83,12 @@ class _AnswerState extends State<Answer> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 16),
               child: Text(
-                widget.questions[currentIndex].text,
+                question.text,
                 style: const TextStyle(fontSize: 22),
                 textAlign: TextAlign.center,
               ),
-            )
+            ),
+            buildStreakWidget(question),
           ],
         ),
       );
@@ -125,4 +129,19 @@ class _AnswerState extends State<Answer> {
           Navigator.of(context).pop();
         }
       };
+
+  Widget buildStreakWidget(Question question) => Align(
+        alignment: Alignment.bottomRight,
+        child: Container(
+          alignment: Alignment.center,
+          width: 28,
+          height: 28,
+          margin: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.grey.shade200,
+          ),
+          child: Text(question.streak.toString()),
+        ),
+      );
 }
