@@ -64,14 +64,9 @@ class _QuestionWidgetState extends State<QuestionWidget> {
       Duration duration =
           DateTime.now().difference(widget.question.lastAnswered);
       int days = duration.inDays;
-      String correctString =
-          widget.question.correctlyAnswered ? 'correctly' : 'incorrectly';
-      String daysString =
-          '$correctString $days ' + (days == 1 ? 'day' : 'days');
-      int totalTries = widget.question.totalTries;
-      int correctTries = widget.question.correctTries;
+      String daysString = '$days ' + (days == 1 ? 'day' : 'days');
       text = 'Last answered: $daysString ago\n'
-          'Correct tries: $correctTries / $totalTries';
+          'Streak: ${widget.question.streak}';
     }
     return Text(text, style: const TextStyle(fontSize: 16));
   }
@@ -113,8 +108,7 @@ class _QuestionWidgetState extends State<QuestionWidget> {
       await Storage.insertQuestion(
         widget.question
           ..lastAnswered = null
-          ..correctlyAnswered = false
-          ..correctTries = 0,
+          ..streak = 0,
       );
       Toast.show('Reset ${widget.question}', context, duration: 2);
       setState(() {});

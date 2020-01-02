@@ -106,13 +106,13 @@ class _AnswerState extends State<Answer> {
       );
 
   Function answer(bool answeredCorrectly) => () async {
-        // Update question based on answered correctly.
+        // Update question based on answer.
         await Storage.insertQuestion(
           widget.questions[currentIndex]
-            ..totalTries += 1
-            ..correctTries += answeredCorrectly ? 1 : 0
-            ..lastAnswered = DateTime.now()
-            ..correctlyAnswered = answeredCorrectly,
+            ..lastAnswered = answeredCorrectly ? DateTime.now() : null
+            ..streak = answeredCorrectly
+                ? widget.questions[currentIndex].streak + 1
+                : 0,
         );
 
         if (currentIndex < widget.questions.length - 1) {

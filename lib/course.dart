@@ -137,7 +137,6 @@ class _CourseWidgetState extends State<CourseWidget> {
       Question question = Question(
         text: questionText,
         courseId: widget.course.id,
-        created: DateTime.now(),
       );
       await Storage.insertQuestion(question);
 
