@@ -8,12 +8,17 @@ class Storage {
         'id INTEGER PRIMARY KEY AUTOINCREMENT,'
         'title TEXT'
         ');',
+    'CREATE TABLE Section('
+        'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+        'title TEXT,'
+        'courseId INTEGER REFERENCES Course(id) ON DELETE SET NULL'
+        ');',
     'CREATE TABLE Question('
         'id INTEGER PRIMARY KEY AUTOINCREMENT,'
         'text TEXT,'
         'streak INTEGER,'
         'lastAnswered INTEGER,'
-        'courseId INTEGER REFERENCES Course(id) ON DELETE SET NULL'
+        'sectionId INTEGER REFERENCES Section(id) ON DELETE SET NULL'
         ');'
   ];
 
