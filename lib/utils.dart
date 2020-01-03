@@ -7,7 +7,6 @@ class Utils {
     return DateTime(now.year, now.month, now.day);
   }
 
-  /// Returns a function that builds a dialog with the given paramters.
   static Function boolDialogBuilder(
     String title,
     String content, {
@@ -28,4 +27,34 @@ class Utils {
               )
             ],
           );
+
+  static Function stringDialogBuilder(
+    String title, {
+    String negative = 'Cancel',
+    String positive = 'Ok',
+  }) =>
+      (BuildContext context) {
+        TextEditingController controller = TextEditingController();
+        return AlertDialog(
+          title: Text(title),
+          content: Container(
+            child: TextField(
+              controller: controller,
+              maxLines: 1,
+              style: const TextStyle(fontSize: 16),
+              autofocus: true,
+              textCapitalization: TextCapitalization.words,
+            ),
+            width: 1000,
+          ),
+          actions: <Widget>[
+            FlatButton(
+                child: Text(negative), onPressed: Navigator.of(context).pop),
+            FlatButton(
+              child: Text(positive),
+              onPressed: () => Navigator.of(context).pop(controller.text),
+            )
+          ],
+        );
+      };
 }
