@@ -43,6 +43,15 @@ class Storage {
     return course..id = id;
   }
 
+  static Future<Section> insertSection(Section section) async {
+    int id = await _database.insert(
+      'Section',
+      section.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+    return section..id = id;
+  }
+
   static Future<Question> insertQuestion(Question question) async {
     int id = await _database.insert(
       'Question',
@@ -56,14 +65,24 @@ class Storage {
       .query('Course')
       .then((v) => v.map((map) => Course.fromMap(map)).toList());
 
-  static Future<List<Question>> getQuestions(Course course) =>
-      _database.query('Question', where: 'courseId = ?', whereArgs: [
+  static Future<List<Section>> getSections(Course course) =>
+      _database.query('Section', where: 'courseId = ?', whereArgs: [
         course.id ?? -1
+      ]).then((v) => v.map((map) => Section.fromMap(map)).toList());
+
+  static Future<List<Question>> getQuestions(Section section) =>
+      _database.query('Question', where: 'sectionId = ?', whereArgs: [
+        section.id ?? -1
       ]).then((v) => v.map((map) => Question.fromMap(map)).toList());
 
   static Future<Course> getCourse(int id) =>
       _database.query('Course', where: 'id = ?', whereArgs: [id]).then(
         (v) => v.length == 0 ? null : Course.fromMap(v.first),
+      );
+
+  static Future<Section> getSection(int id) =>
+      _database.query('Section', where: 'id = ?', whereArgs: [id]).then(
+        (v) => v.length == 0 ? null : Section.fromMap(v.first),
       );
 
   static Future<Question> getQuestion(int id) =>
@@ -73,6 +92,9 @@ class Storage {
 
   static Future<void> deleteCourse(Course course) =>
       _database.delete('Course', where: 'id = ?', whereArgs: [course.id]);
+
+  static Future<void> deleteSection(Section section) =>
+      _database.delete('Section', where: 'id = ?', whereArgs: [section.id]);
 
   static Future<void> deleteQuestion(Question question) =>
       _database.delete('Question', where: 'id = ?', whereArgs: [question.id]);
