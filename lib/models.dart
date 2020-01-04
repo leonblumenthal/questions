@@ -83,3 +83,10 @@ class Question {
 
 DateTime _fromMillisToDateTime(millis) =>
     millis == null ? null : DateTime.fromMillisecondsSinceEpoch(millis);
+
+class QuestionToAnswer {
+  Course course;
+  Section section;
+  Question question;
+  QuestionToAnswer(this.course, this.section, this.question);
+}

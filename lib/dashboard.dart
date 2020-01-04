@@ -46,18 +46,21 @@ class _DashboardState extends State<Dashboard> {
             : Container(),
       );
 
+  // TODO
   /// Get all questions of the course that should be answered.
-  Future<List<Question>> getQuestionsToAnswer(Course course) async {
-    List<Question> questions = await Storage.getQuestions(course);
+  Future<List<QuestionToAnswer>> getQuestionsToAnswer(Course course) async {
+    List<QuestionToAnswer> questions = [];
     return questions
         .where((q) =>
-            q.streak == 0 ||
-            Utils.getDate().difference(q.lastAnswered).inDays >= q.streak)
+            q.question.streak == 0 ||
+            Utils.getDate().difference(q.question.lastAnswered).inDays >=
+                q.question.streak)
         .toList()
-          ..sort((a, b) => a.streak - b.streak);
+          ..sort((a, b) => a.question.streak - b.question.streak);
   }
 
-  Widget buildCourseCard(Course course, List<Question> questions) => Card(
+  Widget buildCourseCard(Course course, List<QuestionToAnswer> questions) =>
+      Card(
         child: Column(
           children: <Widget>[
             Padding(
@@ -71,7 +74,7 @@ class _DashboardState extends State<Dashboard> {
               ),
             ),
             Divider(height: 0),
-            buildAnswerButton(course, questions),
+            buildAnswerButton(questions),
             FlatButton(
               child: const Text('Edit'),
               onPressed: () => goToCourse(course),
@@ -80,7 +83,7 @@ class _DashboardState extends State<Dashboard> {
         ),
       );
 
-  Widget buildAnswerButton(Course course, List<Question> questions) => Expanded(
+  Widget buildAnswerButton(List<QuestionToAnswer> questions) => Expanded(
         child: Center(
           child: RaisedButton(
             child: Text(
@@ -91,7 +94,7 @@ class _DashboardState extends State<Dashboard> {
                 ? () async {
                     // Answer questions and reload after returning.
                     await Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => Answer(questions, course),
+                      builder: (_) => Answer(questions),
                     ));
                     setState(() {});
                   }

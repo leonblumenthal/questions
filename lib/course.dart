@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:questions/models.dart';
-import 'package:questions/question.dart';
+import 'package:questions/section.dart';
 import 'package:questions/storage.dart';
 import 'package:questions/utils.dart';
 import 'package:toast/toast.dart';
@@ -16,13 +16,13 @@ class CourseWidget extends StatefulWidget {
 
 class _CourseWidgetState extends State<CourseWidget> {
   final TextEditingController controller = TextEditingController();
-  Future<List<Question>> questionsFuture;
+  Future<List<Section>> sectionsFuture;
 
   @override
   void initState() {
     super.initState();
     controller.text = widget.course.title;
-    questionsFuture = Storage.getQuestions(widget.course);
+    sectionsFuture = Storage.getSections(widget.course);
   }
 
   @override
@@ -47,49 +47,37 @@ class _CourseWidgetState extends State<CourseWidget> {
             icon: const Icon(Icons.delete),
             onPressed: deleteCourse,
           ),
-          IconButton(
-            icon: const Icon(Icons.restore),
-            onPressed: resetAllQuestions,
-          )
         ],
       ),
       floatingActionButton: widget.course.id == null
           ? null
           : FloatingActionButton(
               child: const Icon(Icons.add),
-              onPressed: () async {
-                await addQuestion();
-                reloadQuestions();
-              },
+              onPressed: () => goToSection(Section(courseId: widget.course.id)),
             ),
-      body: buildQuestionsList(),
+      body: buildSectionsList(),
     );
   }
 
-  Widget buildQuestionsList() => FutureBuilder(
-        future: questionsFuture,
+  Widget buildSectionsList() => FutureBuilder(
+        future: sectionsFuture,
         builder: (_, snapshot) {
           if (snapshot.hasData) {
-            List<Question> questions = snapshot.data;
+            List<Section> sections = snapshot.data;
             return ListView.builder(
               itemBuilder: (_, i) => ListTile(
-                title: Text(questions[i].text),
-                onTap: () async {
-                  await Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => QuestionWidget(questions[i], widget.course),
-                  ));
-                  reloadQuestions();
-                },
+                title: Text(sections[i].title),
+                onTap: () => goToSection(sections[i]),
               ),
-              itemCount: questions.length,
+              itemCount: sections.length,
             );
           }
           return const Center(child: CircularProgressIndicator());
         },
       );
 
-  void reloadQuestions() {
-    questionsFuture = Storage.getQuestions(widget.course);
+  void reloadSections() {
+    sectionsFuture = Storage.getSections(widget.course);
     setState(() {});
   }
 
@@ -118,50 +106,6 @@ class _CourseWidgetState extends State<CourseWidget> {
     }
   }
 
-  Future resetAllQuestions() async {
-    if (widget.course.id != null) {
-      bool result = await showDialog(
-        context: context,
-        builder: Utils.boolDialogBuilder(
-          'Reset all question',
-          'Are you sure that you want to reset all questions of ${widget.course} ?',
-        ),
-      );
-      if (result == true) {
-        for (Question question in await Storage.getQuestions(widget.course)) {
-          await Storage.insertQuestion(
-            question
-              ..lastAnswered = null
-              ..streak = 0,
-          );
-        }
-        Toast.show(
-          'Reset all questions of ${widget.course}',
-          context,
-          duration: 2,
-        );
-        reloadQuestions();
-      }
-    }
-  }
-
-  /// Show dialog to enter new question and save it.
-  Future addQuestion() async {
-    String questionText = await showDialog(
-      context: context,
-      builder: buildQuestionDialog,
-    );
-
-    if (questionText != null && questionText.isNotEmpty) {
-      Question question = Question(
-        text: questionText,
-        courseId: widget.course.id,
-      );
-      await Storage.insertQuestion(question);
-
-      Toast.show('Created $question', context, duration: 2);
-    }
-  }
 
   Widget buildQuestionDialog(BuildContext context) {
     TextEditingController controller = TextEditingController();
@@ -186,5 +130,14 @@ class _CourseWidgetState extends State<CourseWidget> {
         )
       ],
     );
+  }
+
+  /// Navigate to the section widget and
+  /// reload the sections after returning from it.
+  Future goToSection(Section section) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => SectionWidget(section)),
+    );
+    reloadSections();
   }
 }

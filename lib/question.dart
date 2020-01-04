@@ -6,9 +6,8 @@ import 'package:toast/toast.dart';
 
 class QuestionWidget extends StatefulWidget {
   final Question question;
-  final Course course;
 
-  QuestionWidget(this.question, this.course);
+  QuestionWidget(this.question);
 
   @override
   _QuestionWidgetState createState() => _QuestionWidgetState();
@@ -53,8 +52,6 @@ class _QuestionWidgetState extends State<QuestionWidget> {
             ),
             Container(height: 32),
             buildLastAnswered(),
-            Container(height: 16),
-            Text(widget.course.toString(), style: const TextStyle(fontSize: 16))
           ],
         ),
       );

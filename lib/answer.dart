@@ -7,10 +7,9 @@ import 'package:questions/storage.dart';
 import 'package:questions/utils.dart';
 
 class Answer extends StatefulWidget {
-  final List<Question> questions;
-  final Course course;
+  final List<QuestionToAnswer> questions;
 
-  Answer(this.questions, this.course);
+  Answer(this.questions);
 
   @override
   _AnswerState createState() => _AnswerState();
@@ -47,12 +46,11 @@ class _AnswerState extends State<Answer> {
   Future goToQuestion(BuildContext context) async {
     await Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => QuestionWidget(
-        widget.questions[currentIndex],
-        widget.course,
+        widget.questions[currentIndex].question,
       ),
     ));
     Question editedQuestion = await Storage.getQuestion(
-      widget.questions[currentIndex].id,
+      widget.questions[currentIndex].question.id,
     );
 
     if (editedQuestion == null) {
@@ -60,19 +58,19 @@ class _AnswerState extends State<Answer> {
       currentIndex++;
     } else {
       // Reload page with probably new question text.
-      widget.questions[currentIndex] = editedQuestion;
+      widget.questions[currentIndex].question = editedQuestion;
     }
     setState(() {});
   }
 
-  Widget buildQuestionCard(Question question) => Card(
+  Widget buildQuestionCard(QuestionToAnswer question) => Card(
         margin: const EdgeInsets.all(16),
         child: Column(
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.all(16),
               child: Text(
-                widget.course.title,
+                question.course.title + '\n' + question.section.title,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
@@ -83,12 +81,12 @@ class _AnswerState extends State<Answer> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 16),
               child: Text(
-                question.text,
+                question.question.text,
                 style: const TextStyle(fontSize: 22),
                 textAlign: TextAlign.center,
               ),
             ),
-            buildStreakWidget(question),
+            buildStreakWidget(question.question.streak),
           ],
         ),
       );
@@ -111,13 +109,12 @@ class _AnswerState extends State<Answer> {
       );
 
   Function answer(bool answeredCorrectly) => () async {
+        Question question = widget.questions[currentIndex].question;
         // Update question based on answer.
         await Storage.insertQuestion(
-          widget.questions[currentIndex]
+          question
             ..lastAnswered = answeredCorrectly ? Utils.getDate() : null
-            ..streak = answeredCorrectly
-                ? widget.questions[currentIndex].streak + 1
-                : 0,
+            ..streak = answeredCorrectly ? question.streak + 1 : 0,
         );
 
         if (currentIndex < widget.questions.length - 1) {
@@ -130,7 +127,7 @@ class _AnswerState extends State<Answer> {
         }
       };
 
-  Widget buildStreakWidget(Question question) => Align(
+  Widget buildStreakWidget(int streak) => Align(
         alignment: Alignment.bottomRight,
         child: Container(
           alignment: Alignment.center,
@@ -141,7 +138,7 @@ class _AnswerState extends State<Answer> {
             shape: BoxShape.circle,
             color: Colors.grey.shade200,
           ),
-          child: Text(question.streak.toString()),
+          child: Text(streak.toString()),
         ),
       );
 }
