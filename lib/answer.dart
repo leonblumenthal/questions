@@ -125,7 +125,7 @@ class _AnswerState extends State<Answer> {
         // Update question based on answer.
         await Storage.insertQuestion(
           question
-            ..lastAnswered = answeredCorrectly ? Utils.getDate() : null
+            ..lastAnswered = Utils.getDate()
             ..streak = answeredCorrectly ? question.streak + 1 : 0,
         );
 

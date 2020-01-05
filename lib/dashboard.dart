@@ -73,11 +73,28 @@ class _DashboardState extends State<Dashboard> {
                 q.question.streak)
         .toList()
           ..shuffle()
-          ..sort(
-            (a, b) =>
-                2 * a.section.title.compareTo(b.section.title) +
-                a.question.streak.compareTo(b.question.streak),
-          );
+          ..sort(compareQuestionToAnswer);
+  }
+
+  /// Sort after:
+  /// 1. section title
+  /// 2. streak
+  /// 3. last answered
+  int compareQuestionToAnswer(QuestionToAnswer a, QuestionToAnswer b) {
+    int c = a.section.title.compareTo(b.section.title);
+    if (c == 0) {
+      c = a.question.streak - b.question.streak;
+      if (c == 0) {
+        if (a.question.lastAnswered == null) {
+          c = -1;
+        } else if (b.question.lastAnswered == null) {
+          c = 1;
+        } else {
+          c = (a.question.lastAnswered).compareTo(b.question.lastAnswered);
+        }
+      }
+    }
+    return c;
   }
 
   Widget buildCourseCard(Course course, List<QuestionToAnswer> questions) =>
