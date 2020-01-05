@@ -139,12 +139,7 @@ class _AnswerState extends State<Answer> {
         alignment: Alignment.bottomRight,
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 8),
-          child: Chip(
-              label: Text(
-                streak.toString(),
-                style: TextStyle(color: Colors.white),
-              ),
-              backgroundColor: Colors.tealAccent),
+          child: Chip(label: Text(streak.toString())),
         ),
       );
 }

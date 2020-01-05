@@ -73,6 +73,7 @@ class _SectionWidgetState extends State<SectionWidget> {
             List<Question> questions = snapshot.data;
             return ListView.builder(
               itemBuilder: (_, i) => ListTile(
+                leading: Chip(label: Text(questions[i].streak.toString())),
                 title: Text(questions[i].text),
                 onTap: () async {
                   await Navigator.of(context).push(MaterialPageRoute(
