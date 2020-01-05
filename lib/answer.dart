@@ -69,12 +69,20 @@ class _AnswerState extends State<Answer> {
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.all(16),
-              child: Text(
-                question.course.title + '\n' + question.section.title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
+              child: Column(
+                children: <Widget>[
+                  Text(
+                    question.course.title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    question.section.title,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ],
               ),
             ),
             Divider(height: 0),
@@ -130,15 +138,13 @@ class _AnswerState extends State<Answer> {
   Widget buildStreakWidget(int streak) => Align(
         alignment: Alignment.bottomRight,
         child: Container(
-          alignment: Alignment.center,
-          width: 28,
-          height: 28,
-          margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.grey.shade200,
-          ),
-          child: Text(streak.toString()),
+          margin: const EdgeInsets.symmetric(horizontal: 8),
+          child: Chip(
+              label: Text(
+                streak.toString(),
+                style: TextStyle(color: Colors.white),
+              ),
+              backgroundColor: Colors.tealAccent),
         ),
       );
 }
