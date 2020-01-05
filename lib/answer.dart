@@ -103,12 +103,16 @@ class _AnswerState extends State<Answer> {
         padding: const EdgeInsets.symmetric(vertical: 32),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[buildButton(true), buildButton(false)],
+          children: <Widget>[buildButton(false), buildButton(true)],
         ),
       );
 
   Widget buildButton(bool correct) => RaisedButton(
-        child: Icon(correct ? Icons.check : Icons.close, size: 40),
+        child: Icon(
+            correct
+                ? Icons.sentiment_very_satisfied
+                : Icons.sentiment_very_dissatisfied,
+            size: 40),
         color: correct ? Colors.tealAccent : Colors.pinkAccent,
         colorBrightness: Brightness.dark,
         shape: const CircleBorder(),
