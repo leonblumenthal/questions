@@ -148,7 +148,7 @@ class _DashboardState extends State<Dashboard> {
 
     var map = Parser.parse(file.readAsStringSync());
 
-    Parser.parse(file.readAsStringSync()).forEach((course, sections) async {
+    map.forEach((course, sections) async {
       await Storage.insertCourse(course);
       map[course].forEach((section, qs) async {
         await Storage.insertSection(section..courseId = course.id);
