@@ -52,8 +52,10 @@ class _DashboardState extends State<Dashboard> {
     List<QuestionToAnswer> questionsToAnswer = [];
     for (Section section in sections) {
       List<Question> questions = await Storage.getQuestions(section);
-      questions.forEach((question) =>
-          questionsToAnswer.add(QuestionToAnswer(course, section, question)));
+      questions.forEach(
+        (question) =>
+            questionsToAnswer.add(QuestionToAnswer(course, section, question)),
+      );
     }
 
     return questionsToAnswer
