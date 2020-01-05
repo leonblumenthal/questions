@@ -1,7 +1,11 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:questions/answer.dart';
 import 'package:questions/course.dart';
 import 'package:questions/models.dart';
+import 'package:questions/parser.dart';
 import 'package:questions/storage.dart';
 import 'package:questions/utils.dart';
 
@@ -22,6 +26,10 @@ class _DashboardState extends State<Dashboard> {
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () => goToCourse(Course()),
+          ),
+          IconButton(
+            icon: const Icon(Icons.file_download),
+            onPressed: import,
           )
         ],
       ),
@@ -64,7 +72,12 @@ class _DashboardState extends State<Dashboard> {
             Utils.getDate().difference(q.question.lastAnswered).inDays >=
                 q.question.streak)
         .toList()
-          ..sort((a, b) => a.question.streak - b.question.streak);
+          ..shuffle()
+          ..sort(
+            (a, b) =>
+                2 * a.section.title.compareTo(b.section.title) +
+                a.question.streak.compareTo(b.question.streak),
+          );
   }
 
   Widget buildCourseCard(Course course, List<QuestionToAnswer> questions) =>
@@ -126,6 +139,29 @@ class _DashboardState extends State<Dashboard> {
     await Navigator.of(context).push(
       MaterialPageRoute(builder: (context) => CourseWidget(course)),
     );
+    reloadCourses();
+  }
+
+  Future import() async {
+    File file = await FilePicker.getFile();
+    if (file == null) return;
+
+    var map = Parser.parse(file.readAsStringSync());
+
+    Parser.parse(file.readAsStringSync()).forEach((course, sections) async {
+      await Storage.insertCourse(course);
+      map[course].forEach((section, qs) async {
+        await Storage.insertSection(section..courseId = course.id);
+        qs.forEach(
+          (q) => Storage.insertQuestion(q..sectionId = section.id),
+        );
+      });
+    });
+
+    reloadCourses();
+  }
+
+  void reloadCourses() {
     coursesFuture = Storage.getCourses();
     setState(() {});
   }
