@@ -46,11 +46,17 @@ class _DashboardState extends State<Dashboard> {
             : Container(),
       );
 
-  // TODO
   /// Get all questions of the course that should be answered.
   Future<List<QuestionToAnswer>> getQuestionsToAnswer(Course course) async {
-    List<QuestionToAnswer> questions = [];
-    return questions
+    List<Section> sections = await Storage.getSections(course);
+    List<QuestionToAnswer> questionsToAnswer = [];
+    for (Section section in sections) {
+      List<Question> questions = await Storage.getQuestions(section);
+      questions.forEach((question) =>
+          questionsToAnswer.add(QuestionToAnswer(course, section, question)));
+    }
+
+    return questionsToAnswer
         .where((q) =>
             q.question.streak == 0 ||
             Utils.getDate().difference(q.question.lastAnswered).inDays >=
