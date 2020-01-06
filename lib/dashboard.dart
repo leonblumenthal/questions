@@ -1,11 +1,8 @@
-import 'dart:io';
-
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:questions/answer.dart';
 import 'package:questions/course.dart';
 import 'package:questions/models.dart';
-import 'package:questions/parser.dart';
+import 'package:questions/import.dart';
 import 'package:questions/storage.dart';
 import 'package:questions/utils.dart';
 
@@ -29,7 +26,7 @@ class _DashboardState extends State<Dashboard> {
           ),
           IconButton(
             icon: const Icon(Icons.file_download),
-            onPressed: import,
+            onPressed: goToImport,
           )
         ],
       ),
@@ -114,7 +111,10 @@ class _DashboardState extends State<Dashboard> {
             Divider(height: 0),
             buildAnswerButton(questions),
             FlatButton(
-              child: const Text('Edit'),
+              child: const Text(
+                'View',
+                style: TextStyle(color: Colors.grey),
+              ),
               onPressed: () => goToCourse(course),
             )
           ],
@@ -159,21 +159,12 @@ class _DashboardState extends State<Dashboard> {
     reloadCourses();
   }
 
-  Future import() async {
-    File file = await FilePicker.getFile();
-    if (file == null) return;
-
-    var map = Parser.parse(file.readAsStringSync());
-
-    map.forEach((course, sections) async {
-      await Storage.insertCourse(course);
-      map[course].forEach((section, qs) async {
-        await Storage.insertSection(section..courseId = course.id);
-        qs.forEach(
-          (q) => Storage.insertQuestion(q..sectionId = section.id),
-        );
-      });
-    });
+  /// Navigate to the import widget and
+  /// reload the courses after returning from it.
+  Future goToImport() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => ImportWidget()),
+    );
 
     reloadCourses();
   }

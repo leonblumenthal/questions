@@ -1,3 +1,5 @@
+// models for data
+
 class Course {
   int id;
   String title;
@@ -84,9 +86,37 @@ class Question {
 DateTime _fromMillisToDateTime(millis) =>
     millis == null ? null : DateTime.fromMillisecondsSinceEpoch(millis);
 
+// model for answering
+
 class QuestionToAnswer {
   Course course;
   Section section;
   Question question;
   QuestionToAnswer(this.course, this.section, this.question);
+}
+
+// models for importing
+
+class Importable {
+  bool override;
+  bool import;
+}
+
+class CourseImport with Importable {
+  final Course course;
+  final List<SectionImport> sectionImports = [];
+  CourseImport(this.course);
+}
+
+class SectionImport with Importable {
+  final Section section;
+  final CourseImport courseImport;
+  final List<QuestionImport> questionImports = [];
+  SectionImport(this.section, this.courseImport);
+}
+
+class QuestionImport with Importable {
+  final Question question;
+  final SectionImport sectionImport;
+  QuestionImport(this.question, this.sectionImport);
 }
