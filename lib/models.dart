@@ -83,6 +83,37 @@ class Question {
   String toString() => 'Question $id: $text';
 }
 
+class Reference {
+  int id;
+  String title;
+  String path;
+  DateTime added;
+  int courseId;
+
+  Reference({this.id, this.title, this.path, this.courseId}) {
+    added = DateTime.now();
+  }
+
+  Reference.fromMap(Map<String, dynamic> map) {
+    id = map['id'];
+    title = map['title'];
+    path = map['path'];
+    added = _fromMillisToDateTime(map['added']);
+    courseId = map['courseId'];
+  }
+
+  Map<String, dynamic> toMap() => {
+        'id': id,
+        'title': title,
+        'path': path,
+        'added': added?.millisecondsSinceEpoch,
+        'courseId': courseId,
+      };
+
+  @override
+  String toString() => 'Reference $id: $title';
+}
+
 DateTime _fromMillisToDateTime(millis) =>
     millis == null ? null : DateTime.fromMillisecondsSinceEpoch(millis);
 

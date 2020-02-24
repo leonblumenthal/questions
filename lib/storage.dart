@@ -11,14 +11,21 @@ class Storage {
     'CREATE TABLE Section('
         'id INTEGER PRIMARY KEY AUTOINCREMENT,'
         'title TEXT,'
-        'courseId INTEGER REFERENCES Course(id) ON DELETE SET NULL'
+        'courseId INTEGER REFERENCES Course(id) ON DELETE CASCADE'
         ');',
     'CREATE TABLE Question('
         'id INTEGER PRIMARY KEY AUTOINCREMENT,'
         'text TEXT,'
         'streak INTEGER,'
         'lastAnswered INTEGER,'
-        'sectionId INTEGER REFERENCES Section(id) ON DELETE SET NULL'
+        'sectionId INTEGER REFERENCES Section(id) ON DELETE CASCADE'
+        ');',
+    'CREATE TABLE Reference('
+        'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+        'title TEXT,'
+        'path TEXT,'
+        'added INTEGER,'
+        'courseId INTEGER REFERENCES Course(id) ON DELETE CASCADE'
         ');'
   ];
 
@@ -61,6 +68,15 @@ class Storage {
     return question..id = id;
   }
 
+  static Future<Reference> insertReference(Reference slide) async {
+    int id = await _database.insert(
+      'Reference',
+      slide.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+    return slide..id = id;
+  }
+
   static Future<List<Course>> getCourses() => _database
       .query('Course')
       .then((v) => v.map((map) => Course.fromMap(map)).toList());
@@ -75,6 +91,11 @@ class Storage {
         section.id ?? -1
       ]).then((v) => v.map((map) => Question.fromMap(map)).toList());
 
+  static Future<List<Reference>> getReferences(Course course) =>
+      _database.query('Reference', where: 'courseId = ?', whereArgs: [
+        course.id ?? -1
+      ]).then((v) => v.map((map) => Reference.fromMap(map)).toList());
+
   static Future<Course> getCourse(int id) =>
       _database.query('Course', where: 'id = ?', whereArgs: [id]).then(
         (v) => v.length == 0 ? null : Course.fromMap(v.first),
@@ -88,6 +109,11 @@ class Storage {
   static Future<Question> getQuestion(int id) =>
       _database.query('Question', where: 'id = ?', whereArgs: [id]).then(
         (v) => v.length == 0 ? null : Question.fromMap(v.first),
+      );
+
+  static Future<Reference> getReference(int id) =>
+      _database.query('Reference', where: 'id = ?', whereArgs: [id]).then(
+        (v) => v.length == 0 ? null : Reference.fromMap(v.first),
       );
 
   static Future<void> deleteCourse(Course course) =>
