@@ -87,7 +87,6 @@ DateTime _fromMillisToDateTime(millis) =>
     millis == null ? null : DateTime.fromMillisecondsSinceEpoch(millis);
 
 // model for answering
-
 class QuestionToAnswer {
   Course course;
   Section section;
@@ -97,25 +96,20 @@ class QuestionToAnswer {
 
 // models for importing
 
-class Importable {
-  bool override = true;
-  bool import = true;
-}
-
-class CourseImport with Importable {
+class CourseImport {
   final Course course;
   final List<SectionImport> sectionImports = [];
   CourseImport(this.course);
 }
 
-class SectionImport with Importable {
+class SectionImport {
   final Section section;
   final CourseImport courseImport;
   final List<QuestionImport> questionImports = [];
   SectionImport(this.section, this.courseImport);
 }
 
-class QuestionImport with Importable {
+class QuestionImport {
   final Question question;
   final SectionImport sectionImport;
   QuestionImport(this.question, this.sectionImport);
