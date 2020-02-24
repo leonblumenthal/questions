@@ -74,13 +74,16 @@ class _DashboardState extends State<Dashboard> {
   }
 
   /// Sort after:
-  /// 1. section title
-  /// 2. streak
+  /// 1. streak
+  /// 2. section title
   /// 3. last answered
   int compareQuestionToAnswer(QuestionToAnswer a, QuestionToAnswer b) {
-    int c = a.section.title.compareTo(b.section.title);
+    int c = a.question.streak - b.question.streak;
     if (c == 0) {
-      c = a.question.streak - b.question.streak;
+      // Only compare numbers of section title.
+      int x = num.parse(a.section.title.split('.').first);
+      int y = num.parse(b.section.title.split('.').first);
+      c = x - y;
       if (c == 0) {
         if (a.question.lastAnswered == null) {
           c = -1;

@@ -43,7 +43,7 @@ class Utils {
               maxLines: 1,
               style: const TextStyle(fontSize: 16),
               autofocus: true,
-              textCapitalization: TextCapitalization.words,
+              textCapitalization: TextCapitalization.sentences,
             ),
             width: 1000,
           ),

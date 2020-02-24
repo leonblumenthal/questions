@@ -98,8 +98,8 @@ class QuestionToAnswer {
 // models for importing
 
 class Importable {
-  bool override;
-  bool import;
+  bool override = true;
+  bool import = true;
 }
 
 class CourseImport with Importable {
