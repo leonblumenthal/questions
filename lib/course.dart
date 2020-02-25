@@ -1,4 +1,7 @@
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:questions/models.dart';
 import 'package:questions/section.dart';
 import 'package:questions/storage.dart';
@@ -47,6 +50,10 @@ class _CourseWidgetState extends State<CourseWidget> {
             icon: const Icon(Icons.delete),
             onPressed: deleteCourse,
           ),
+          IconButton(
+            icon: const Icon(Icons.note_add),
+            onPressed: importReference,
+          ),
         ],
       ),
       floatingActionButton: widget.course.id == null
@@ -55,11 +62,11 @@ class _CourseWidgetState extends State<CourseWidget> {
               child: const Icon(Icons.add),
               onPressed: () => goToSection(Section(courseId: widget.course.id)),
             ),
-      body: buildSectionsList(),
+      body: buildSectionList(),
     );
   }
 
-  Widget buildSectionsList() => FutureBuilder(
+  Widget buildSectionList() => FutureBuilder(
         future: sectionsFuture,
         builder: (_, snapshot) {
           if (snapshot.hasData) {
@@ -88,6 +95,7 @@ class _CourseWidgetState extends State<CourseWidget> {
   }
 
   Future deleteCourse() async {
+    // TODO: Delete documents from directory.
     if (widget.course.id != null) {
       bool result = await showDialog(
         context: context,
@@ -105,7 +113,6 @@ class _CourseWidgetState extends State<CourseWidget> {
       Navigator.of(context).pop();
     }
   }
-
 
   Widget buildQuestionDialog(BuildContext context) {
     TextEditingController controller = TextEditingController();
@@ -139,5 +146,22 @@ class _CourseWidgetState extends State<CourseWidget> {
       MaterialPageRoute(builder: (context) => SectionWidget(section)),
     );
     reloadSections();
+  }
+
+  /// Copy reference to local directory and link it to course.
+  Future importReference() async {
+    File file = await FilePicker.getFile();
+    if (file == null) return;
+
+    Directory dir = await getApplicationDocumentsDirectory();
+    String path =
+        '${dir.path}/${widget.course.id}_${DateTime.now().millisecondsSinceEpoch}.pdf';
+    await file.copy(path);
+
+    await Storage.insertReference(Reference(
+      title: file.uri.pathSegments.last,
+      path: path,
+      courseId: widget.course.id,
+    ));
   }
 }
