@@ -157,4 +157,15 @@ class Storage {
 
   static Future<void> deleteMarker(Marker marker) =>
       _database.delete('Marker', where: 'id = ?', whereArgs: [marker.id]);
+
+  static Future<List<MarkerAndQuestion>> getMarkerAndQuestions(
+    Reference reference,
+  ) async {
+    List<Map<String, dynamic>> rows = await _database.rawQuery(
+      'Select q.id as q_id, m.id as m_id, q.*, m.* '
+      'from Question q, Marker m '
+      'where q.markerId = m.id;',
+    );
+    return [for (var r in rows) MarkerAndQuestion.fromRow(r)];
+  }
 }

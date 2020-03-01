@@ -177,3 +177,17 @@ class QuestionImport {
   final SectionImport sectionImport;
   QuestionImport(this.question, this.sectionImport);
 }
+
+// helper classes
+
+class MarkerAndQuestion {
+  Marker marker;
+  Question question;
+
+  MarkerAndQuestion(this.marker, this.question);
+
+  MarkerAndQuestion.fromRow(Map<String, dynamic> row) {
+    marker = Marker.fromMap(row)..id=row['m_id'];
+    question = Question.fromMap(row)..id=row['q_id'];
+  }
+}
