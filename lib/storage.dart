@@ -18,7 +18,8 @@ class Storage {
         'text TEXT,'
         'streak INTEGER,'
         'lastAnswered INTEGER,'
-        'sectionId INTEGER REFERENCES Section(id) ON DELETE CASCADE'
+        'sectionId INTEGER REFERENCES Section(id) ON DELETE CASCADE,'
+        'markerId INTEGER REFERENCES Marker(id) ON DELETE CASCADE'
         ');',
     'CREATE TABLE Reference('
         'id INTEGER PRIMARY KEY AUTOINCREMENT,'
@@ -26,7 +27,14 @@ class Storage {
         'path TEXT,'
         'added INTEGER,'
         'courseId INTEGER REFERENCES Course(id) ON DELETE CASCADE'
-        ');'
+        ');',
+    'CREATE TABLE Marker('
+        'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+        'pageIndex INTEGER,'
+        'px INTEGER,'
+        'py INTEGER,'
+        'referenceId INTEGER REFERENCES Reference(id) ON DELETE CASCADE'
+        ');',
   ];
 
   static Database _database;
@@ -68,13 +76,22 @@ class Storage {
     return question..id = id;
   }
 
-  static Future<Reference> insertReference(Reference slide) async {
+  static Future<Reference> insertReference(Reference reference) async {
     int id = await _database.insert(
       'Reference',
-      slide.toMap(),
+      reference.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
-    return slide..id = id;
+    return reference..id = id;
+  }
+
+  static Future<Marker> insertMarker(Marker marker) async {
+    int id = await _database.insert(
+      'Marker',
+      marker.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+    return marker..id = id;
   }
 
   static Future<List<Course>> getCourses() => _database
@@ -96,6 +113,11 @@ class Storage {
         course.id ?? -1
       ]).then((v) => v.map((map) => Reference.fromMap(map)).toList());
 
+  static Future<List<Marker>> getMarkers(Reference reference) =>
+      _database.query('Marker', where: 'referenceId = ?', whereArgs: [
+        reference.id ?? -1
+      ]).then((v) => v.map((map) => Marker.fromMap(map)).toList());
+
   static Future<Course> getCourse(int id) =>
       _database.query('Course', where: 'id = ?', whereArgs: [id]).then(
         (v) => v.length == 0 ? null : Course.fromMap(v.first),
@@ -116,6 +138,11 @@ class Storage {
         (v) => v.length == 0 ? null : Reference.fromMap(v.first),
       );
 
+  static Future<Marker> getMarker(int id) =>
+      _database.query('Marker', where: 'id = ?', whereArgs: [id]).then(
+        (v) => v.length == 0 ? null : Marker.fromMap(v.first),
+      );
+
   static Future<void> deleteCourse(Course course) =>
       _database.delete('Course', where: 'id = ?', whereArgs: [course.id]);
 
@@ -124,4 +151,10 @@ class Storage {
 
   static Future<void> deleteQuestion(Question question) =>
       _database.delete('Question', where: 'id = ?', whereArgs: [question.id]);
+
+  static Future<void> deleteReference(Reference reference) =>
+      _database.delete('Reference', where: 'id = ?', whereArgs: [reference.id]);
+
+  static Future<void> deleteMarker(Marker marker) =>
+      _database.delete('Marker', where: 'id = ?', whereArgs: [marker.id]);
 }

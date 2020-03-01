@@ -54,14 +54,15 @@ class Question {
   DateTime lastAnswered;
 
   int sectionId;
+  int markerId;
 
-  Question({
-    this.id,
-    this.text,
-    this.streak = 0,
-    this.lastAnswered,
-    this.sectionId,
-  });
+  Question(
+      {this.id,
+      this.text,
+      this.streak = 0,
+      this.lastAnswered,
+      this.sectionId,
+      this.markerId});
 
   Question.fromMap(Map<String, dynamic> map) {
     id = map['id'];
@@ -69,6 +70,7 @@ class Question {
     streak = map['streak'];
     lastAnswered = _fromMillisToDateTime(map['lastAnswered']);
     sectionId = map['sectionId'];
+    markerId = map['markerId'];
   }
 
   Map<String, dynamic> toMap() => {
@@ -77,6 +79,7 @@ class Question {
         'streak': streak,
         'lastAnswered': lastAnswered?.millisecondsSinceEpoch,
         'sectionId': sectionId,
+        'markerId': markerId,
       };
 
   @override
@@ -112,6 +115,35 @@ class Reference {
 
   @override
   String toString() => 'Reference $id: $title';
+}
+
+class Marker {
+  int id;
+  int pageIndex;
+  double px;
+  double py;
+  int referenceId;
+
+  Marker({this.id, this.pageIndex, this.px, this.py, this.referenceId});
+
+  Marker.fromMap(Map<String, dynamic> map) {
+    id = map['id'];
+    pageIndex = map['pageIndex'];
+    px = map['px'];
+    py = map['py'];
+    referenceId = map['referenceId'];
+  }
+
+  Map<String, dynamic> toMap() => {
+        'id': id,
+        'pageIndex': pageIndex,
+        'px': px,
+        'py': py,
+        'referenceId': referenceId,
+      };
+
+  @override
+  String toString() => 'Marker $id: $pageIndex ($px, $py)';
 }
 
 DateTime _fromMillisToDateTime(millis) =>
