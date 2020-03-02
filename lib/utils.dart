@@ -49,7 +49,9 @@ class Utils {
           ),
           actions: <Widget>[
             FlatButton(
-                child: Text(negative), onPressed: Navigator.of(context).pop),
+              child: Text(negative),
+              onPressed: Navigator.of(context).pop,
+            ),
             FlatButton(
               child: Text(positive),
               onPressed: () => Navigator.of(context).pop(controller.text),
