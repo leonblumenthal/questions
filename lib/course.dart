@@ -3,6 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:questions/models.dart';
+import 'package:questions/reference.dart';
 import 'package:questions/section.dart';
 import 'package:questions/storage.dart';
 import 'package:questions/utils.dart';
@@ -45,23 +46,25 @@ class _CourseWidgetState extends State<CourseWidget> {
           textCapitalization: TextCapitalization.sentences,
           onSubmitted: saveTitle,
         ),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: deleteCourse,
-          ),
-          IconButton(
-            icon: const Icon(Icons.note_add),
-            onPressed: importReference,
-          ),
-        ],
-      ),
-      floatingActionButton: widget.course.id == null
-          ? null
-          : FloatingActionButton(
-              child: const Icon(Icons.add),
-              onPressed: () => goToSection(Section(courseId: widget.course.id)),
+        actions: hideBeforeSave(
+          <Widget>[
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: deleteCourse,
             ),
+            IconButton(
+              icon: const Icon(Icons.note_add),
+              onPressed: importReference,
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: hideBeforeSave(
+        FloatingActionButton(
+          child: const Icon(Icons.add),
+          onPressed: () => goToSection(Section(courseId: widget.course.id)),
+        ),
+      ),
       body: buildSectionList(),
     );
   }
@@ -164,4 +167,6 @@ class _CourseWidgetState extends State<CourseWidget> {
       courseId: widget.course.id,
     ));
   }
+
+  hideBeforeSave(w) => widget.course.id == null ? null : w;
 }
