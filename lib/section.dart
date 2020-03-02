@@ -101,6 +101,7 @@ class _SectionWidgetState extends State<SectionWidget> {
           if (snapshot.hasData) {
             List<Question> questions = snapshot.data;
             return ListView.builder(
+              padding: const EdgeInsets.fromLTRB(4, 4, 4, 84),
               itemBuilder: (_, i) => buildQuestionItem(questions[i]),
               itemCount: questions.length,
             );
@@ -109,16 +110,26 @@ class _SectionWidgetState extends State<SectionWidget> {
         },
       );
 
-  Widget buildQuestionItem(Question question) => ListTile(
-        title: Text(question.text),
-        leading: Chip(label: Text(question.streak.toString())),
-        trailing: question.marker == null ? null : Icon(Icons.attach_file),
-        onTap: () async {
-          await Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => QuestionWidget(question),
-          ));
-          reloadQuestions();
-        },
+  Widget buildQuestionItem(Question question) => Card(
+        child: ListTile(
+          title: Text(question.text),
+          leading: Chip(
+            label: Text(question.streak.toString()),
+            backgroundColor: Colors.grey.shade200,
+          ),
+          trailing: question.marker == null
+              ? null
+              : Icon(
+                  Icons.attach_file,
+                  size: 16,
+                ),
+          onTap: () async {
+            await Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => QuestionWidget(question),
+            ));
+            reloadQuestions();
+          },
+        ),
       );
 
   void reloadQuestions() {

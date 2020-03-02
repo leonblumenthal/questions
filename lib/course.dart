@@ -58,7 +58,6 @@ class _CourseWidgetState extends State<CourseWidget> {
   }
 
   Widget buildFABs() => Wrap(
-        direction: Axis.vertical,
         spacing: 16,
         crossAxisAlignment: WrapCrossAlignment.end,
         children: <Widget>[
@@ -97,15 +96,25 @@ class _CourseWidgetState extends State<CourseWidget> {
           if (snapshot.hasData) {
             List<Section> sections = snapshot.data;
             return ListView.builder(
-              itemBuilder: (_, i) => ListTile(
-                title: Text(sections[i].title),
-                onTap: () => goToSection(sections[i]),
-              ),
+              padding: const EdgeInsets.fromLTRB(4, 4, 4, 84),
+              itemBuilder: (_, i) => buildSectionItem(sections[i]),
               itemCount: sections.length,
             );
           }
           return const Center(child: CircularProgressIndicator());
         },
+      );
+  Widget buildSectionItem(Section section) => Card(
+        child: ListTile(
+          title: Text(section.title),
+          trailing: section.documentPath == null
+              ? null
+              : Icon(
+                  Icons.library_books,
+                  size: 16,
+                ),
+          onTap: () => goToSection(section),
+        ),
       );
 
   void reloadSections() {
