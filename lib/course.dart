@@ -1,9 +1,5 @@
-import 'dart:io';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:questions/models.dart';
-import 'package:questions/reference.dart';
 import 'package:questions/section.dart';
 import 'package:questions/storage.dart';
 import 'package:questions/utils.dart';
@@ -52,10 +48,6 @@ class _CourseWidgetState extends State<CourseWidget> {
               icon: const Icon(Icons.delete),
               onPressed: deleteCourse,
             ),
-            IconButton(
-              icon: const Icon(Icons.note_add),
-              onPressed: importReference,
-            ),
           ],
         ),
       ),
@@ -92,13 +84,12 @@ class _CourseWidgetState extends State<CourseWidget> {
   }
 
   Future saveTitle(String title) async {
-    await Storage.insertCourse(widget.course..title = title);
+    await Storage.insertCourse(widget.course..title = title.trim());
     Toast.show('Saved ${widget.course}', context, duration: 2);
     setState(() {});
   }
 
   Future deleteCourse() async {
-    // TODO: Delete documents from directory.
     if (widget.course.id != null) {
       bool result = await showDialog(
         context: context,
@@ -149,23 +140,6 @@ class _CourseWidgetState extends State<CourseWidget> {
       MaterialPageRoute(builder: (context) => SectionWidget(section)),
     );
     reloadSections();
-  }
-
-  /// Copy reference to local directory and link it to course.
-  Future importReference() async {
-    File file = await FilePicker.getFile();
-    if (file == null) return;
-
-    Directory dir = await getApplicationDocumentsDirectory();
-    String path =
-        '${dir.path}/${widget.course.id}_${DateTime.now().millisecondsSinceEpoch}.pdf';
-    await file.copy(path);
-
-    await Storage.insertReference(Reference(
-      title: file.uri.pathSegments.last,
-      path: path,
-      courseId: widget.course.id,
-    ));
   }
 
   hideBeforeSave(w) => widget.course.id == null ? null : w;

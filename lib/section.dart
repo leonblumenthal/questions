@@ -1,4 +1,7 @@
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:questions/models.dart';
 import 'package:questions/question.dart';
 import 'package:questions/storage.dart';
@@ -51,6 +54,10 @@ class _SectionWidgetState extends State<SectionWidget> {
             IconButton(
               icon: const Icon(Icons.restore),
               onPressed: resetAllQuestions,
+            ),
+            IconButton(
+              icon: const Icon(Icons.note_add),
+              onPressed: importDocument,
             )
           ],
         ),
@@ -64,11 +71,11 @@ class _SectionWidgetState extends State<SectionWidget> {
           },
         ),
       ),
-      body: buildQuestionsList(),
+      body: buildQuestionList(),
     );
   }
 
-  Widget buildQuestionsList() => FutureBuilder(
+  Widget buildQuestionList() => FutureBuilder(
         future: questionsFuture,
         builder: (_, snapshot) {
           if (snapshot.hasData) {
@@ -97,12 +104,13 @@ class _SectionWidgetState extends State<SectionWidget> {
   }
 
   Future saveTitle(String title) async {
-    await Storage.insertSection(widget.section..title = title);
+    await Storage.insertSection(widget.section..title = title.trim());
     Toast.show('Saved ${widget.section}', context, duration: 2);
     setState(() {});
   }
 
   Future deleteSection() async {
+    // TODO: Delete document from local directory.
     if (widget.section.id != null) {
       bool result = await showDialog(
         context: context,
@@ -164,6 +172,27 @@ class _SectionWidgetState extends State<SectionWidget> {
 
       Toast.show('Created $question', context, duration: 2);
     }
+  }
+
+  /// Copy document to local directory and save path in section.
+  Future importDocument() async {
+    File file = await FilePicker.getFile();
+    if (file == null) return;
+
+    // Copy selected file to local directory.
+    Directory dir = await getApplicationDocumentsDirectory();
+    String path =
+        '${dir.path}/${widget.section.id}_${DateTime.now().millisecondsSinceEpoch}.pdf';
+    await file.copy(path);
+
+    // Delete old file if it exists.
+    if (widget.section.documentPath != null) {
+      await File(widget.section.documentPath).delete();
+    }
+
+    await Storage.insertSection(widget.section..documentPath = path);
+
+    Toast.show('Imported ${file.uri.pathSegments.last}', context, duration: 2);
   }
 
   hideBeforeSave(w) => widget.section.id == null ? null : w;
