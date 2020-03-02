@@ -46,20 +46,7 @@ class _SectionWidgetState extends State<SectionWidget> {
           onSubmitted: saveTitle,
         ),
         actions: hideBeforeSave(
-          <Widget>[
-            IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: deleteSection,
-            ),
-            IconButton(
-              icon: const Icon(Icons.restore),
-              onPressed: resetAllQuestions,
-            ),
-            IconButton(
-              icon: const Icon(Icons.note_add),
-              onPressed: importDocument,
-            )
-          ],
+          <Widget>[buildActionMenu()],
         ),
       ),
       floatingActionButton: hideBeforeSave(
@@ -74,6 +61,36 @@ class _SectionWidgetState extends State<SectionWidget> {
       body: buildQuestionList(),
     );
   }
+
+  Widget buildActionMenu() => PopupMenuButton(
+        onSelected: (Action action) {
+          switch (action) {
+            case Action.delete:
+              deleteSection();
+              break;
+            case Action.import:
+              importDocument();
+              break;
+            case Action.reset:
+              resetQuestions();
+              break;
+          }
+        },
+        itemBuilder: (_) => [
+          PopupMenuItem(
+            child: Text('Delete section'),
+            value: Action.delete,
+          ),
+          PopupMenuItem(
+            child: Text('Reset questions'),
+            value: Action.reset,
+          ),
+          PopupMenuItem(
+            child: Text('Import document'),
+            value: Action.import,
+          ),
+        ],
+      );
 
   Widget buildQuestionList() => FutureBuilder(
         future: questionsFuture,
@@ -129,7 +146,7 @@ class _SectionWidgetState extends State<SectionWidget> {
     }
   }
 
-  Future resetAllQuestions() async {
+  Future resetQuestions() async {
     if (widget.section.id != null) {
       bool result = await showDialog(
         context: context,
@@ -197,3 +214,6 @@ class _SectionWidgetState extends State<SectionWidget> {
 
   hideBeforeSave(w) => widget.section.id == null ? null : w;
 }
+
+/// Actions for popup menu items.
+enum Action { delete, import, reset }
