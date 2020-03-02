@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:questions/models.dart';
 import 'package:questions/section.dart';
@@ -51,14 +52,43 @@ class _CourseWidgetState extends State<CourseWidget> {
           ],
         ),
       ),
-      floatingActionButton: hideBeforeSave(
-        FloatingActionButton(
-          child: const Icon(Icons.add),
-          onPressed: () => goToSection(Section(courseId: widget.course.id)),
-        ),
-      ),
+      floatingActionButton: hideBeforeSave(buildFABs()),
       body: buildSectionList(),
     );
+  }
+
+  Widget buildFABs() => Wrap(
+        direction: Axis.vertical,
+        spacing: 16,
+        crossAxisAlignment: WrapCrossAlignment.end,
+        children: <Widget>[
+          FloatingActionButton(
+            heroTag: 1,
+            child: const Icon(Icons.add),
+            onPressed: () => goToSection(Section(courseId: widget.course.id)),
+            mini: true,
+          ),
+          FloatingActionButton(
+            child: const Icon(Icons.library_add),
+            onPressed: addSectionWithDocument,
+          ),
+        ],
+      );
+
+  Future addSectionWithDocument() async {
+    File file = await Utils.importFile();
+    if (file != null) {
+      String title = file.uri.pathSegments.last.split('.').first;
+      Section section = Section(
+        title: title,
+        courseId: widget.course.id,
+        documentPath: file.path,
+      );
+
+      await Storage.insertSection(section);
+
+      goToSection(section);
+    }
   }
 
   Widget buildSectionList() => FutureBuilder(

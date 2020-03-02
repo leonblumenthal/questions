@@ -73,7 +73,7 @@ class Utils {
 
     // Copy selected file to local directory.
     Directory dir = await getApplicationDocumentsDirectory();
-    String path = '${dir.path}/${DateTime.now().millisecondsSinceEpoch}.pdf';
+    String path = '${dir.path}/${file.uri.pathSegments.last}';
     await file.copy(path);
 
     return File(path);
