@@ -127,21 +127,22 @@ class _SectionWidgetState extends State<SectionWidget> {
   }
 
   Future deleteSection() async {
-    // TODO: Delete document from local directory.
-    if (widget.section.id != null) {
-      bool result = await showDialog(
-        context: context,
-        builder: Utils.boolDialogBuilder(
-          'Delete Section',
-          'Are you sure that you want to delete ${widget.section} ?',
-        ),
-      );
-      if (result != null && result) {
-        await Storage.deleteSection(widget.section);
-        Toast.show('Deleted ${widget.section}', context, duration: 2);
-        Navigator.of(context).pop();
+    bool result = await showDialog(
+      context: context,
+      builder: Utils.boolDialogBuilder(
+        'Delete Section',
+        'Are you sure that you want to delete ${widget.section} ?',
+      ),
+    );
+    if (result != null && result) {
+      // Delete document from local directory.
+      if (widget.section.documentPath != null) {
+        await File(widget.section.documentPath).delete();
       }
-    } else {
+
+      await Storage.deleteSection(widget.section);
+
+      Toast.show('Deleted ${widget.section}', context, duration: 2);
       Navigator.of(context).pop();
     }
   }
