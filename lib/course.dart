@@ -98,7 +98,7 @@ class _CourseWidgetState extends State<CourseWidget> {
           'Are you sure that you want to delete ${widget.course} ?',
         ),
       );
-      if (result != null && result) {
+      if (result) {
         await Storage.deleteCourse(widget.course);
         Toast.show('Deleted ${widget.course}', context, duration: 2);
         Navigator.of(context).pop();

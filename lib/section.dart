@@ -1,7 +1,5 @@
 import 'dart:io';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:questions/document.dart';
 import 'package:questions/models.dart';
 import 'package:questions/question.dart';
@@ -60,10 +58,7 @@ class _SectionWidgetState extends State<SectionWidget> {
       floatingActionButton: hideBeforeSave(
         FloatingActionButton(
           child: const Icon(Icons.add),
-          onPressed: () async {
-            await addQuestion();
-            reloadQuestions();
-          },
+          onPressed: addQuestion,
         ),
       ),
       body: buildQuestionList(),
@@ -71,7 +66,7 @@ class _SectionWidgetState extends State<SectionWidget> {
   }
 
   Widget buildActionMenu() => PopupMenuButton(
-        onSelected: (Action action) {
+        onSelected: (Action action) async {
           switch (action) {
             case Action.delete:
               deleteSection();
@@ -145,7 +140,7 @@ class _SectionWidgetState extends State<SectionWidget> {
         'Are you sure that you want to delete ${widget.section} ?',
       ),
     );
-    if (result != null && result) {
+    if (result) {
       // Delete document from local directory.
       if (widget.section.documentPath != null) {
         await File(widget.section.documentPath).delete();
@@ -167,7 +162,7 @@ class _SectionWidgetState extends State<SectionWidget> {
           'Are you sure that you want to reset all questions of ${widget.section} ?',
         ),
       );
-      if (result == true) {
+      if (result) {
         for (Question question in await Storage.getQuestions(widget.section)) {
           await Storage.insertQuestion(
             question
@@ -200,6 +195,8 @@ class _SectionWidgetState extends State<SectionWidget> {
       await Storage.insertQuestion(question);
 
       Toast.show('Created $question', context, duration: 2);
+      
+      reloadQuestions();
     }
   }
 
@@ -214,27 +211,31 @@ class _SectionWidgetState extends State<SectionWidget> {
     reloadQuestions();
   }
 
-  /// Copy document to local directory and save path in section.
   Future importDocument() async {
-    File file = await FilePicker.getFile();
-    if (file == null) return;
-
-    // Copy selected file to local directory.
-    Directory dir = await getApplicationDocumentsDirectory();
-    String path =
-        '${dir.path}/${widget.section.id}_${DateTime.now().millisecondsSinceEpoch}.pdf';
-    await file.copy(path);
-
-    // Delete old file if it exists.
+    bool result = true;
     if (widget.section.documentPath != null) {
-      await File(widget.section.documentPath).delete();
+      result = await showDialog(
+        context: context,
+        builder: Utils.boolDialogBuilder(
+          'Import new document',
+          'Are you sure that you want to import a new document and '
+              'remove all question markers of ${widget.section}?',
+        ),
+      );
     }
+    if (result) {
+      // Import document and remove all question markers.
+      File file = await Utils.importDocument(widget.section);
+      await Storage.removeQuestionMarkers(widget.section);
+      
+      Toast.show(
+        'Imported ${file.uri.pathSegments.last}',
+        context,
+        duration: 2,
+      );
 
-    await Storage.insertSection(widget.section..documentPath = path);
-
-    Toast.show('Imported ${file.uri.pathSegments.last}', context, duration: 2);
-
-    setState(() {});
+      reloadQuestions();
+    }
   }
 
   hideBeforeSave(w) => widget.section.id == null ? null : w;
