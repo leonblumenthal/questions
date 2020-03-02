@@ -67,7 +67,13 @@ class Question {
     streak = map['streak'];
     lastAnswered = _fromMillisToDateTime(map['lastAnswered']);
     sectionId = map['sectionId'];
-    marker = Marker(pageIndex: map['pageIndex'], px: map['px'], py: map['py']);
+    if (map['pageIndex'] != null) {
+      marker = Marker(
+        pageIndex: map['pageIndex'],
+        px: map['px'],
+        py: map['py'],
+      );
+    }
   }
 
   Map<String, dynamic> toMap() => {

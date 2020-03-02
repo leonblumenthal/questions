@@ -106,20 +106,23 @@ class _SectionWidgetState extends State<SectionWidget> {
           if (snapshot.hasData) {
             List<Question> questions = snapshot.data;
             return ListView.builder(
-              itemBuilder: (_, i) => ListTile(
-                leading: Chip(label: Text(questions[i].streak.toString())),
-                title: Text(questions[i].text),
-                onTap: () async {
-                  await Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => QuestionWidget(questions[i]),
-                  ));
-                  reloadQuestions();
-                },
-              ),
+              itemBuilder: (_, i) => buildQuestionItem(questions[i]),
               itemCount: questions.length,
             );
           }
           return const Center(child: CircularProgressIndicator());
+        },
+      );
+
+  Widget buildQuestionItem(Question question) => ListTile(
+        title: Text(question.text),
+        leading: Chip(label: Text(question.streak.toString())),
+        trailing: question.marker == null ? null : Icon(Icons.attach_file),
+        onTap: () async {
+          await Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => QuestionWidget(question),
+          ));
+          reloadQuestions();
         },
       );
 
