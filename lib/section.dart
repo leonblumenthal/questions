@@ -42,26 +42,28 @@ class _SectionWidgetState extends State<SectionWidget> {
           textCapitalization: TextCapitalization.sentences,
           onSubmitted: saveTitle,
         ),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: deleteSection,
-          ),
-          IconButton(
-            icon: const Icon(Icons.restore),
-            onPressed: resetAllQuestions,
-          )
-        ],
-      ),
-      floatingActionButton: widget.section.id == null
-          ? null
-          : FloatingActionButton(
-              child: const Icon(Icons.add),
-              onPressed: () async {
-                await addQuestion();
-                reloadQuestions();
-              },
+        actions: hideBeforeSave(
+          <Widget>[
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: deleteSection,
             ),
+            IconButton(
+              icon: const Icon(Icons.restore),
+              onPressed: resetAllQuestions,
+            )
+          ],
+        ),
+      ),
+      floatingActionButton: hideBeforeSave(
+        FloatingActionButton(
+          child: const Icon(Icons.add),
+          onPressed: () async {
+            await addQuestion();
+            reloadQuestions();
+          },
+        ),
+      ),
       body: buildQuestionsList(),
     );
   }
@@ -163,4 +165,6 @@ class _SectionWidgetState extends State<SectionWidget> {
       Toast.show('Created $question', context, duration: 2);
     }
   }
+
+  hideBeforeSave(w) => widget.section.id == null ? null : w;
 }
