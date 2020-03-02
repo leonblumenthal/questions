@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:questions/document.dart';
 import 'package:questions/models.dart';
 import 'package:questions/question.dart';
 import 'package:questions/storage.dart';
@@ -46,7 +47,14 @@ class _SectionWidgetState extends State<SectionWidget> {
           onSubmitted: saveTitle,
         ),
         actions: hideBeforeSave(
-          <Widget>[buildActionMenu()],
+          [
+            if (widget.section.documentPath != null)
+              IconButton(
+                icon: Icon(Icons.library_books),
+                onPressed: goToDocument,
+              ),
+            buildActionMenu(),
+          ],
         ),
       ),
       floatingActionButton: hideBeforeSave(
@@ -192,6 +200,17 @@ class _SectionWidgetState extends State<SectionWidget> {
     }
   }
 
+  Future goToDocument() async {
+    List<Question> questions = await questionsFuture;
+    questions = questions.where((q) => q.marker != null).toList();
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => DocumentWidget(widget.section, questions),
+      ),
+    );
+    reloadQuestions();
+  }
+
   /// Copy document to local directory and save path in section.
   Future importDocument() async {
     File file = await FilePicker.getFile();
@@ -211,6 +230,8 @@ class _SectionWidgetState extends State<SectionWidget> {
     await Storage.insertSection(widget.section..documentPath = path);
 
     Toast.show('Imported ${file.uri.pathSegments.last}', context, duration: 2);
+
+    setState(() {});
   }
 
   hideBeforeSave(w) => widget.section.id == null ? null : w;

@@ -133,8 +133,6 @@ class _CourseWidgetState extends State<CourseWidget> {
     );
   }
 
-  /// Navigate to the section widget and
-  /// reload the sections after returning from it.
   Future goToSection(Section section) async {
     await Navigator.of(context).push(
       MaterialPageRoute(builder: (context) => SectionWidget(section)),

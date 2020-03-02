@@ -41,7 +41,7 @@ class _DocumentWidgetState extends State<DocumentWidget> {
                   loadPage(document, i),
                   i,
                   widget.section,
-                  widget.questions.where((q) => q?.marker?.pageIndex == i),
+                  widget.questions.where((q) => q?.marker?.pageIndex == i).toList(),
                 ),
                 itemCount: document.pageCount,
               );
