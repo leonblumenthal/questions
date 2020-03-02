@@ -195,7 +195,7 @@ class _SectionWidgetState extends State<SectionWidget> {
       await Storage.insertQuestion(question);
 
       Toast.show('Created $question', context, duration: 2);
-      
+
       reloadQuestions();
     }
   }
@@ -224,17 +224,24 @@ class _SectionWidgetState extends State<SectionWidget> {
       );
     }
     if (result) {
-      // Import document and remove all question markers.
-      File file = await Utils.importDocument(widget.section);
-      await Storage.removeQuestionMarkers(widget.section);
-      
-      Toast.show(
-        'Imported ${file.uri.pathSegments.last}',
-        context,
-        duration: 2,
-      );
+      File file = await Utils.importFile();
+      if (file != null) {
+        // Delete old file if it exists.
+        if (widget.section.documentPath != null) {
+          await File(widget.section.documentPath).delete();
+        }
+        // Save section and remove all question markers.
+        await Storage.insertSection(widget.section..documentPath = file.path);
+        await Storage.removeQuestionMarkers(widget.section);
 
-      reloadQuestions();
+        Toast.show(
+          'Imported ${file.uri.pathSegments.last}',
+          context,
+          duration: 2,
+        );
+
+        reloadQuestions();
+      }
     }
   }
 

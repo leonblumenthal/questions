@@ -66,23 +66,15 @@ class Utils {
         );
       };
 
-  /// Copy document to local directory and save path in section.
-  static Future<File> importDocument(Section section) async {
+  /// Choose and copy file to local directory and return the new file.
+  static Future<File> importFile() async {
     File file = await FilePicker.getFile();
     if (file == null) return null;
 
     // Copy selected file to local directory.
     Directory dir = await getApplicationDocumentsDirectory();
-    String path =
-        '${dir.path}/${section.id}_${DateTime.now().millisecondsSinceEpoch}.pdf';
+    String path = '${dir.path}/${DateTime.now().millisecondsSinceEpoch}.pdf';
     await file.copy(path);
-
-    // Delete old file if it exists.
-    if (section.documentPath != null) {
-      await File(section.documentPath).delete();
-    }
-
-    await Storage.insertSection(section..documentPath = path);
 
     return File(path);
   }
