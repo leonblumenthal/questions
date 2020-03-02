@@ -147,31 +147,6 @@ class _CourseWidgetState extends State<CourseWidget> {
     }
   }
 
-  Widget buildQuestionDialog(BuildContext context) {
-    TextEditingController controller = TextEditingController();
-    return AlertDialog(
-      title: const Text('Add Question'),
-      content: Container(
-        child: TextField(
-          controller: controller,
-          maxLines: 1,
-          style: const TextStyle(fontSize: 16),
-          autofocus: true,
-          textCapitalization: TextCapitalization.words,
-        ),
-        width: 1000,
-      ),
-      actions: <Widget>[
-        FlatButton(
-            child: const Text('Cancel'), onPressed: Navigator.of(context).pop),
-        FlatButton(
-          child: const Text('Add'),
-          onPressed: () => Navigator.of(context).pop(controller.text),
-        )
-      ],
-    );
-  }
-
   Future goToSection(Section section) async {
     await Navigator.of(context).push(
       MaterialPageRoute(builder: (context) => SectionWidget(section)),

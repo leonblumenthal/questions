@@ -34,24 +34,24 @@ class _DocumentWidgetState extends State<DocumentWidget> {
         child: FutureBuilder<PdfDocument>(
           future: documentFuture,
           builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              PdfDocument document = snapshot.data;
-              return ListView.builder(
-                itemBuilder: (_, i) => DocumentPage(
-                  loadPage(document, i),
-                  i,
-                  widget.section,
-                  widget.questions.where((q) => q?.marker?.pageIndex == i).toList(),
-                ),
-                itemCount: document.pageCount,
-              );
-            }
+            if (snapshot.hasData) return buildPageList(snapshot.data);
             return CircularProgressIndicator();
           },
         ),
       ),
     );
   }
+
+  Widget buildPageList(PdfDocument document) => ListView.builder(
+        padding: const EdgeInsets.all(4),
+        itemBuilder: (_, i) => DocumentPage(
+          loadPage(document, i),
+          i,
+          widget.section,
+          widget.questions.where((q) => q?.marker?.pageIndex == i).toList(),
+        ),
+        itemCount: document.pageCount,
+      );
 
   Future<PdfPageImage> loadPage(PdfDocument document, int pageIndex) async {
     PdfPage page = await document.getPage(pageIndex + 1);
@@ -88,11 +88,16 @@ class _DocumentPageState extends State<DocumentPage> {
     );
   }
 
-  Widget buildPage(PdfPageImage pageImage) => GestureDetector(
-        child: RawImage(image: pageImage.image),
-        onLongPressEnd: (details) => addQuestion(
-          getMarker(details, context),
-          context,
+  Widget buildPage(PdfPageImage pageImage) => Card(
+        child: GestureDetector(
+          child: ClipRRect(
+            child: RawImage(image: pageImage.image),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          onLongPressEnd: (details) => addQuestion(
+            getMarker(details, context),
+            context,
+          ),
         ),
       );
 
@@ -150,8 +155,27 @@ class QuestionPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(question.text),
+    return Card(
+      child: InkWell(
+        onTap: () {},
+        borderRadius: BorderRadius.circular(4),
+        child: Row(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Icon(
+                Icons.lightbulb_outline,
+                color: Colors.grey,
+              ),
+            ),
+            Flexible(
+                child: Padding(
+              padding: const EdgeInsets.fromLTRB(0, 4, 4, 4),
+              child: Text(question.text),
+            )),
+          ],
+        ),
+      ),
     );
   }
 }
