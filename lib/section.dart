@@ -174,6 +174,7 @@ class _SectionWidgetState extends State<SectionWidget> {
         ),
       );
       if (result) {
+        // TODO: optimize with single query
         for (Question question in await Storage.getQuestions(widget.section)) {
           await Storage.insertQuestion(
             question
