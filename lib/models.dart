@@ -101,3 +101,10 @@ class Marker {
 
 DateTime _fromMillisToDateTime(millis) =>
     millis == null ? null : DateTime.fromMillisecondsSinceEpoch(millis);
+
+class QuestionToAnswer {
+  Question question;
+  Section section;
+  Course course;
+  QuestionToAnswer(this.question, this.section, this.course);
+}

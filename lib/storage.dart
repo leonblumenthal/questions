@@ -1,4 +1,5 @@
 import 'package:questions/models.dart';
+import 'package:questions/utils.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -110,4 +111,29 @@ class Storage {
         where: 'sectionId = ?',
         whereArgs: [section.id],
       );
+
+  // Get all questions to answer from a course where streak
+  // is less than the difference of days between last answered and today.
+  static Future<List<QuestionToAnswer>> getQuestionsToAnswer(
+      Course course) async {
+    List<Section> sections = await getSections(course);
+
+    Map<int, Section> sectionMap = Map.fromEntries(
+      sections.map((s) => MapEntry(s.id, s)),
+    );
+
+    int millis = Utils.getDate().add(Duration(days: 10)).millisecondsSinceEpoch;
+    List rows = await _database.rawQuery(
+      'Select q.* '
+      'from Question q, Section s '
+      'where q.sectionId = s.id and s.courseId = ? and '
+      '(q.streak <= (? - q.lastAnswered)/86400000 or q.streak = 0);',
+      [course.id, millis],
+    );
+
+    return rows.map((r) {
+      Question q = Question.fromMap(r);
+      return QuestionToAnswer(q, sectionMap[q.sectionId], course);
+    }).toList();
+  }
 }

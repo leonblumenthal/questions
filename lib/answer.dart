@@ -5,7 +5,7 @@ import 'package:questions/storage.dart';
 import 'package:questions/utils.dart';
 
 class AnswerScreen extends StatefulWidget {
-  final List<Question> questions;
+  final List<QuestionToAnswer> questions;
 
   AnswerScreen(this.questions);
 
@@ -24,12 +24,13 @@ class _AnswerScreenState extends State<AnswerScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          title: Text('Answer ${currentIndex + 1}/${widget.questions.length}'),
+          title: Text('Question ${currentIndex + 1} of ${widget.questions.length}'),
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.edit),
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => QuestionWidget(widget.questions[currentIndex]),
+                builder: (_) =>
+                    QuestionWidget(widget.questions[currentIndex].question),
               )),
             )
           ],
@@ -37,7 +38,7 @@ class _AnswerScreenState extends State<AnswerScreen> {
         body: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            buildQuestionCard(widget.questions[currentIndex]),
+            QuestionCard(widget.questions[currentIndex]),
             buildAnswerRow()
           ],
         ),
@@ -51,45 +52,6 @@ class _AnswerScreenState extends State<AnswerScreen> {
             buildAnswerButton(false),
             buildAnswerButton(true),
           ],
-        ),
-      );
-
-  Widget buildQuestionCard(Question question) => Card(
-        margin: const EdgeInsets.all(16),
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-          child: Column(
-            children: <Widget>[
-              Text(
-                'Technische Mechanik',
-                style: const TextStyle(
-                  fontSize: 12,
-                ),
-              ),
-              Text(
-                '10 Freischneiden',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Divider(),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 16,
-                  horizontal: 8,
-                ),
-                child: Text(
-                  question.text,
-                  style: const TextStyle(fontSize: 22),
-                ),
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Chip(label: Text('${question.streak}')),
-              )
-            ],
-          ),
         ),
       );
 
@@ -107,7 +69,7 @@ class _AnswerScreenState extends State<AnswerScreen> {
       );
 
   Future answer(bool correct) async {
-    Question currentQuestion = widget.questions[currentIndex];
+    Question currentQuestion = widget.questions[currentIndex].question;
     if (correct) {
       currentQuestion.streak += 1;
     } else {
@@ -127,4 +89,48 @@ class _AnswerScreenState extends State<AnswerScreen> {
 
     setState(() {});
   }
+}
+
+class QuestionCard extends StatelessWidget {
+  final QuestionToAnswer question;
+
+  QuestionCard(this.question);
+
+  @override
+  Widget build(BuildContext context) => Card(
+        margin: const EdgeInsets.all(16),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+          child: Column(
+            children: <Widget>[
+              Text(
+                question.course.title,
+                style: const TextStyle(fontSize: 12),
+              ),
+              Text(
+                question.section.title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Divider(),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 16,
+                  horizontal: 8,
+                ),
+                child: Text(
+                  question.question.text,
+                  style: const TextStyle(fontSize: 22),
+                ),
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Chip(label: Text('${question.question.streak}')),
+              )
+            ],
+          ),
+        ),
+      );
 }
