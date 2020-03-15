@@ -104,15 +104,16 @@ class _CourseWidgetState extends State<CourseWidget> {
           return const Center(child: CircularProgressIndicator());
         },
       );
+
   Widget buildSectionItem(Section section) => Card(
         child: ListTile(
           title: Text(section.title),
           trailing: section.documentPath == null
-              ? null
-              : Icon(
-                  Icons.library_books,
+              ? Icon(
+                  Icons.location_off,
                   size: 16,
-                ),
+                )
+              : null,
           onTap: () => goToSection(section),
         ),
       );

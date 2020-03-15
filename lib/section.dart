@@ -118,11 +118,11 @@ class _SectionWidgetState extends State<SectionWidget> {
             backgroundColor: Colors.grey.shade200,
           ),
           trailing: question.marker == null
-              ? null
-              : Icon(
-                  Icons.attach_file,
+              ? Icon(
+                  Icons.location_off,
                   size: 16,
-                ),
+                )
+              : null,
           onTap: () async {
             await Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => QuestionWidget(question),
