@@ -122,7 +122,7 @@ class Storage {
       sections.map((s) => MapEntry(s.id, s)),
     );
 
-    int millis = Utils.getDate().add(Duration(days: 10)).millisecondsSinceEpoch;
+    int millis = Utils.getDate().millisecondsSinceEpoch;
     List rows = await _database.rawQuery(
       'Select q.* '
       'from Question q, Section s '

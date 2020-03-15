@@ -24,7 +24,9 @@ class _AnswerScreenState extends State<AnswerScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          title: Text('Question ${currentIndex + 1} of ${widget.questions.length}'),
+          title: Text(
+            'Question ${currentIndex + 1} of ${widget.questions.length}',
+          ),
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.edit),
@@ -103,26 +105,20 @@ class QuestionCard extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
           child: Column(
             children: <Widget>[
-              Text(
-                question.course.title,
-                style: const TextStyle(fontSize: 12),
-              ),
+              Text(question.course.title, style: const TextStyle(fontSize: 12)),
               Text(
                 question.section.title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               Divider(),
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 16,
-                  horizontal: 8,
-                ),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
                 child: Text(
                   question.question.text,
                   style: const TextStyle(fontSize: 22),
+                  textAlign: TextAlign.center,
                 ),
               ),
               Align(
