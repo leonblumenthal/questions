@@ -213,11 +213,9 @@ class _SectionWidgetState extends State<SectionWidget> {
   }
 
   Future goToDocument() async {
-    List<Question> questions = await questionsFuture;
-    questions = questions.where((q) => q.marker != null).toList();
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => DocumentWidget(widget.section, questions),
+        builder: (context) => DocumentWidget(widget.section),
       ),
     );
     reloadQuestions();

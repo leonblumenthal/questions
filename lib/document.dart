@@ -6,66 +6,60 @@ import 'package:questions/storage.dart';
 import 'package:questions/utils.dart';
 import 'package:toast/toast.dart';
 
-class DocumentWidget extends StatefulWidget {
+class DocumentWidget extends StatelessWidget {
   final Section section;
-  final List<Question> questions;
+  final Map<int, List<Question>> pageQuestions = Map();
 
-  DocumentWidget(this.section, this.questions);
+  DocumentWidget(this.section);
 
-  @override
-  _DocumentWidgetState createState() => _DocumentWidgetState();
-}
-
-class _DocumentWidgetState extends State<DocumentWidget> {
-  Future<PdfDocument> documentFuture;
-  Map<int, List<Question>> questions = Map();
-
-  @override
-  void initState() {
-    super.initState();
-    documentFuture = PdfDocument.openFile(widget.section.documentPath);
-    // Initialize questions per page map.
-    for (var question in widget.questions) {
-      int i = question.marker.pageIndex;
-      questions.putIfAbsent(i, () => []);
-      questions[i].add(question);
+  Future<PdfDocument> load() async {
+    // Load questions and initialize page questions map;
+    List<Question> qs = await Storage.getQuestions(section);
+    for (var question in qs) {
+      if (question.marker != null) {
+        int i = question.marker.pageIndex;
+        pageQuestions.putIfAbsent(i, () => []);
+        pageQuestions[i].add(question);
+      }
     }
+    // Load pdf document.
+    return await PdfDocument.openFile(section.documentPath);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.section.title),
+        title: Text(section.title),
       ),
-      body: Container(
+      body: buildPageList(),
+    );
+  }
+
+  Widget buildPageList() => Container(
         child: FutureBuilder<PdfDocument>(
-          future: documentFuture,
+          future: load(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               PdfDocument document = snapshot.data;
               // Initialize all empty question lists for the missing pages.
               for (var i = 0; i < document.pageCount; i++) {
-                questions.putIfAbsent(i, () => []);
+                pageQuestions.putIfAbsent(i, () => []);
               }
-              return buildPageList(document);
+              return ListView.builder(
+                padding: const EdgeInsets.all(4),
+                itemBuilder: (_, i) => DocumentPage(
+                  loadPage(document, i),
+                  i,
+                  section,
+                  pageQuestions[i],
+                ),
+                itemCount: document.pageCount,
+              );
             }
             return CircularProgressIndicator();
           },
         ),
-      ),
-    );
-  }
-
-  Widget buildPageList(PdfDocument document) => ListView.builder(
-        padding: const EdgeInsets.all(4),
-        itemBuilder: (_, i) => DocumentPage(
-          loadPage(document, i),
-          i,
-          widget.section,
-          questions[i],
-        ),
-        itemCount: document.pageCount,
       );
 
   Future<PdfPageImage> loadPage(PdfDocument document, int pageIndex) async {
