@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pdf_render/pdf_render.dart';
+import 'package:questions/document.dart';
 import 'package:questions/models.dart';
 import 'package:questions/storage.dart';
 import 'package:questions/utils.dart';
@@ -6,8 +8,10 @@ import 'package:toast/toast.dart';
 
 class QuestionWidget extends StatefulWidget {
   final Question question;
+  final Section section;
+  final List<PdfPageImage> pageImages;
 
-  QuestionWidget(this.question);
+  QuestionWidget(this.question, this.section, [this.pageImages]);
 
   @override
   _QuestionWidgetState createState() => _QuestionWidgetState();
@@ -17,21 +21,35 @@ class _QuestionWidgetState extends State<QuestionWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Question'),
-          actions: <Widget>[
-            IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: deleteQuestion,
-            ),
-            IconButton(
-              icon: const Icon(Icons.restore),
-              onPressed: resetQuestion,
-            )
-          ],
-        ),
-        body: buildQuestionDetail());
+      appBar: AppBar(
+        title: const Text('Question'),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: deleteQuestion,
+          ),
+          IconButton(
+            icon: const Icon(Icons.restore),
+            onPressed: resetQuestion,
+          )
+        ],
+      ),
+      floatingActionButton: widget.question.marker != null ? buildFAB() : null,
+      body: buildQuestionDetail(),
+    );
   }
+
+  Widget buildFAB() => FloatingActionButton(
+        child: Icon(Icons.location_on),
+        onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => DocumentViewer(
+            widget.section,
+            widget.pageImages,
+            initialPageIndex:
+                widget.question.marker.pageIndex + widget.question.marker.py,
+          ),
+        )),
+      );
 
   Widget buildQuestionDetail() => Container(
         padding: const EdgeInsets.all(16),

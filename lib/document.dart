@@ -1,157 +1,114 @@
 import 'package:flutter/material.dart';
 import 'package:pdf_render/pdf_render.dart';
 import 'package:questions/models.dart';
-import 'package:questions/question.dart';
 import 'package:questions/storage.dart';
 import 'package:questions/utils.dart';
 import 'package:toast/toast.dart';
 
-class DocumentWidget extends StatelessWidget {
+class DocumentViewer extends StatefulWidget {
   final Section section;
-  final Map<int, List<Question>> pageQuestions = Map();
+  final List<PdfPageImage> pageImages;
+  final double initialPageIndex;
+  final Map<int, List<Question>> questionsMap = Map();
 
-  DocumentWidget(this.section);
-
-  Future<PdfDocument> load() async {
-    // Load questions and initialize page questions map;
-    List<Question> qs = await Storage.getQuestions(section);
-    for (var question in qs) {
-      if (question.marker != null) {
-        int i = question.marker.pageIndex;
-        pageQuestions.putIfAbsent(i, () => []);
-        pageQuestions[i].add(question);
-      }
+  DocumentViewer(
+    this.section,
+    this.pageImages, {
+    List<Question> questions,
+    this.initialPageIndex = 0,
+  }) {
+    // Initialize questions per page map.
+    for (var i = 0; i < pageImages.length; i++) {
+      questionsMap[i] = [];
     }
-    // Load pdf document.
-    return await PdfDocument.openFile(section.documentPath);
+    // Fill map with questions.
+    if (questions != null)
+      questions
+          .where((q) => q.marker != null)
+          .forEach((q) => questionsMap[q.marker.pageIndex].add(q));
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(section.title),
-      ),
-      body: buildPageList(),
-    );
-  }
+  _DocumentViewerState createState() => _DocumentViewerState();
+}
 
-  Widget buildPageList() => Container(
-        child: FutureBuilder<PdfDocument>(
-          future: load(),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              PdfDocument document = snapshot.data;
-              // Initialize all empty question lists for the missing pages.
-              for (var i = 0; i < document.pageCount; i++) {
-                pageQuestions.putIfAbsent(i, () => []);
-              }
-              return ListView.builder(
-                padding: const EdgeInsets.all(4),
-                itemBuilder: (_, i) => DocumentPage(
-                  loadPage(document, i),
-                  i,
-                  section,
-                  pageQuestions[i],
+class _DocumentViewerState extends State<DocumentViewer> {
+  final questionPreviewHeight = 48.0;
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        body: CustomScrollView(
+          controller: ScrollController(
+            initialScrollOffset: getInitialScrollOffset(context),
+          ),
+          slivers: <Widget>[
+            SliverAppBar(
+              title: Text(widget.section.title),
+              floating: true,
+              snap: true,
+            ),
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, i) => buildPage(
+                  widget.pageImages[i],
+                  widget.questionsMap[i],
                 ),
-                itemCount: document.pageCount,
-              );
-            }
-            return CircularProgressIndicator();
-          },
+                childCount: widget.pageImages.length,
+              ),
+            ),
+          ],
         ),
       );
 
-  Future<PdfPageImage> loadPage(PdfDocument document, int pageIndex) async {
-    PdfPage page = await document.getPage(pageIndex + 1);
-    return await page.render();
-  }
-}
+  /// Calculate inital scroll offset based on initial page index.
+  double getInitialScrollOffset(BuildContext context) {
+    int appBarHeight = 56;
+    double ratio =
+        widget.pageImages.first.width / widget.pageImages.first.height;
+    Size size = MediaQuery.of(context).size;
+    int questionAmount = 0;
+    for (var i = 0; i < widget.initialPageIndex; i++) {
+      questionAmount += widget.questionsMap[i].length;
+    }
+    double offset = appBarHeight +
+        questionAmount * questionPreviewHeight +
+        widget.initialPageIndex * size.width / ratio -
+        size.height / 3;
 
-class DocumentPage extends StatefulWidget {
-  final Future<PdfPageImage> pdfImageFuture;
-  final int pageId;
-  final Section section;
-  final List<Question> questions;
-
-  DocumentPage(this.pdfImageFuture, this.pageId, this.section, this.questions);
-
-  @override
-  _DocumentPageState createState() => _DocumentPageState();
-}
-
-class _DocumentPageState extends State<DocumentPage> {
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        FutureBuilder<PdfPageImage>(
-          future: widget.pdfImageFuture,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) return buildPage(snapshot.data);
-            return CircularProgressIndicator();
-          },
-        ),
-        ...widget.questions.map(buildQuestionPreview)
-      ],
-    );
+    return offset <= appBarHeight ? 0 : offset;
   }
 
-  Widget buildPage(PdfPageImage pageImage) => Card(
-        child: GestureDetector(
-          child: ClipRRect(
+  Widget buildPage(PdfPageImage pageImage, List<Question> questions) => Column(
+        children: <Widget>[
+          GestureDetector(
             child: RawImage(image: pageImage.image),
-            borderRadius: BorderRadius.circular(4),
+            onDoubleTap: () => addQuestion(
+              Marker(pageIndex: pageImage.pageNumber - 1),
+              context,
+            ),
           ),
-          onLongPressEnd: (details) => addQuestion(
-            getMarker(details, context),
-            context,
-          ),
-        ),
+          ...questions.map(buildQuestionPreview)
+        ],
       );
 
-  Widget buildQuestionPreview(Question question) => Card(
-        child: InkWell(
-          onTap: () async {
-            var result = await Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => QuestionWidget(question),
-            ));
-            if (result != null && !result) {
-              setState(() => widget.questions.remove(question));
-            }
-          },
-          borderRadius: BorderRadius.circular(4),
-          child: Row(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Chip(
-                  label: Text(question.streak.toString()),
-                  backgroundColor: Colors.grey.shade200,
-                ),
+  Widget buildQuestionPreview(Question question) => Container(
+        height: questionPreviewHeight,
+        decoration: BoxDecoration(color: Colors.white),
+        child: Row(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Chip(label: Text(question.streak.toString())),
+            ),
+            Flexible(
+              child: Text(
+                question.text,
+                overflow: TextOverflow.ellipsis,
               ),
-              Flexible(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 4, 4, 4),
-                  child: Text(question.text),
-                ),
-              ),
-            ],
-          ),
+            )
+          ],
         ),
       );
-
-  /// Get a marker with page index and relative position on the page.
-  Marker getMarker(LongPressEndDetails details, BuildContext context) {
-    Offset position = details.localPosition;
-    RenderBox renderBox = context.findRenderObject();
-    Size size = renderBox.size;
-    return Marker(
-      pageIndex: widget.pageId,
-      px: position.dx / size.width,
-      py: position.dy / size.height,
-    );
-  }
 
   Future addQuestion(Marker marker, BuildContext context) async {
     // Get question text with a dialog.
@@ -178,7 +135,7 @@ class _DocumentPageState extends State<DocumentPage> {
         duration: 2,
       );
 
-      setState(() => widget.questions.add(question));
+      setState(() => widget.questionsMap[marker.pageIndex].add(question));
     }
   }
 }

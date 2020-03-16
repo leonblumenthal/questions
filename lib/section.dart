@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:pdf_render/pdf_render.dart';
 import 'package:questions/document.dart';
 import 'package:questions/models.dart';
 import 'package:questions/question.dart';
@@ -19,12 +20,19 @@ class SectionWidget extends StatefulWidget {
 class _SectionWidgetState extends State<SectionWidget> {
   final TextEditingController controller = TextEditingController();
   Future<List<Question>> questionsFuture;
+  Future<List<PdfPageImage>> pageImagesFuture;
 
   @override
   void initState() {
     super.initState();
     controller.text = widget.section.title;
     questionsFuture = Storage.getQuestions(widget.section);
+    if (widget.section.documentPath != null) {
+      pageImagesFuture = Utils.loadPageImages(
+        widget.section.documentPath,
+        scalar: 1.5,
+      );
+    }
   }
 
   @override
@@ -46,11 +54,7 @@ class _SectionWidgetState extends State<SectionWidget> {
         ),
         actions: hideBeforeSave(
           [
-            if (widget.section.documentPath != null)
-              IconButton(
-                icon: Icon(Icons.library_books),
-                onPressed: goToDocument,
-              ),
+            if (pageImagesFuture != null) buildDocumentAction(),
             buildActionMenu(),
           ],
         ),
@@ -64,6 +68,29 @@ class _SectionWidgetState extends State<SectionWidget> {
       body: buildQuestionList(),
     );
   }
+
+  Widget buildDocumentAction() => FutureBuilder(
+        future: pageImagesFuture,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return IconButton(
+              icon: Icon(Icons.library_books),
+              onPressed: () async {
+                List<Question> questions = await questionsFuture;
+                await Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => DocumentViewer(
+                    widget.section,
+                    snapshot.data,
+                    questions: questions,
+                  ),
+                ));
+                reloadQuestions();
+              },
+            );
+          }
+          return Container();
+        },
+      );
 
   Widget buildActionMenu() => PopupMenuButton(
         onSelected: (Action action) async {
@@ -124,8 +151,14 @@ class _SectionWidgetState extends State<SectionWidget> {
                 )
               : null,
           onTap: () async {
+            List<PdfPageImage> pageImages;
+            if (pageImagesFuture != null) pageImages = await pageImagesFuture;
             await Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => QuestionWidget(question),
+              builder: (_) => QuestionWidget(
+                question,
+                widget.section,
+                pageImages,
+              ),
             ));
             reloadQuestions();
           },
@@ -210,15 +243,6 @@ class _SectionWidgetState extends State<SectionWidget> {
 
       reloadQuestions();
     }
-  }
-
-  Future goToDocument() async {
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => DocumentWidget(widget.section),
-      ),
-    );
-    reloadQuestions();
   }
 
   Future importDocument() async {

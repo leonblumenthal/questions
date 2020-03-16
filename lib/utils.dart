@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pdf_render/pdf_render.dart';
 
 class Utils {
   /// Get current date as [DateTime].
@@ -74,5 +75,29 @@ class Utils {
     await file.copy(path);
 
     return File(path);
+  }
+
+  /// Load pdf and render all pages with given [scalar].
+  static Future<List<PdfPageImage>> loadPageImages(
+    String path, {
+    double scalar = 1,
+  }) async {
+    var document = await PdfDocument.openFile(path);
+    List<PdfPageImage> pageImages = [];
+
+    for (var i = 0; i < document.pageCount; i++) {
+      var page = await document.getPage(i + 1);
+      var w = page.width;
+      var h = page.height;
+      var pageImage = await page.render(
+        fullWidth: w * scalar,
+        width: (w * scalar).toInt(),
+        fullHeight: h * scalar,
+        height: (h * scalar).toInt(),
+      );
+      pageImages.add(pageImage);
+    }
+
+    return pageImages;
   }
 }

@@ -31,8 +31,10 @@ class _AnswerScreenState extends State<AnswerScreen> {
             IconButton(
               icon: Icon(Icons.edit),
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) =>
-                    QuestionWidget(widget.questions[currentIndex].question),
+                builder: (_) {
+                  var qta = widget.questions[currentIndex];
+                  return QuestionWidget(qta.question, qta.section);
+                },
               )),
             )
           ],

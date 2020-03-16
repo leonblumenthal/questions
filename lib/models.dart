@@ -96,7 +96,7 @@ class Marker {
   double px;
   double py;
 
-  Marker({this.pageIndex, this.px, this.py});
+  Marker({this.pageIndex, this.px = 0, this.py = 0});
 }
 
 DateTime _fromMillisToDateTime(millis) =>
