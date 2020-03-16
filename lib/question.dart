@@ -77,10 +77,10 @@ class _QuestionWidgetState extends State<QuestionWidget> {
         'Are you sure that you want to delete ${widget.question} ?',
       ),
     );
-    if (result == true) {
+    if (result) {
       await Storage.deleteQuestion(widget.question);
       Toast.show('Deleted ${widget.question}', context, duration: 2);
-      Navigator.of(context).pop();
+      Navigator.of(context).pop(false);
     }
   }
 

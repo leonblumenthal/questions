@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pdf_render/pdf_render.dart';
 import 'package:questions/models.dart';
+import 'package:questions/question.dart';
 import 'package:questions/storage.dart';
 import 'package:questions/utils.dart';
 import 'package:toast/toast.dart';
@@ -17,11 +18,18 @@ class DocumentWidget extends StatefulWidget {
 
 class _DocumentWidgetState extends State<DocumentWidget> {
   Future<PdfDocument> documentFuture;
+  Map<int, List<Question>> questions = Map();
 
   @override
   void initState() {
     super.initState();
     documentFuture = PdfDocument.openFile(widget.section.documentPath);
+    // Initialize questions per page map.
+    for (var question in widget.questions) {
+      int i = question.marker.pageIndex;
+      questions.putIfAbsent(i, () => []);
+      questions[i].add(question);
+    }
   }
 
   @override
@@ -34,7 +42,14 @@ class _DocumentWidgetState extends State<DocumentWidget> {
         child: FutureBuilder<PdfDocument>(
           future: documentFuture,
           builder: (context, snapshot) {
-            if (snapshot.hasData) return buildPageList(snapshot.data);
+            if (snapshot.hasData) {
+              PdfDocument document = snapshot.data;
+              // Initialize all empty question lists for the missing pages.
+              for (var i = 0; i < document.pageCount; i++) {
+                questions.putIfAbsent(i, () => []);
+              }
+              return buildPageList(document);
+            }
             return CircularProgressIndicator();
           },
         ),
@@ -48,7 +63,7 @@ class _DocumentWidgetState extends State<DocumentWidget> {
           loadPage(document, i),
           i,
           widget.section,
-          widget.questions.where((q) => q?.marker?.pageIndex == i).toList(),
+          questions[i],
         ),
         itemCount: document.pageCount,
       );
@@ -83,7 +98,7 @@ class _DocumentPageState extends State<DocumentPage> {
             return CircularProgressIndicator();
           },
         ),
-        ...buildQuestionPreviews()
+        ...widget.questions.map(buildQuestionPreview)
       ],
     );
   }
@@ -101,8 +116,36 @@ class _DocumentPageState extends State<DocumentPage> {
         ),
       );
 
-  List<Widget> buildQuestionPreviews() =>
-      [for (var q in widget.questions) QuestionPreview(q)];
+  Widget buildQuestionPreview(Question question) => Card(
+        child: InkWell(
+          onTap: () async {
+            var result = await Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => QuestionWidget(question),
+            ));
+            if (result != null && !result) {
+              setState(() => widget.questions.remove(question));
+            }
+          },
+          borderRadius: BorderRadius.circular(4),
+          child: Row(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Chip(
+                  label: Text(question.streak.toString()),
+                  backgroundColor: Colors.grey.shade200,
+                ),
+              ),
+              Flexible(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 4, 4, 4),
+                  child: Text(question.text),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
 
   /// Get a marker with page index and relative position on the page.
   Marker getMarker(LongPressEndDetails details, BuildContext context) {
@@ -141,41 +184,7 @@ class _DocumentPageState extends State<DocumentPage> {
         duration: 2,
       );
 
-      setState(() {
-        widget.questions.add(question);
-      });
+      setState(() => widget.questions.add(question));
     }
-  }
-}
-
-class QuestionPreview extends StatelessWidget {
-  final Question question;
-
-  QuestionPreview(this.question);
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: InkWell(
-        onTap: () {},
-        borderRadius: BorderRadius.circular(4),
-        child: Row(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Icon(
-                Icons.lightbulb_outline,
-                color: Colors.grey,
-              ),
-            ),
-            Flexible(
-                child: Padding(
-              padding: const EdgeInsets.fromLTRB(0, 4, 4, 4),
-              child: Text(question.text),
-            )),
-          ],
-        ),
-      ),
-    );
   }
 }
