@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:questions/dashboard.dart';
 import 'package:questions/storage.dart';
 
@@ -10,10 +11,5 @@ void main() async {
     DeviceOrientation.portraitUp,
   ]);
   await Storage.init();
-  runApp(
-    MaterialApp(
-      title: 'Questions',
-      home: Dashboard(),
-    ),
-  );
+  runApp(MaterialApp(title: 'Questions', home: Dashboard()));
 }

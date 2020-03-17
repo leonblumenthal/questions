@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:questions/answer.dart';
 import 'package:questions/course.dart';
 import 'package:questions/models.dart';
@@ -10,29 +11,27 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  Future<List<Course>> coursesFuture = Storage.getCourses();
+  var coursesFuture = Storage.getCourses();
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Questions'),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => goToCourse(Course()),
-          )
-        ],
-      ),
-      body: FutureBuilder<List<Course>>(
-        future: coursesFuture,
-        builder: (_, snapshot) {
-          if (snapshot.hasData) return buildCourseList(snapshot.data);
-          return CircularProgressIndicator();
-        },
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Questions'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: () => goToCourse(Course()),
+            )
+          ],
+        ),
+        body: FutureBuilder(
+          future: coursesFuture,
+          builder: (_, snapshot) {
+            if (snapshot.hasData) return buildCourseList(snapshot.data);
+            return CircularProgressIndicator();
+          },
+        ),
+      );
 
   Widget buildCourseList(List<Course> courses) => ListView.builder(
         padding: const EdgeInsets.all(4),
@@ -48,7 +47,7 @@ class _DashboardState extends State<Dashboard> {
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
+              children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   child: Text(
@@ -56,59 +55,42 @@ class _DashboardState extends State<Dashboard> {
                     style: const TextStyle(fontSize: 18),
                   ),
                 ),
-                buildAnswerButton(course)
+                FutureBuilder(
+                  future: Storage.getQuestionsToAnswer(course).then(
+                    (qs) => qs
+                      ..shuffle()
+                      ..sort(compareQuestionsToAnswer),
+                  ),
+                  builder: (_, snapshot) => snapshot.hasData
+                      ? buildAnswerButton(snapshot.data)
+                      : CircularProgressIndicator(),
+                )
               ],
             ),
           ),
         ),
       );
 
-  Widget buildAnswerButton(Course course) =>
-      FutureBuilder<List<QuestionToAnswer>>(
-        future: getQuestionsToAnswer(course),
-        builder: (_, snapshot) {
-          if (snapshot.hasData) {
-            var qs = snapshot.data;
-            if (qs.isNotEmpty) {
-              return RaisedButton(
-                child: Text('Answer ${qs.length}'),
-                padding: const EdgeInsets.all(12),
-                color: Colors.tealAccent.shade200,
-                colorBrightness: Brightness.dark,
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => AnswerScreen(qs)),
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(64),
-                ),
-              );
-            }
-            // No questions to answer.
-            return Icon(Icons.check_circle, color: Colors.tealAccent.shade200);
-          }
-          // Waiting for the future.
-          return CircularProgressIndicator();
-        },
+  Widget buildAnswerButton(List<QuestionToAnswer> questions) {
+    if (questions.isNotEmpty) {
+      return RaisedButton(
+        child: Text('Answer ${questions.length}'),
+        padding: const EdgeInsets.all(12),
+        color: Colors.tealAccent.shade200,
+        colorBrightness: Brightness.dark,
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => AnswerScreen(questions)),
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(64)),
       );
-
-  Future goToCourse(Course course) async {
-    await Navigator.of(context).push(
-      MaterialPageRoute(builder: (context) => CourseWidget(course)),
-    );
-    reloadCourses();
-  }
-
-  /// Get questions to answer and sort them.
-  Future<List<QuestionToAnswer>> getQuestionsToAnswer(Course course) async {
-    var questions = await Storage.getQuestionsToAnswer(course);
-    questions.shuffle();
-    questions.sort(compareQuestionsToAnswer);
-    return questions;
+    }
+    // No questions to answer.
+    return Icon(Icons.check_circle, color: Colors.tealAccent.shade200);
   }
 
   /// Compare questions by streak, section and last answered
   int compareQuestionsToAnswer(QuestionToAnswer a, QuestionToAnswer b) {
-    int cmp = a.question.streak.compareTo(b.question.streak);
+    var cmp = a.question.streak.compareTo(b.question.streak);
     if (cmp == 0) {
       cmp = a.section.title.compareTo(b.section.title);
       if (cmp == 0) {
@@ -122,6 +104,13 @@ class _DashboardState extends State<Dashboard> {
       }
     }
     return cmp;
+  }
+
+  Future<void> goToCourse(Course course) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => CourseWidget(course)),
+    );
+    reloadCourses();
   }
 
   void reloadCourses() {

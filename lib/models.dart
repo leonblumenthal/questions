@@ -1,3 +1,5 @@
+import 'dart:math';
+
 class Course {
   int id;
   String title;
@@ -9,13 +11,10 @@ class Course {
     title = map['title'];
   }
 
-  Map<String, dynamic> toMap() => {
-        'id': id,
-        'title': title,
-      };
+  Map<String, dynamic> toMap() => {'id': id, 'title': title};
 
   @override
-  String toString() => 'Course $id: $title';
+  String toString() => 'Course $title';
 }
 
 class Section {
@@ -41,7 +40,7 @@ class Section {
       };
 
   @override
-  String toString() => 'Section $id: $title';
+  String toString() => 'Section $title';
 }
 
 class Question {
@@ -67,13 +66,7 @@ class Question {
     streak = map['streak'];
     lastAnswered = _fromMillisToDateTime(map['lastAnswered']);
     sectionId = map['sectionId'];
-    if (map['pageIndex'] != null) {
-      marker = Marker(
-        pageIndex: map['pageIndex'],
-        px: map['px'],
-        py: map['py'],
-      );
-    }
+    if (map['x'] != null) marker = Marker(map['x'], map['y']);
   }
 
   Map<String, dynamic> toMap() => {
@@ -82,29 +75,25 @@ class Question {
         'streak': streak,
         'lastAnswered': lastAnswered?.millisecondsSinceEpoch,
         'sectionId': sectionId,
-        'pageIndex': marker?.pageIndex,
-        'px': marker?.px,
-        'py': marker?.py,
+        'x': marker?.x,
+        'y': marker?.y,
       };
 
   @override
-  String toString() => 'Question $id: $text';
+  String toString() => 'Question $text';
 }
 
-class Marker {
-  int pageIndex;
-  double px;
-  double py;
-
-  Marker({this.pageIndex, this.px = 0, this.py = 0});
+class Marker extends Point<double> {
+  int get pageIndex => y.toInt();
+  Marker(double x, double y) : super(x, y);
 }
 
 DateTime _fromMillisToDateTime(millis) =>
     millis == null ? null : DateTime.fromMillisecondsSinceEpoch(millis);
 
 class QuestionToAnswer {
-  Question question;
-  Section section;
-  Course course;
-  QuestionToAnswer(this.question, this.section, this.course);
+  final Question question;
+  final Section section;
+  final Course course;
+  const QuestionToAnswer(this.question, this.section, this.course);
 }

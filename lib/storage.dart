@@ -20,9 +20,8 @@ class Storage {
         'text TEXT,'
         'streak INTEGER,'
         'lastAnswered INTEGER,'
-        'pageIndex INTEGER,'
-        'px REAL,'
-        'py REAL,'
+        'x REAL,'
+        'y REAL,'
         'sectionId INTEGER REFERENCES Section(id) ON DELETE CASCADE'
         ');',
   ];
@@ -40,7 +39,7 @@ class Storage {
   }
 
   static Future<Course> insertCourse(Course course) async {
-    int id = await _database.insert(
+    var id = await _database.insert(
       'Course',
       course.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
@@ -49,7 +48,7 @@ class Storage {
   }
 
   static Future<Section> insertSection(Section section) async {
-    int id = await _database.insert(
+    var id = await _database.insert(
       'Section',
       section.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
@@ -58,7 +57,7 @@ class Storage {
   }
 
   static Future<Question> insertQuestion(Question question) async {
-    int id = await _database.insert(
+    var id = await _database.insert(
       'Question',
       question.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
@@ -107,7 +106,15 @@ class Storage {
   static Future<void> removeQuestionMarkers(Section section) =>
       _database.update(
         'Question',
-        {'pageIndex': null, 'px': null, 'py': null},
+        {'x': null, 'y': null},
+        where: 'sectionId = ?',
+        whereArgs: [section.id],
+      );
+
+  /// Reset all stats from questions in the section.
+  static Future<void> resetQuestions(Section section) => _database.update(
+        'Question',
+        {'streak': 0, 'lastAnswered': null},
         where: 'sectionId = ?',
         whereArgs: [section.id],
       );
@@ -122,7 +129,7 @@ class Storage {
       sections.map((s) => MapEntry(s.id, s)),
     );
 
-    int millis = Utils.getDate().millisecondsSinceEpoch;
+    int millis = getDate().millisecondsSinceEpoch;
     List rows = await _database.rawQuery(
       'Select q.* '
       'from Question q, Section s '

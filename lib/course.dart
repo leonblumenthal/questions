@@ -1,10 +1,10 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:toast/toast.dart';
+
 import 'package:questions/models.dart';
 import 'package:questions/section.dart';
 import 'package:questions/storage.dart';
 import 'package:questions/utils.dart';
-import 'package:toast/toast.dart';
 
 class CourseWidget extends StatefulWidget {
   final Course course;
@@ -16,51 +16,50 @@ class CourseWidget extends StatefulWidget {
 }
 
 class _CourseWidgetState extends State<CourseWidget> {
-  final TextEditingController controller = TextEditingController();
+  final titleController = TextEditingController();
   Future<List<Section>> sectionsFuture;
 
   @override
   void initState() {
     super.initState();
-    controller.text = widget.course.title;
+    titleController.text = widget.course.title;
     sectionsFuture = Storage.getSections(widget.course);
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: TextField(
-          controller: controller,
-          decoration: const InputDecoration(border: InputBorder.none),
-          style: const TextStyle(
-            fontSize: 22,
-            color: Colors.white,
-            fontWeight: FontWeight.w500,
-          ),
-          cursorColor: Colors.white,
-          autofocus: controller.text.isEmpty,
-          textCapitalization: TextCapitalization.sentences,
-          onSubmitted: saveTitle,
+  Widget build(BuildContext context) => Scaffold(
+        appBar: buildAppBar(),
+        floatingActionButton: hideBeforeSave(buildFabs()),
+        body: buildSectionList(),
+      );
+
+  Widget buildAppBar() => AppBar(
+      title: TextField(
+        controller: titleController,
+        decoration: const InputDecoration(border: InputBorder.none),
+        style: const TextStyle(
+          fontSize: 22,
+          color: Colors.white,
+          fontWeight: FontWeight.w500,
         ),
-        actions: hideBeforeSave(
-          <Widget>[
-            IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: deleteCourse,
-            ),
-          ],
+        cursorColor: Colors.white,
+        autofocus: titleController.text.isEmpty,
+        textCapitalization: TextCapitalization.sentences,
+        onSubmitted: (title) => Storage.insertCourse(
+          widget.course..title = title.trim(),
         ),
       ),
-      floatingActionButton: hideBeforeSave(buildFABs()),
-      body: buildSectionList(),
-    );
-  }
+      actions: hideBeforeSave([
+        IconButton(
+          icon: const Icon(Icons.delete),
+          onPressed: deleteCourse,
+        )
+      ]));
 
-  Widget buildFABs() => Wrap(
+  Widget buildFabs() => Wrap(
         spacing: 16,
         crossAxisAlignment: WrapCrossAlignment.end,
-        children: <Widget>[
+        children: [
           FloatingActionButton(
             heroTag: 1,
             child: const Icon(Icons.add),
@@ -75,15 +74,13 @@ class _CourseWidgetState extends State<CourseWidget> {
       );
 
   Future addSectionWithDocument() async {
-    File file = await Utils.importFile();
+    var file = await importFile();
     if (file != null) {
-      String title = file.uri.pathSegments.last.split('.').first;
-      Section section = Section(
-        title: title,
+      var section = Section(
+        title: file.uri.pathSegments.last.split('.').first,
         courseId: widget.course.id,
         documentPath: file.path,
       );
-
       await Storage.insertSection(section);
 
       goToSection(section);
@@ -91,28 +88,24 @@ class _CourseWidgetState extends State<CourseWidget> {
   }
 
   Widget buildSectionList() => FutureBuilder(
-        future: sectionsFuture,
-        builder: (_, snapshot) {
-          if (snapshot.hasData) {
-            List<Section> sections = snapshot.data;
-            return ListView.builder(
-              padding: const EdgeInsets.fromLTRB(4, 4, 4, 84),
-              itemBuilder: (_, i) => buildSectionItem(sections[i]),
-              itemCount: sections.length,
-            );
-          }
-          return const Center(child: CircularProgressIndicator());
-        },
-      );
+      future: sectionsFuture,
+      builder: (_, snapshot) {
+        if (snapshot.hasData) {
+          List<Section> sections = snapshot.data;
+          return ListView.builder(
+            padding: const EdgeInsets.fromLTRB(4, 4, 4, 84),
+            itemBuilder: (_, i) => buildSectionItem(sections[i]),
+            itemCount: sections.length,
+          );
+        }
+        return const Center(child: CircularProgressIndicator());
+      });
 
   Widget buildSectionItem(Section section) => Card(
         child: ListTile(
           title: Text(section.title),
           trailing: section.documentPath == null
-              ? Icon(
-                  Icons.location_off,
-                  size: 16,
-                )
+              ? const Icon(Icons.location_off, size: 16)
               : null,
           onTap: () => goToSection(section),
         ),
@@ -123,17 +116,11 @@ class _CourseWidgetState extends State<CourseWidget> {
     setState(() {});
   }
 
-  Future saveTitle(String title) async {
-    await Storage.insertCourse(widget.course..title = title.trim());
-    Toast.show('Saved ${widget.course}', context, duration: 2);
-    setState(() {});
-  }
-
-  Future deleteCourse() async {
+  Future<void> deleteCourse() async {
     if (widget.course.id != null) {
       bool result = await showDialog(
         context: context,
-        builder: Utils.boolDialogBuilder(
+        builder: boolDialogBuilder(
           'Delete course',
           'Are you sure that you want to delete ${widget.course} ?',
         ),
@@ -150,10 +137,10 @@ class _CourseWidgetState extends State<CourseWidget> {
 
   Future goToSection(Section section) async {
     await Navigator.of(context).push(
-      MaterialPageRoute(builder: (context) => SectionWidget(section)),
+      MaterialPageRoute(builder: (_) => SectionWidget(section)),
     );
     reloadSections();
   }
 
-  hideBeforeSave(w) => widget.course.id == null ? null : w;
+  dynamic hideBeforeSave(w) => widget.course.id == null ? null : w;
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:questions/models.dart';
+
 import 'package:questions/question.dart';
+import 'package:questions/models.dart';
 import 'package:questions/storage.dart';
 import 'package:questions/utils.dart';
 
@@ -14,48 +15,41 @@ class AnswerScreen extends StatefulWidget {
 }
 
 class _AnswerScreenState extends State<AnswerScreen> {
-  int currentIndex = 0;
-
-  @override
-  void initState() {
-    super.initState();
-  }
+  var currentIndex = 0;
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: Text(
-            'Question ${currentIndex + 1} of ${widget.questions.length}',
-          ),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.edit),
-              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) {
-                  var qta = widget.questions[currentIndex];
-                  return QuestionWidget(qta.question, qta.section);
-                },
-              )),
-            )
-          ],
+      appBar: buildAppBar(),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          QuestionCard(widget.questions[currentIndex]),
+          buildAnswerRow(),
+        ],
+      ));
+
+  Widget buildAppBar() => AppBar(
+        title: Text(
+          'Question ${currentIndex + 1} of ${widget.questions.length}',
         ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            QuestionCard(widget.questions[currentIndex]),
-            buildAnswerRow()
-          ],
-        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.edit),
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) {
+                var qta = widget.questions[currentIndex];
+                return QuestionWidget(qta.question, qta.section);
+              },
+            )),
+          )
+        ],
       );
 
   Widget buildAnswerRow() => Padding(
         padding: const EdgeInsets.symmetric(vertical: 32),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            buildAnswerButton(false),
-            buildAnswerButton(true),
-          ],
+          children: [buildAnswerButton(false), buildAnswerButton(true)],
         ),
       );
 
@@ -67,68 +61,60 @@ class _AnswerScreenState extends State<AnswerScreen> {
         color:
             correct ? Colors.tealAccent.shade200 : Colors.pinkAccent.shade200,
         colorBrightness: Brightness.dark,
-        shape: CircleBorder(),
+        shape: const CircleBorder(),
         padding: const EdgeInsets.all(12),
         onPressed: () => answer(correct),
       );
 
-  Future answer(bool correct) async {
-    Question currentQuestion = widget.questions[currentIndex].question;
+  Future<void> answer(bool correct) async {
+    var currentQuestion = widget.questions[currentIndex].question;
     if (correct) {
       currentQuestion.streak += 1;
     } else {
       currentQuestion.streak = 0;
     }
     // Set last answered to current date.
-    currentQuestion.lastAnswered = Utils.getDate();
-
+    currentQuestion..lastAnswered = getDate();
     await Storage.insertQuestion(currentQuestion);
 
-    currentIndex += 1;
-
+    currentIndex++;
     if (currentIndex == widget.questions.length) {
       Navigator.of(context).pop();
-      return;
+    } else {
+      setState(() {});
     }
-
-    setState(() {});
   }
 }
 
 class QuestionCard extends StatelessWidget {
-  final QuestionToAnswer question;
+  final QuestionToAnswer qta;
 
-  QuestionCard(this.question);
+  QuestionCard(this.qta);
 
   @override
   Widget build(BuildContext context) => Card(
-        margin: const EdgeInsets.all(16),
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-          child: Column(
-            children: <Widget>[
-              Text(question.course.title, style: const TextStyle(fontSize: 12)),
-              Text(
-                question.section.title,
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              Divider(),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-                child: Text(
-                  question.question.text,
-                  style: const TextStyle(fontSize: 22),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Chip(label: Text('${question.question.streak}')),
-              )
-            ],
+      margin: const EdgeInsets.all(16),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+        child: Column(children: [
+          Text(qta.course.title, style: const TextStyle(fontSize: 12)),
+          Text(
+            qta.section.title,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
-        ),
-      );
+          Divider(),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+            child: Text(
+              qta.question.text,
+              style: const TextStyle(fontSize: 22),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Chip(label: Text('${qta.question.streak}')),
+          )
+        ]),
+      ));
 }

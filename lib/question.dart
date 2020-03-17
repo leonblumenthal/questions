@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:pdf_render/pdf_render.dart';
+import 'package:toast/toast.dart';
+
 import 'package:questions/document.dart';
 import 'package:questions/models.dart';
 import 'package:questions/storage.dart';
 import 'package:questions/utils.dart';
-import 'package:toast/toast.dart';
 
 class QuestionWidget extends StatefulWidget {
   final Question question;
@@ -19,78 +20,66 @@ class QuestionWidget extends StatefulWidget {
 
 class _QuestionWidgetState extends State<QuestionWidget> {
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Question'),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: deleteQuestion,
-          ),
-          IconButton(
-            icon: const Icon(Icons.restore),
-            onPressed: resetQuestion,
-          )
-        ],
-      ),
-      floatingActionButton: widget.question.marker != null ? buildFAB() : null,
-      body: buildQuestionDetail(),
-    );
-  }
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Question'),
+          actions: [
+            IconButton(icon: const Icon(Icons.delete), onPressed: delete),
+            IconButton(icon: const Icon(Icons.restore), onPressed: reset)
+          ],
+        ),
+        floatingActionButton:
+            widget.question.marker != null ? buildFab() : null,
+        body: buildQuestionDetail(),
+      );
 
-  Widget buildFAB() => FloatingActionButton(
-        child: Icon(Icons.location_on),
+  Widget buildFab() => FloatingActionButton(
+        child: const Icon(Icons.location_on),
         onPressed: () => Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => DocumentViewer(
             widget.section,
             widget.pageImages,
-            initialPageIndex:
-                widget.question.marker.pageIndex + widget.question.marker.py,
+            initialPageIndex: widget.question.marker.y,
           ),
         )),
       );
 
   Widget buildQuestionDetail() => Container(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            TextField(
-              controller: TextEditingController(text: widget.question.text),
-              decoration: const InputDecoration(labelText: 'Question text'),
-              style: const TextStyle(fontSize: 18),
-              maxLines: 3,
-              minLines: 1,
-              onChanged: (String text) async {
-                widget.question.text = text.trim();
-                await Storage.insertQuestion(widget.question);
-              },
-              textCapitalization: TextCapitalization.sentences,
-            ),
-            Container(height: 32),
-            buildLastAnswered(),
-          ],
-        ),
-      );
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            controller: TextEditingController(text: widget.question.text),
+            decoration: const InputDecoration(labelText: 'Question text'),
+            style: const TextStyle(fontSize: 18),
+            maxLines: 3,
+            minLines: 1,
+            onChanged: (text) =>
+                Storage.insertQuestion(widget.question..text = text.trim()),
+            textCapitalization: TextCapitalization.sentences,
+          ),
+          Container(height: 32),
+          buildLastAnswered(),
+        ],
+      ));
 
   Widget buildLastAnswered() {
-    String text = 'Not answered';
+    var text = 'Not answered';
     if (widget.question.lastAnswered != null) {
-      Duration duration =
-          Utils.getDate().difference(widget.question.lastAnswered);
-      int days = duration.inDays;
-      String daysString = '$days ' + (days == 1 ? 'day' : 'days');
+      var duration = getDate().difference(widget.question.lastAnswered);
+      var days = duration.inDays;
+      var daysString = '$days ' + (days == 1 ? 'day' : 'days');
       text = 'Last answered: $daysString ago\n'
           'Streak: ${widget.question.streak}';
     }
     return Text(text, style: const TextStyle(fontSize: 16));
   }
 
-  Future deleteQuestion() async {
+  Future<void> delete() async {
     bool result = await showDialog(
       context: context,
-      builder: Utils.boolDialogBuilder(
+      builder: boolDialogBuilder(
         'Delete question',
         'Are you sure that you want to delete ${widget.question} ?',
       ),
@@ -102,20 +91,19 @@ class _QuestionWidgetState extends State<QuestionWidget> {
     }
   }
 
-  Future resetQuestion() async {
+  Future<void> reset() async {
     bool result = await showDialog(
       context: context,
-      builder: Utils.boolDialogBuilder(
+      builder: boolDialogBuilder(
         'Reset question',
         'Are you sure that you want to reset ${widget.question} ?',
       ),
     );
-    if (result == true) {
-      await Storage.insertQuestion(
-        widget.question
-          ..lastAnswered = null
-          ..streak = 0,
-      );
+    if (result) {
+      widget.question
+        ..lastAnswered = null
+        ..streak = 0;
+      await Storage.insertQuestion(widget.question);
       Toast.show('Reset ${widget.question}', context, duration: 2);
       setState(() {});
     }
