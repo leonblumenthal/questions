@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pdf_render/pdf_render.dart';
+import 'package:questions/document.dart';
 
 import 'package:questions/question.dart';
 import 'package:questions/models.dart';
@@ -15,7 +17,22 @@ class AnswerScreen extends StatefulWidget {
 }
 
 class _AnswerScreenState extends State<AnswerScreen> {
+  final Map<Section, Future<PdfDocument>> sectionDocumentFutures = {};
   var currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Fill map with futures for all section documents.
+    for (var q in widget.questions) {
+      if (q.question.marker != null) {
+        sectionDocumentFutures.putIfAbsent(
+          q.section,
+          () => PdfDocument.openFile(q.section.documentPath),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -49,7 +66,12 @@ class _AnswerScreenState extends State<AnswerScreen> {
         padding: const EdgeInsets.symmetric(vertical: 32),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [buildAnswerButton(false), buildAnswerButton(true)],
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            buildAnswerButton(false),
+            buildLookupButton(),
+            buildAnswerButton(true),
+          ],
         ),
       );
 
@@ -65,6 +87,32 @@ class _AnswerScreenState extends State<AnswerScreen> {
         padding: const EdgeInsets.all(12),
         onPressed: () => answer(correct),
       );
+
+  Widget buildLookupButton() {
+    var qta = widget.questions[currentIndex];
+    var onPressed;
+    if (qta.question.marker != null) {
+      onPressed = () async {
+        var document = await sectionDocumentFutures[qta.section];
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => DocumentScreen(
+            widget.questions[currentIndex].section,
+            document,
+            initialPageOffset: widget.questions[currentIndex].question.marker.y,
+          ),
+        ));
+      };
+    }
+    return RaisedButton(
+      child: Icon(Icons.location_on, size: 24),
+      color: Colors.blue,
+      disabledColor: Colors.grey.shade200,
+      colorBrightness: Brightness.dark,
+      shape: const CircleBorder(),
+      padding: const EdgeInsets.all(12),
+      onPressed: onPressed,
+    );
+  }
 
   Future<void> answer(bool correct) async {
     var currentQuestion = widget.questions[currentIndex].question;
