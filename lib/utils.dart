@@ -76,26 +76,20 @@ Future<File> importFile() async {
   return File(path);
 }
 
-/// Load pdf and render all pages with given [scale].
-Future<List<PdfPageImage>> loadPageImages(
-  String path, {
-  double scale = 1,
+/// Load page and render page image with scale.
+Future<PdfPageImage> loadPageImage(
+  PdfDocument document,
+  int pageIndex, {
+  double scale = 1.5,
 }) async {
-  var document = await PdfDocument.openFile(path);
-  List<PdfPageImage> pageImages = [];
-
-  for (var i = 0; i < document.pageCount; i++) {
-    var page = await document.getPage(i + 1);
-    var w = page.width;
-    var h = page.height;
-    var pageImage = await page.render(
-      fullWidth: w * scale,
-      width: (w * scale).toInt(),
-      fullHeight: h * scale,
-      height: (h * scale).toInt(),
-    );
-    pageImages.add(pageImage);
-  }
-
-  return pageImages;
+  var page = await document.getPage(pageIndex + 1);
+  var w = page.width;
+  var h = page.height;
+  var pageImage = await page.render(
+    fullWidth: w * scale,
+    width: (w * scale).toInt(),
+    fullHeight: h * scale,
+    height: (h * scale).toInt(),
+  );
+  return pageImage;
 }

@@ -10,9 +10,9 @@ import 'package:questions/utils.dart';
 class QuestionWidget extends StatefulWidget {
   final Question question;
   final Section section;
-  final List<PdfPageImage> pageImages;
+  final PdfDocument document;
 
-  QuestionWidget(this.question, this.section, [this.pageImages]);
+  QuestionWidget(this.question, this.section, [this.document]);
 
   @override
   _QuestionWidgetState createState() => _QuestionWidgetState();
@@ -36,10 +36,10 @@ class _QuestionWidgetState extends State<QuestionWidget> {
   Widget buildFab() => FloatingActionButton(
         child: const Icon(Icons.location_on),
         onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => DocumentViewer(
+          builder: (context) => DocumentScreen(
             widget.section,
-            widget.pageImages,
-            initialPageIndex: widget.question.marker.y,
+            widget.document,
+            initialPageOffset: widget.question.marker.y,
           ),
         )),
       );

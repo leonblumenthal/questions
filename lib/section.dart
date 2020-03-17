@@ -22,7 +22,7 @@ class SectionWidget extends StatefulWidget {
 class _SectionWidgetState extends State<SectionWidget> {
   final titleController = TextEditingController();
   Future<List<Question>> questionsFuture;
-  Future<List<PdfPageImage>> pageImagesFuture;
+  Future<PdfDocument> documentFuture;
 
   @override
   void initState() {
@@ -31,10 +31,7 @@ class _SectionWidgetState extends State<SectionWidget> {
     questionsFuture = Storage.getQuestions(widget.section);
 
     if (widget.section.documentPath != null) {
-      pageImagesFuture = loadPageImages(
-        widget.section.documentPath,
-        scale: 1.5,
-      );
+      documentFuture = PdfDocument.openFile(widget.section.documentPath);
     }
   }
 
@@ -63,6 +60,12 @@ class _SectionWidgetState extends State<SectionWidget> {
     );
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    documentFuture.then((doc) => doc.dispose());
+  }
+
   Widget buildAppBar() => AppBar(
         title: TextField(
           controller: titleController,
@@ -81,9 +84,9 @@ class _SectionWidgetState extends State<SectionWidget> {
         ),
         actions: hideBeforeSave(
           [
-            if (pageImagesFuture != null)
+            if (documentFuture != null)
               FutureBuilder(
-                future: pageImagesFuture,
+                future: documentFuture,
                 builder: (_, snapshot) => snapshot.hasData
                     ? buildDocumentAction(snapshot.data)
                     : Container(),
@@ -93,14 +96,14 @@ class _SectionWidgetState extends State<SectionWidget> {
         ),
       );
 
-  Widget buildDocumentAction(List<PdfPageImage> pageImages) => IconButton(
+  Widget buildDocumentAction(PdfDocument document) => IconButton(
       icon: const Icon(Icons.library_books),
       onPressed: () async {
         var questions = await questionsFuture;
         await Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => DocumentViewer(
+          builder: (_) => DocumentScreen(
             widget.section,
-            pageImages,
+            document,
             questions: questions,
           ),
         ));
@@ -148,11 +151,11 @@ class _SectionWidgetState extends State<SectionWidget> {
                 ? const Icon(Icons.location_off, size: 16)
                 : null,
             onTap: () async {
-              var pageImages;
-              if (pageImagesFuture != null) pageImages = await pageImagesFuture;
+              var document;
+              if (documentFuture != null) document = await documentFuture;
               await Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) =>
-                    QuestionWidget(question, widget.section, pageImages),
+                    QuestionWidget(question, widget.section, document),
               ));
               reloadQuestions();
             }),
