@@ -1,8 +1,11 @@
 import 'dart:io';
-import 'package:file_picker/file_picker.dart';
+
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:pdf_render/pdf_render.dart';
+
+import 'package:questions/models.dart';
 
 /// Get current date as [DateTime].
 DateTime getDate() {
@@ -93,3 +96,21 @@ Future<PdfPageImage> loadPageImage(
   );
   return pageImage;
 }
+
+/// Compare questions by streak, section and last answered
+  int compareQuestionsToAnswer(QuestionToAnswer a, QuestionToAnswer b) {
+    var cmp = a.question.streak.compareTo(b.question.streak);
+    if (cmp == 0) {
+      cmp = a.section.title.compareTo(b.section.title);
+      if (cmp == 0) {
+        if (a.question.lastAnswered == null) {
+          cmp = -1;
+        } else if (b.question.lastAnswered == null) {
+          cmp = 1;
+        } else {
+          cmp = a.question.lastAnswered.compareTo(b.question.lastAnswered);
+        }
+      }
+    }
+    return cmp;
+  }
