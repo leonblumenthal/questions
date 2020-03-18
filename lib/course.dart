@@ -45,9 +45,10 @@ class _CourseWidgetState extends State<CourseWidget> {
         cursorColor: Colors.white,
         autofocus: titleController.text.isEmpty,
         textCapitalization: TextCapitalization.sentences,
-        onSubmitted: (title) => Storage.insertCourse(
-          widget.course..title = title.trim(),
-        ),
+        onSubmitted: (title) async {
+          await Storage.insertCourse(widget.course..title = title.trim());
+          setState(() {});
+        },
       ),
       actions: hideBeforeSave([
         IconButton(

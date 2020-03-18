@@ -43,19 +43,32 @@ class _SectionWidgetState extends State<SectionWidget> {
         child: const Icon(Icons.add),
         onPressed: addQuestion,
       )),
-      body: FutureBuilder(
-        future: questionsFuture,
-        builder: (_, snapshot) {
-          if (snapshot.hasData) {
-            var questions = snapshot.data;
-            return ListView.builder(
-              padding: const EdgeInsets.fromLTRB(4, 4, 4, 84),
-              itemBuilder: (_, i) => buildQuestionItem(questions[i]),
-              itemCount: questions.length,
-            );
-          }
-          return const Center(child: CircularProgressIndicator());
-        },
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          if (documentFuture != null)
+            FutureBuilder(
+              future: documentFuture,
+              builder: (_, snapshot) => snapshot.hasData
+                  ? buildDocumentButton(snapshot.data)
+                  : Container(),
+            ),
+          FutureBuilder(
+            future: questionsFuture,
+            builder: (_, snapshot) {
+              if (snapshot.hasData) {
+                var questions = snapshot.data;
+                return ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(4, 4, 4, 84),
+                  itemBuilder: (_, i) => buildQuestionItem(questions[i]),
+                  itemCount: questions.length,
+                  shrinkWrap: true,
+                );
+              }
+              return const Center(child: CircularProgressIndicator());
+            },
+          ),
+        ],
       ),
     );
   }
@@ -78,37 +91,13 @@ class _SectionWidgetState extends State<SectionWidget> {
           cursorColor: Colors.white,
           autofocus: titleController.text.isEmpty,
           textCapitalization: TextCapitalization.sentences,
-          onSubmitted: (title) => Storage.insertSection(
-            widget.section..title = title.trim(),
-          ),
+          onSubmitted: (title) async {
+            await Storage.insertSection(widget.section..title = title.trim());
+            setState(() {});
+          },
         ),
-        actions: hideBeforeSave(
-          [
-            if (documentFuture != null)
-              FutureBuilder(
-                future: documentFuture,
-                builder: (_, snapshot) => snapshot.hasData
-                    ? buildDocumentAction(snapshot.data)
-                    : Container(),
-              ),
-            buildActionMenu(),
-          ],
-        ),
+        actions: hideBeforeSave([buildActionMenu()]),
       );
-
-  Widget buildDocumentAction(PdfDocument document) => IconButton(
-      icon: const Icon(Icons.library_books),
-      onPressed: () async {
-        var questions = await questionsFuture;
-        await Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => DocumentScreen(
-            widget.section,
-            document,
-            questions: questions,
-          ),
-        ));
-        reloadQuestions();
-      });
 
   Widget buildActionMenu() => PopupMenuButton(
         onSelected: (Action action) async {
@@ -138,6 +127,31 @@ class _SectionWidgetState extends State<SectionWidget> {
             value: Action.import,
           ),
         ],
+      );
+
+  Widget buildDocumentButton(PdfDocument document) => Padding(
+        padding: const EdgeInsets.all(8),
+        child: RaisedButton(
+            child: const Text(
+              'View Document',
+              style: const TextStyle(fontSize: 20),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4),
+            ),
+            color: Colors.white,
+            onPressed: () async {
+              var questions = await questionsFuture;
+              await Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => DocumentScreen(
+                  widget.section,
+                  document,
+                  questions: questions,
+                ),
+              ));
+              reloadQuestions();
+            }),
       );
 
   Widget buildQuestionItem(Question question) => Card(
