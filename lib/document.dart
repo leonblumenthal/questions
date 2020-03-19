@@ -174,7 +174,7 @@ class _DocumentViewerState extends State<DocumentViewer> {
         marker: marker,
         sectionId: widget.section.id,
       );
-      await Storage.insertQuestion(question);
+      await Storage.insert(question);
 
       Toast.show(
         'Created $question on page ${marker.pageIndex + 1}',

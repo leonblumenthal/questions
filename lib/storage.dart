@@ -4,7 +4,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 class Storage {
-  static const List<String> _createTables = [
+  static const _createTables = [
     'CREATE TABLE Course('
         'id INTEGER PRIMARY KEY AUTOINCREMENT,'
         'title TEXT'
@@ -32,76 +32,55 @@ class Storage {
     _database = await openDatabase(
       join(await getDatabasesPath(), 'questions.db'),
       onCreate: (db, version) async {
-        for (String s in _createTables) await db.execute(s);
+        for (var s in _createTables) await db.execute(s);
       },
       version: 1,
     );
   }
 
-  static Future<Course> insertCourse(Course course) async {
+  static Future<StorageModel> insert(StorageModel model) async {
     var id = await _database.insert(
-      'Course',
-      course.toMap(),
+      model.tableName,
+      model._toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
-    return course..id = id;
+    return model..id = id;
   }
 
-  static Future<Section> insertSection(Section section) async {
-    var id = await _database.insert(
-      'Section',
-      section.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-    return section..id = id;
-  }
-
-  static Future<Question> insertQuestion(Question question) async {
-    var id = await _database.insert(
-      'Question',
-      question.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-    return question..id = id;
-  }
+  static Future<void> delete(StorageModel model) =>
+      _database.delete(model.tableName, where: 'id = ?', whereArgs: [model.id]);
 
   static Future<List<Course>> getCourses() => _database
       .query('Course')
-      .then((v) => v.map((map) => Course.fromMap(map)).toList());
+      .then((v) => v.map((map) => Course().._fromMap(map)).toList());
 
   static Future<List<Section>> getSections(Course course) =>
       _database.query('Section', where: 'courseId = ?', whereArgs: [
         course.id ?? -1
-      ]).then((v) => v.map((map) => Section.fromMap(map)).toList());
+      ]).then((v) => v.map((map) => Section().._fromMap(map)).toList());
 
   static Future<List<Question>> getQuestions(Section section) =>
       _database.query('Question', where: 'sectionId = ?', whereArgs: [
         section.id ?? -1
-      ]).then((v) => v.map((map) => Question.fromMap(map)).toList());
+      ]).then((v) => v.map((map) => Question().._fromMap(map)).toList());
 
   static Future<Course> getCourse(int id) =>
       _database.query('Course', where: 'id = ?', whereArgs: [id]).then(
-        (v) => v.length == 0 ? null : Course.fromMap(v.first),
+        (v) => v.length == 0 ? null : Course()
+          .._fromMap(v.first),
       );
 
   static Future<Section> getSection(int id) =>
       _database.query('Section', where: 'id = ?', whereArgs: [id]).then(
-        (v) => v.length == 0 ? null : Section.fromMap(v.first),
+        (v) => v.length == 0 ? null : Section()
+          .._fromMap(v.first),
       );
 
   static Future<Question> getQuestion(int id) =>
       _database.query('Question', where: 'id = ?', whereArgs: [id]).then(
-        (v) => v.length == 0 ? null : Question.fromMap(v.first),
+        (v) => v.length == 0 ? null : Question()
+          .._fromMap(v.first),
       );
-
-  static Future<void> deleteCourse(Course course) =>
-      _database.delete('Course', where: 'id = ?', whereArgs: [course.id]);
-
-  static Future<void> deleteSection(Section section) =>
-      _database.delete('Section', where: 'id = ?', whereArgs: [section.id]);
-
-  static Future<void> deleteQuestion(Question question) =>
-      _database.delete('Question', where: 'id = ?', whereArgs: [question.id]);
 
   static Future<void> removeQuestionMarkers(Section section) =>
       _database.update(
@@ -122,15 +101,16 @@ class Storage {
   // Get all questions to answer from a course where streak
   // is less than the difference of days between last answered and today.
   static Future<List<QuestionToAnswer>> getQuestionsToAnswer(
-      Course course) async {
-    List<Section> sections = await getSections(course);
+    Course course,
+  ) async {
+    var sections = await getSections(course);
 
-    Map<int, Section> sectionMap = Map.fromEntries(
+    var sectionMap = Map.fromEntries(
       sections.map((s) => MapEntry(s.id, s)),
     );
 
-    int millis = getDate().millisecondsSinceEpoch;
-    List rows = await _database.rawQuery(
+    var millis = getDate().millisecondsSinceEpoch;
+    var rows = await _database.rawQuery(
       'Select q.* '
       'from Question q, Section s '
       'where q.sectionId = s.id and s.courseId = ? and '
@@ -139,8 +119,30 @@ class Storage {
     );
 
     return rows.map((r) {
-      Question q = Question.fromMap(r);
+      var q = Question().._fromMap(r);
       return QuestionToAnswer(q, sectionMap[q.sectionId], course);
     }).toList();
+  }
+}
+
+abstract class StorageModel {
+  int id;
+
+  StorageModel([this.id]);
+
+  String get tableName => this.runtimeType.toString();
+
+  @override
+  String toString() => "${this.runtimeType.toString()} $id";
+
+  /// Convert model to map for storage.
+  Map<String, dynamic> toMap();
+  Map<String, dynamic> _toMap() => toMap()..['id'] = id;
+
+  /// Fill model with map from storage.
+  void fromMap(Map<String, dynamic> map);
+  void _fromMap(Map<String, dynamic> map) {
+    id = map['id'];
+    fromMap(map);
   }
 }

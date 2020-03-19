@@ -46,7 +46,7 @@ class _CourseWidgetState extends State<CourseWidget> {
         autofocus: titleController.text.isEmpty,
         textCapitalization: TextCapitalization.sentences,
         onSubmitted: (title) async {
-          await Storage.insertCourse(widget.course..title = title.trim());
+          await Storage.insert(widget.course..title = title.trim());
           setState(() {});
         },
       ),
@@ -82,7 +82,7 @@ class _CourseWidgetState extends State<CourseWidget> {
         courseId: widget.course.id,
         documentPath: file.path,
       );
-      await Storage.insertSection(section);
+      await Storage.insert(section);
 
       goToSection(section);
     }
@@ -127,7 +127,7 @@ class _CourseWidgetState extends State<CourseWidget> {
         ),
       );
       if (result) {
-        await Storage.deleteCourse(widget.course);
+        await Storage.delete(widget.course);
         Toast.show('Deleted ${widget.course}', context, duration: 2);
         Navigator.of(context).pop();
       }

@@ -1,39 +1,36 @@
 import 'dart:math';
 
-class Course {
-  int id;
+import 'package:questions/storage.dart';
+
+class Course extends StorageModel {
   String title;
 
-  Course({this.id, this.title});
+  Course({int id, this.title}) : super(id);
 
-  Course.fromMap(Map<String, dynamic> map) {
-    id = map['id'];
+  fromMap(Map<String, dynamic> map) {
     title = map['title'];
   }
 
-  Map<String, dynamic> toMap() => {'id': id, 'title': title};
+  Map<String, dynamic> toMap() => {'title': title};
 
   @override
   String toString() => 'Course $title';
 }
 
-class Section {
-  int id;
+class Section extends StorageModel {
   String title;
   int courseId;
   String documentPath;
 
-  Section({this.id, this.title, this.courseId, this.documentPath});
+  Section({int id, this.title, this.courseId, this.documentPath}) : super(id);
 
-  Section.fromMap(Map<String, dynamic> map) {
-    id = map['id'];
+  fromMap(Map<String, dynamic> map) {
     title = map['title'];
     courseId = map['courseId'];
     documentPath = map['documentPath'];
   }
 
   Map<String, dynamic> toMap() => {
-        'id': id,
         'title': title,
         'courseId': courseId,
         'documentPath': documentPath,
@@ -43,8 +40,7 @@ class Section {
   String toString() => 'Section $title';
 }
 
-class Question {
-  int id;
+class Question extends StorageModel {
   String text;
   int streak;
   DateTime lastAnswered;
@@ -52,16 +48,15 @@ class Question {
   Marker marker;
 
   Question({
-    this.id,
+    int id,
     this.text,
     this.streak = 0,
     this.lastAnswered,
     this.sectionId,
     this.marker,
-  });
+  }) : super(id);
 
-  Question.fromMap(Map<String, dynamic> map) {
-    id = map['id'];
+  fromMap(Map<String, dynamic> map) {
     text = map['text'];
     streak = map['streak'];
     lastAnswered = _fromMillisToDateTime(map['lastAnswered']);
@@ -70,7 +65,6 @@ class Question {
   }
 
   Map<String, dynamic> toMap() => {
-        'id': id,
         'text': text,
         'streak': streak,
         'lastAnswered': lastAnswered?.millisecondsSinceEpoch,

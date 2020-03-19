@@ -123,7 +123,7 @@ class _AnswerScreenState extends State<AnswerScreen> {
     }
     // Set last answered to current date.
     currentQuestion..lastAnswered = getDate();
-    await Storage.insertQuestion(currentQuestion);
+    await Storage.insert(currentQuestion);
 
     currentIndex++;
     if (currentIndex == widget.questions.length) {

@@ -56,7 +56,7 @@ class _QuestionWidgetState extends State<QuestionWidget> {
             maxLines: 3,
             minLines: 1,
             onChanged: (text) =>
-                Storage.insertQuestion(widget.question..text = text.trim()),
+                Storage.insert(widget.question..text = text.trim()),
             textCapitalization: TextCapitalization.sentences,
           ),
           Container(height: 32),
@@ -85,7 +85,7 @@ class _QuestionWidgetState extends State<QuestionWidget> {
       ),
     );
     if (result) {
-      await Storage.deleteQuestion(widget.question);
+      await Storage.delete(widget.question);
       Toast.show('Deleted ${widget.question}', context, duration: 2);
       Navigator.of(context).pop(false);
     }
@@ -103,7 +103,7 @@ class _QuestionWidgetState extends State<QuestionWidget> {
       widget.question
         ..lastAnswered = null
         ..streak = 0;
-      await Storage.insertQuestion(widget.question);
+      await Storage.insert(widget.question);
       Toast.show('Reset ${widget.question}', context, duration: 2);
       setState(() {});
     }

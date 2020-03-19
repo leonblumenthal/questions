@@ -92,7 +92,7 @@ class _SectionWidgetState extends State<SectionWidget> {
           autofocus: titleController.text.isEmpty,
           textCapitalization: TextCapitalization.sentences,
           onSubmitted: (title) async {
-            await Storage.insertSection(widget.section..title = title.trim());
+            await Storage.insert(widget.section..title = title.trim());
             setState(() {});
           },
         ),
@@ -193,7 +193,7 @@ class _SectionWidgetState extends State<SectionWidget> {
       if (widget.section.documentPath != null)
         await File(widget.section.documentPath).delete();
 
-      await Storage.deleteSection(widget.section);
+      await Storage.delete(widget.section);
 
       Toast.show('Deleted ${widget.section}', context, duration: 2);
       Navigator.of(context).pop();
@@ -230,7 +230,7 @@ class _SectionWidgetState extends State<SectionWidget> {
     );
     if (questionText != null && questionText.isNotEmpty) {
       var question = Question(text: questionText, sectionId: widget.section.id);
-      await Storage.insertQuestion(question);
+      await Storage.insert(question);
 
       Toast.show('Created $question', context, duration: 2);
       reloadQuestions();
@@ -256,7 +256,7 @@ class _SectionWidgetState extends State<SectionWidget> {
           await File(widget.section.documentPath).delete();
         }
         // Save section and remove all question markers.
-        await Storage.insertSection(widget.section..documentPath = file.path);
+        await Storage.insert(widget.section..documentPath = file.path);
         await Storage.removeQuestionMarkers(widget.section);
 
         Toast.show(
