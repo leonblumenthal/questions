@@ -30,7 +30,9 @@ class _QuestionWidgetState extends State<QuestionWidget> {
         ),
         floatingActionButton:
             widget.question.marker != null ? buildFab() : null,
-        body: buildQuestionDetail(),
+        body: ListView(
+          children: [buildTextWidget()],
+        ),
       );
 
   Widget buildFab() => FloatingActionButton(
@@ -44,12 +46,10 @@ class _QuestionWidgetState extends State<QuestionWidget> {
         )),
       );
 
-  Widget buildQuestionDetail() => Container(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          TextField(
+  Widget buildTextWidget() => Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: TextField(
             controller: TextEditingController(text: widget.question.text),
             decoration: const InputDecoration(labelText: 'Question text'),
             style: const TextStyle(fontSize: 18),
@@ -59,22 +59,8 @@ class _QuestionWidgetState extends State<QuestionWidget> {
                 Storage.insert(widget.question..text = text.trim()),
             textCapitalization: TextCapitalization.sentences,
           ),
-          Container(height: 32),
-          buildLastAnswered(),
-        ],
-      ));
-
-  Widget buildLastAnswered() {
-    var text = 'Not answered';
-    if (widget.question.lastAnswered != null) {
-      var duration = getDate().difference(widget.question.lastAnswered);
-      var days = duration.inDays;
-      var daysString = '$days ' + (days == 1 ? 'day' : 'days');
-      text = 'Last answered: $daysString ago\n'
-          'Streak: ${widget.question.streak}';
-    }
-    return Text(text, style: const TextStyle(fontSize: 16));
-  }
+        ),
+      );
 
   Future<void> delete() async {
     bool result = await showDialog(
@@ -95,8 +81,8 @@ class _QuestionWidgetState extends State<QuestionWidget> {
     bool result = await showDialog(
       context: context,
       builder: boolDialogBuilder(
-        'Reset question',
-        'Are you sure that you want to reset ${widget.question} ?',
+        'Reset question with answers',
+        'Are you sure that you want to reset ${widget.question} with answers ?',
       ),
     );
     if (result) {
@@ -104,7 +90,8 @@ class _QuestionWidgetState extends State<QuestionWidget> {
         ..lastAnswered = null
         ..streak = 0;
       await Storage.insert(widget.question);
-      Toast.show('Reset ${widget.question}', context, duration: 2);
+      await Storage.deleteAnswers(widget.question);
+      Toast.show('Reset ${widget.question} with answers', context, duration: 2);
       setState(() {});
     }
   }

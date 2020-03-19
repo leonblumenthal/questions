@@ -115,15 +115,16 @@ class _AnswerScreenState extends State<AnswerScreen> {
   }
 
   Future<void> answer(bool correct) async {
-    var currentQuestion = widget.questions[currentIndex].question;
+    var question = widget.questions[currentIndex].question;
+
     if (correct) {
-      currentQuestion.streak += 1;
+      question.streak++;
     } else {
-      currentQuestion.streak = 0;
+      question.streak = 0;
     }
-    // Set last answered to current date.
-    currentQuestion..lastAnswered = getDate();
-    await Storage.insert(currentQuestion);
+
+    await Storage.insert(question..lastAnswered = getDate());
+    await Storage.insert(Answer(correct: correct, questionId: question.id));
 
     currentIndex++;
     if (currentIndex == widget.questions.length) {

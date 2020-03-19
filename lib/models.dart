@@ -82,6 +82,26 @@ class Marker extends Point<double> {
   Marker(double x, double y) : super(x, y);
 }
 
+class Answer extends StorageModel {
+  bool correct;
+  int questionId;
+  DateTime dateTime = DateTime.now();
+
+  Answer({this.correct, this.questionId});
+
+  void fromMap(Map<String, dynamic> map) {
+    correct = map['correct'] == 1;
+    dateTime = DateTime.fromMillisecondsSinceEpoch(map['dateTime']);
+    questionId = map['questionId'];
+  }
+
+  Map<String, dynamic> toMap() => {
+        'correct': correct ? 1 : 0,
+        'dateTime': dateTime.millisecondsSinceEpoch,
+        'questionId': questionId,
+      };
+}
+
 DateTime _fromMillisToDateTime(millis) =>
     millis == null ? null : DateTime.fromMillisecondsSinceEpoch(millis);
 

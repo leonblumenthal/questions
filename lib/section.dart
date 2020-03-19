@@ -205,15 +205,15 @@ class _SectionWidgetState extends State<SectionWidget> {
       bool result = await showDialog(
         context: context,
         builder: boolDialogBuilder(
-          'Reset all questions',
-          'Are you sure that you want to reset all questions of ${widget.section} ?',
+          'Reset all questions and answers',
+          'Are you sure that you want to reset all questions and answers of ${widget.section} ?',
         ),
       );
       if (result) {
         await Storage.resetQuestions(widget.section);
 
         Toast.show(
-          'Reset all questions of ${widget.section}',
+          'Reset all questions and answers of ${widget.section}',
           context,
           duration: 2,
         );

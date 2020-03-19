@@ -25,6 +25,12 @@ class Storage {
         'y REAL,'
         'sectionId INTEGER REFERENCES Section(id) ON DELETE CASCADE'
         ');',
+    'CREATE TABLE Answer('
+        'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+        'correct INTEGER,'
+        'dateTime INTEGER,'
+        'questionId INTEGER REFERENCES Question(id) ON DELETE CASCADE'
+        ');',
   ];
 
   static Database _database;
@@ -65,21 +71,18 @@ class Storage {
         section.id ?? -1
       ]).then((v) => v.map((map) => Question().._fromMap(map)).toList());
 
+  static Future<List<Answer>> getAnswers(Question question) => _database
+      .query(
+        'Answer',
+        where: 'questionId = ?',
+        whereArgs: [question.id ?? -1],
+        orderBy: 'dateTime',
+      )
+      .then((v) => v.reversed.map((map) => Answer().._fromMap(map)).toList());
+
   static Future<Course> getCourse(int id) =>
       _database.query('Course', where: 'id = ?', whereArgs: [id]).then(
         (v) => v.length == 0 ? null : Course()
-          .._fromMap(v.first),
-      );
-
-  static Future<Section> getSection(int id) =>
-      _database.query('Section', where: 'id = ?', whereArgs: [id]).then(
-        (v) => v.length == 0 ? null : Section()
-          .._fromMap(v.first),
-      );
-
-  static Future<Question> getQuestion(int id) =>
-      _database.query('Question', where: 'id = ?', whereArgs: [id]).then(
-        (v) => v.length == 0 ? null : Question()
           .._fromMap(v.first),
       );
 
@@ -91,32 +94,41 @@ class Storage {
         whereArgs: [section.id],
       );
 
+  static Future<void> deleteAnswers(Question question) => _database
+      .delete('Answer', where: 'questionId = ?', whereArgs: [question.id]);
+
   /// Reset all stats from questions in the section.
-  static Future<void> resetQuestions(Section section) => _database.update(
-        'Question',
-        {'streak': 0, 'lastAnswered': null},
-        where: 'sectionId = ?',
-        whereArgs: [section.id],
-      );
+  static Future<void> resetQuestions(Section section) async {
+    // Reset streak and last answered of section questions.
+    await _database.update(
+      'Question',
+      {'streak': 0, 'lastAnswered': null},
+      where: 'sectionId = ?',
+      whereArgs: [section.id],
+    );
+    // Remove all section question answers.
+    await _database.rawDelete(
+      'DELETE FROM Answer '
+      'WHERE questionId IN '
+      '(SELECT id FROM Question WHERE sectionId = ?);',
+      [section.id],
+    );
+  }
 
   // Get all questions to answer from a course where streak
   // is less than the difference of days between last answered and today.
   static Future<List<QuestionToAnswer>> getQuestionsToAnswer(
     Course course,
   ) async {
-    var sections = await getSections(course);
+    Map<int, Section> sectionMap = {};
+    for (var s in await getSections(course)) sectionMap[s.id] = s;
 
-    var sectionMap = Map.fromEntries(
-      sections.map((s) => MapEntry(s.id, s)),
-    );
-
-    var millis = getDate().millisecondsSinceEpoch;
     var rows = await _database.rawQuery(
       'Select q.* '
       'from Question q, Section s '
       'where q.sectionId = s.id and s.courseId = ? and '
       '(q.streak <= (? - q.lastAnswered)/86400000 or q.streak = 0);',
-      [course.id, millis],
+      [course.id, getDate().millisecondsSinceEpoch],
     );
 
     return rows.map((r) {
