@@ -1,24 +1,17 @@
-import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-
-
 class CircleDiagram extends StatelessWidget {
+  final List<WeightedPaint> paints;
   final Widget child;
   final double radius;
 
-  CircleDiagram(this.child, {this.radius = 80});
+  CircleDiagram(this.paints, this.child, {this.radius = 64});
 
   @override
   Widget build(BuildContext context) => CustomPaint(
-        painter: CircleDiagramPainter([
-          WeightedPaint(Colors.pinkAccent, 1),
-          WeightedPaint(Colors.greenAccent, 3),
-          WeightedPaint(Colors.orangeAccent, 4),
-          WeightedPaint(Colors.indigoAccent, 2),
-        ], radius),
+        painter: CircleDiagramPainter(paints, radius),
         child: Container(
           width: 2 * radius,
           height: 2 * radius,
@@ -55,7 +48,7 @@ class CircleDiagramPainter extends CustomPainter {
 class WeightedPaint extends Paint {
   double weight;
 
-  WeightedPaint(Color color, this.weight, {double strokeWidth = 6}) : super() {
+  WeightedPaint(Color color, this.weight, {double strokeWidth = 8}) : super() {
     this.color = color;
     style = PaintingStyle.stroke;
     this.strokeWidth = strokeWidth;

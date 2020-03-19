@@ -76,7 +76,7 @@ class _SectionWidgetState extends State<SectionWidget> {
   @override
   void dispose() {
     super.dispose();
-    documentFuture.then((doc) => doc.dispose());
+    documentFuture?.then((doc) => doc.dispose());
   }
 
   Widget buildAppBar() => AppBar(
