@@ -12,12 +12,15 @@ class DocumentScreen extends StatelessWidget {
   final PdfDocument document;
   final double initialPageOffset;
   final Map<int, List<Question>> questionsMap = {};
+  final List<Future<PdfPageImage>> pageFutures = [];
+  final bool editable;
 
   DocumentScreen(
     this.section,
     this.document, {
     List<Question> questions,
     this.initialPageOffset = 0,
+    this.editable = true,
   }) {
     // Initialize questions per page map.
     for (var i = 0; i < document.pageCount; i++) {
@@ -29,12 +32,15 @@ class DocumentScreen extends StatelessWidget {
         if (q.marker != null) questionsMap[q.marker.pageIndex].add(q);
       }
     }
+    for (var i = 0; i < document.pageCount; i++) {
+      pageFutures.add(loadPageImage(document, i));
+    }
   }
 
   @override
   Widget build(BuildContext context) => Scaffold(
         body: FutureBuilder(
-          future: loadPageImage(document, initialPageOffset.toInt()),
+          future: pageFutures[initialPageOffset.toInt()],
           builder: (_, snapshot) {
             if (snapshot.hasData) {
               var pageImage = snapshot.data;
@@ -58,13 +64,11 @@ class DocumentScreen extends StatelessWidget {
 
               return DocumentViewer(
                 section,
-                List.generate(
-                  document.pageCount,
-                  (i) => loadPageImage(document, i),
-                ),
+                pageFutures,
                 questionsMap,
                 offset,
                 pageHeight,
+                editable
               );
             }
             return Container();
@@ -79,14 +83,10 @@ class DocumentViewer extends StatefulWidget {
   final Map<int, List<Question>> questionsMap;
   final double initialScrollOffset;
   final double pageHeight;
+  final bool editable;
 
-  DocumentViewer(
-    this.section,
-    this.pageImageFutures,
-    this.questionsMap,
-    this.initialScrollOffset,
-    this.pageHeight,
-  );
+  DocumentViewer(this.section, this.pageImageFutures, this.questionsMap,
+      this.initialScrollOffset, this.pageHeight, this.editable);
 
   @override
   _DocumentViewerState createState() => _DocumentViewerState();
@@ -132,10 +132,10 @@ class _DocumentViewerState extends State<DocumentViewer> {
                   if (snapshot.hasData) {
                     return GestureDetector(
                       child: RawImage(image: snapshot.data.image),
-                      onDoubleTap: () {
-                        // Set marker in the middle of the page.
-                        addQuestion(Marker(0.5, pageIndex + 0.5), context);
-                      },
+                      onDoubleTap: widget.editable
+                          ? () =>
+                              addQuestion(Marker(0.5, pageIndex + 0.5), context)
+                          : null,
                     );
                   }
                   return Center(

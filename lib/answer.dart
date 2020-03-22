@@ -99,6 +99,7 @@ class _AnswerScreenState extends State<AnswerScreen> {
             widget.questions[currentIndex].section,
             document,
             initialPageOffset: widget.questions[currentIndex].question.marker.y,
+            editable: false,
           ),
         ));
       };
