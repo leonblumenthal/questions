@@ -43,8 +43,8 @@ class _SectionWidgetState extends State<SectionWidget> {
         child: const Icon(Icons.add),
         onPressed: addQuestion,
       )),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(4, 4, 4, 84),
         children: <Widget>[
           if (documentFuture != null)
             FutureBuilder(
@@ -57,15 +57,11 @@ class _SectionWidgetState extends State<SectionWidget> {
             future: questionsFuture,
             builder: (_, snapshot) {
               if (snapshot.hasData) {
-                var questions = snapshot.data;
-                return ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(4, 4, 4, 84),
-                  itemBuilder: (_, i) => buildQuestionItem(
-                    questions[i],
-                    questions,
-                  ),
-                  itemCount: questions.length,
-                  shrinkWrap: true,
+                List<Question> questions = snapshot.data;
+                return Column(
+                  children: questions
+                      .map((q) => buildQuestionItem(q, questions))
+                      .toList(),
                 );
               }
               return const Center(child: CircularProgressIndicator());
@@ -160,10 +156,7 @@ class _SectionWidgetState extends State<SectionWidget> {
   Widget buildQuestionItem(Question question, List<Question> questions) => Card(
         child: ListTile(
             title: Text(question.text),
-            leading: Chip(
-              label: Text(question.streak.toString()),
-              backgroundColor: Colors.grey.shade200,
-            ),
+            leading: buildStreakWidget(question.streak),
             trailing: question.marker == null
                 ? const Icon(Icons.location_off, size: 16)
                 : null,

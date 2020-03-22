@@ -40,7 +40,7 @@ class CourseItem extends StatelessWidget {
             if (qs.isNotEmpty) return buildAnswerButton(context, qs);
             return const Icon(
               Icons.check_circle_outline,
-              color: Colors.tealAccent,
+              color: Colors.grey,
             );
           }
           return Container();

@@ -154,25 +154,28 @@ class _DocumentViewerState extends State<DocumentViewer> {
         ...widget.questionsMap[pageIndex].map(buildQuestionPreview)
       ]);
 
-  Widget buildQuestionPreview(Question question) => Container(
-      height: Constants.questionPreviewHeight,
-      decoration: BoxDecoration(color: Colors.white),
-      child: InkWell(
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) =>
-              QuestionWidget(question, widget.section),
-        )),
-        child: Row(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Chip(label: Text(question.streak.toString())),
+  Widget buildQuestionPreview(Question question) => SizedBox(
+        height: Constants.questionPreviewHeight,
+        child: Card(
+          child: InkWell(
+            borderRadius: BorderRadius.circular(4),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => QuestionWidget(question, widget.section),
+            )),
+            child: Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: buildStreakWidget(question.streak),
+                ),
+                Flexible(
+                  child: Text(question.text, overflow: TextOverflow.ellipsis),
+                )
+              ],
             ),
-            Flexible(
-                child: Text(question.text, overflow: TextOverflow.ellipsis))
-          ],
+          ),
         ),
-      ));
+      );
 
   Future<void> addQuestion(Marker marker, BuildContext context) async {
     // Get question text with a dialog.

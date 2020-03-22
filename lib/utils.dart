@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:pdf_render/pdf_render.dart';
+import 'package:questions/constants.dart';
 
 import 'package:questions/models.dart';
 
@@ -98,19 +99,40 @@ Future<PdfPageImage> loadPageImage(
 }
 
 /// Compare questions by streak, section and last answered
-  int compareQuestionsToAnswer(QuestionToAnswer a, QuestionToAnswer b) {
-    var cmp = a.question.streak.compareTo(b.question.streak);
+int compareQuestionsToAnswer(QuestionToAnswer a, QuestionToAnswer b) {
+  var cmp = a.question.streak.compareTo(b.question.streak);
+  if (cmp == 0) {
+    cmp = a.section.title.compareTo(b.section.title);
     if (cmp == 0) {
-      cmp = a.section.title.compareTo(b.section.title);
-      if (cmp == 0) {
-        if (a.question.lastAnswered == null) {
-          cmp = -1;
-        } else if (b.question.lastAnswered == null) {
-          cmp = 1;
-        } else {
-          cmp = a.question.lastAnswered.compareTo(b.question.lastAnswered);
-        }
+      if (a.question.lastAnswered == null) {
+        cmp = -1;
+      } else if (b.question.lastAnswered == null) {
+        cmp = 1;
+      } else {
+        cmp = a.question.lastAnswered.compareTo(b.question.lastAnswered);
       }
     }
-    return cmp;
   }
+  return cmp;
+}
+
+Color _getStreakColor(int streak) {
+  if (streak < Constants.streakColors.length) {
+    return Constants.streakColors[streak];
+  }
+  return Constants.streakColors.last;
+}
+
+Widget buildStreakWidget(int streak) => Container(
+      width: 32,
+      height: 32,
+      alignment: Alignment.center,
+      child: Text(
+        streak.toString(),
+        style: const TextStyle(color: Colors.white, fontSize: 16),
+      ),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: _getStreakColor(streak),
+      ),
+    );

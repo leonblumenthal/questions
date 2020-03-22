@@ -6,6 +6,7 @@ import 'package:questions/question.dart';
 import 'package:questions/models.dart';
 import 'package:questions/storage.dart';
 import 'package:questions/utils.dart';
+import 'package:questions/utils.dart';
 
 class AnswerScreen extends StatefulWidget {
   final List<QuestionToAnswer> questions;
@@ -145,7 +146,7 @@ class QuestionCard extends StatelessWidget {
   Widget build(BuildContext context) => Card(
       margin: const EdgeInsets.all(16),
       child: Container(
-        padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+        padding: const EdgeInsets.all(8),
         child: Column(children: [
           Text(qta.course.title, style: const TextStyle(fontSize: 12)),
           Text(
@@ -163,7 +164,7 @@ class QuestionCard extends StatelessWidget {
           ),
           Align(
             alignment: Alignment.centerRight,
-            child: Chip(label: Text('${qta.question.streak}')),
+            child: buildStreakWidget(qta.question.streak),
           )
         ]),
       ));
