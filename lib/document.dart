@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pdf_render/pdf_render.dart';
+import 'package:questions/question.dart';
 import 'package:toast/toast.dart';
 
 import 'package:questions/constants.dart';
@@ -63,12 +64,13 @@ class DocumentScreen extends StatelessWidget {
               if (offset <= Constants.appBarHeight) offset = 0;
 
               return DocumentViewer(
+                document,
                 section,
                 pageFutures,
                 questionsMap,
                 offset,
                 pageHeight,
-                editable
+                editable,
               );
             }
             return Container();
@@ -78,6 +80,7 @@ class DocumentScreen extends StatelessWidget {
 }
 
 class DocumentViewer extends StatefulWidget {
+  final PdfDocument document;
   final Section section;
   final List<Future<PdfPageImage>> pageImageFutures;
   final Map<int, List<Question>> questionsMap;
@@ -85,8 +88,14 @@ class DocumentViewer extends StatefulWidget {
   final double pageHeight;
   final bool editable;
 
-  DocumentViewer(this.section, this.pageImageFutures, this.questionsMap,
-      this.initialScrollOffset, this.pageHeight, this.editable);
+  DocumentViewer(
+      this.document,
+      this.section,
+      this.pageImageFutures,
+      this.questionsMap,
+      this.initialScrollOffset,
+      this.pageHeight,
+      this.editable);
 
   @override
   _DocumentViewerState createState() => _DocumentViewerState();
@@ -148,14 +157,21 @@ class _DocumentViewerState extends State<DocumentViewer> {
   Widget buildQuestionPreview(Question question) => Container(
       height: Constants.questionPreviewHeight,
       decoration: BoxDecoration(color: Colors.white),
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Chip(label: Text(question.streak.toString())),
-          ),
-          Flexible(child: Text(question.text, overflow: TextOverflow.ellipsis))
-        ],
+      child: InkWell(
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) =>
+              QuestionWidget(question, widget.section),
+        )),
+        child: Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Chip(label: Text(question.streak.toString())),
+            ),
+            Flexible(
+                child: Text(question.text, overflow: TextOverflow.ellipsis))
+          ],
+        ),
       ));
 
   Future<void> addQuestion(Marker marker, BuildContext context) async {

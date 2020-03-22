@@ -60,7 +60,10 @@ class _SectionWidgetState extends State<SectionWidget> {
                 var questions = snapshot.data;
                 return ListView.builder(
                   padding: const EdgeInsets.fromLTRB(4, 4, 4, 84),
-                  itemBuilder: (_, i) => buildQuestionItem(questions[i]),
+                  itemBuilder: (_, i) => buildQuestionItem(
+                    questions[i],
+                    questions,
+                  ),
                   itemCount: questions.length,
                   shrinkWrap: true,
                 );
@@ -154,7 +157,7 @@ class _SectionWidgetState extends State<SectionWidget> {
             }),
       );
 
-  Widget buildQuestionItem(Question question) => Card(
+  Widget buildQuestionItem(Question question, List<Question> questions) => Card(
         child: ListTile(
             title: Text(question.text),
             leading: Chip(
@@ -168,8 +171,12 @@ class _SectionWidgetState extends State<SectionWidget> {
               var document;
               if (documentFuture != null) document = await documentFuture;
               await Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) =>
-                    QuestionWidget(question, widget.section, document),
+                builder: (_) => QuestionWidget(
+                  question,
+                  widget.section,
+                  document,
+                  questions,
+                ),
               ));
               reloadQuestions();
             }),

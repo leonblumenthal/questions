@@ -10,9 +10,10 @@ import 'package:questions/utils.dart';
 class QuestionWidget extends StatefulWidget {
   final Question question;
   final Section section;
+  final List<Question> questions;
   final PdfDocument document;
 
-  QuestionWidget(this.question, this.section, [this.document]);
+  QuestionWidget(this.question, this.section, [this.document, this.questions]);
 
   @override
   _QuestionWidgetState createState() => _QuestionWidgetState();
@@ -29,7 +30,9 @@ class _QuestionWidgetState extends State<QuestionWidget> {
           ],
         ),
         floatingActionButton:
-            widget.question.marker != null ? buildFab() : null,
+            widget.document != null && widget.question.marker != null
+                ? buildFab()
+                : null,
         body: ListView(
           children: [buildTextWidget()],
         ),
@@ -37,11 +40,13 @@ class _QuestionWidgetState extends State<QuestionWidget> {
 
   Widget buildFab() => FloatingActionButton(
         child: const Icon(Icons.location_on),
-        onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+        onPressed: () =>
+            Navigator.of(context).pushReplacement(MaterialPageRoute(
           builder: (context) => DocumentScreen(
             widget.section,
             widget.document,
             initialPageOffset: widget.question.marker.y,
+            questions: widget.questions,
           ),
         )),
       );
