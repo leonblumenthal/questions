@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:toast/toast.dart';
 
@@ -118,20 +120,25 @@ class _CourseWidgetState extends State<CourseWidget> {
   }
 
   Future<void> deleteCourse() async {
-    if (widget.course.id != null) {
-      bool result = await showDialog(
-        context: context,
-        builder: boolDialogBuilder(
-          'Delete course',
-          'Are you sure that you want to delete ${widget.course} ?',
-        ),
-      );
-      if (result) {
-        await Storage.delete(widget.course);
-        Toast.show('Deleted ${widget.course}', context, duration: 2);
-        Navigator.of(context).pop();
+    // Course has not been saved.
+    if (widget.course.id == null) Navigator.of(context).pop();
+
+    bool result = await showDialog(
+      context: context,
+      builder: boolDialogBuilder(
+        'Delete course',
+        'Are you sure that you want to delete ${widget.course} ?',
+      ),
+    );
+    if (result) {
+      // Delete all document for the course.
+      for (var section in await sectionsFuture) {
+        var path = section.documentPath;
+        if (path != null) await File(path).delete().catchError((_){});
       }
-    } else {
+      // Delete course with sections and questions.
+      await Storage.delete(widget.course);
+      Toast.show('Deleted ${widget.course}', context, duration: 2);
       Navigator.of(context).pop();
     }
   }
