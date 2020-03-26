@@ -6,7 +6,6 @@ import 'package:questions/question.dart';
 import 'package:questions/models.dart';
 import 'package:questions/storage.dart';
 import 'package:questions/utils.dart';
-import 'package:questions/utils.dart';
 
 class AnswerScreen extends StatefulWidget {
   final List<QuestionToAnswer> questions;
