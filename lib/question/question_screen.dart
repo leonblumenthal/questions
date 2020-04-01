@@ -1,25 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:pdf_render/pdf_render.dart';
-import 'package:toast/toast.dart';
-
-import 'package:questions/document.dart';
+import 'package:questions/document/document_screen.dart';
 import 'package:questions/models.dart';
 import 'package:questions/storage.dart';
-import 'package:questions/utils.dart';
+import 'package:questions/utils/dialog_utils.dart';
+import 'package:toast/toast.dart';
 
-class QuestionWidget extends StatefulWidget {
+class QuestionScreen extends StatefulWidget {
   final Question question;
   final Section section;
   final List<Question> questions;
   final PdfDocument document;
 
-  QuestionWidget(this.question, this.section, [this.document, this.questions]);
+  QuestionScreen(this.question, this.section, [this.document, this.questions]);
 
   @override
-  _QuestionWidgetState createState() => _QuestionWidgetState();
+  _QuestionScreenState createState() => _QuestionScreenState();
 }
 
-class _QuestionWidgetState extends State<QuestionWidget> {
+class _QuestionScreenState extends State<QuestionScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(

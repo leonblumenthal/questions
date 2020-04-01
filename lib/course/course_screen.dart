@@ -1,23 +1,23 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:questions/models.dart';
+import 'package:questions/section/section_screen.dart';
+import 'package:questions/storage.dart';
+import 'package:questions/utils/dialog_utils.dart';
+import 'package:questions/utils/utils.dart';
 import 'package:toast/toast.dart';
 
-import 'package:questions/models.dart';
-import 'package:questions/section.dart';
-import 'package:questions/storage.dart';
-import 'package:questions/utils.dart';
-
-class CourseWidget extends StatefulWidget {
+class CourseScreen extends StatefulWidget {
   final Course course;
 
-  CourseWidget(this.course);
+  CourseScreen(this.course);
 
   @override
-  _CourseWidgetState createState() => _CourseWidgetState();
+  _CourseScreenState createState() => _CourseScreenState();
 }
 
-class _CourseWidgetState extends State<CourseWidget> {
+class _CourseScreenState extends State<CourseScreen> {
   final titleController = TextEditingController();
   Future<List<Section>> sectionsFuture;
 
@@ -145,7 +145,7 @@ class _CourseWidgetState extends State<CourseWidget> {
 
   Future goToSection(Section section) async {
     await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => SectionWidget(section)),
+      MaterialPageRoute(builder: (_) => SectionScreen(section)),
     );
     reloadSections();
   }

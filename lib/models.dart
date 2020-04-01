@@ -7,9 +7,7 @@ class Course extends StorageModel {
 
   Course({int id, this.title}) : super(id);
 
-  fromMap(Map<String, dynamic> map) {
-    title = map['title'];
-  }
+  void fromMap(Map<String, dynamic> map) => title = map['title'];
 
   Map<String, dynamic> toMap() => {'title': title};
 

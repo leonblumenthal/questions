@@ -12,3 +12,6 @@ class Constants {
     Colors.tealAccent,
   ];
 }
+
+/// Actions for popup menu items.
+enum MenuAction { delete, import, reset }

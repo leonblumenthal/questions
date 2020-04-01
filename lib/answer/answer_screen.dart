@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:pdf_render/pdf_render.dart';
-
-import 'package:questions/document.dart';
-import 'package:questions/question.dart';
+import 'package:questions/answer/question_card.dart';
+import 'package:questions/document/document_screen.dart';
 import 'package:questions/models.dart';
+import 'package:questions/question/question_screen.dart';
 import 'package:questions/storage.dart';
-import 'package:questions/utils.dart';
+import 'package:questions/utils/utils.dart';
 
 class AnswerScreen extends StatefulWidget {
   final List<QuestionToAnswer> questions;
@@ -55,7 +55,7 @@ class _AnswerScreenState extends State<AnswerScreen> {
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) {
                 var qta = widget.questions[currentIndex];
-                return QuestionWidget(qta.question, qta.section);
+                return QuestionScreen(qta.question, qta.section);
               },
             )),
           )
@@ -134,37 +134,4 @@ class _AnswerScreenState extends State<AnswerScreen> {
       setState(() {});
     }
   }
-}
-
-class QuestionCard extends StatelessWidget {
-  final QuestionToAnswer qta;
-
-  QuestionCard(this.qta);
-
-  @override
-  Widget build(BuildContext context) => Card(
-      margin: const EdgeInsets.all(16),
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        child: Column(children: [
-          Text(qta.course.title, style: const TextStyle(fontSize: 12)),
-          Text(
-            qta.section.title,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          Divider(),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-            child: Text(
-              qta.question.text,
-              style: const TextStyle(fontSize: 22),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: buildStreakWidget(qta.question.streak),
-          )
-        ]),
-      ));
 }

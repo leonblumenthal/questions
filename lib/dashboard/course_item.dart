@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-
-import 'package:questions/answer.dart';
-import 'package:questions/course.dart';
+import 'package:questions/answer/answer_screen.dart';
+import 'package:questions/course/course_screen.dart';
 import 'package:questions/models.dart';
 import 'package:questions/storage.dart';
 
@@ -15,7 +14,7 @@ class CourseItem extends StatelessWidget {
   Widget build(BuildContext context) => Card(
         child: InkWell(
           onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => CourseWidget(course)),
+            MaterialPageRoute(builder: (_) => CourseScreen(course)),
           ),
           borderRadius: BorderRadius.circular(4),
           child: Container(

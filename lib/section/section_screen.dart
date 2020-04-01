@@ -2,24 +2,25 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:pdf_render/pdf_render.dart';
+import 'package:questions/document/document_screen.dart';
+import 'package:questions/models.dart';
+import 'package:questions/question/question_screen.dart';
+import 'package:questions/storage.dart';
+import 'package:questions/utils/dialog_utils.dart';
+import 'package:questions/utils/utils.dart';
+import 'package:questions/constants.dart';
 import 'package:toast/toast.dart';
 
-import 'package:questions/document.dart';
-import 'package:questions/models.dart';
-import 'package:questions/question.dart';
-import 'package:questions/storage.dart';
-import 'package:questions/utils.dart';
-
-class SectionWidget extends StatefulWidget {
+class SectionScreen extends StatefulWidget {
   final Section section;
 
-  SectionWidget(this.section);
+  SectionScreen(this.section);
 
   @override
-  _SectionWidgetState createState() => _SectionWidgetState();
+  _SectionScreenState createState() => _SectionScreenState();
 }
 
-class _SectionWidgetState extends State<SectionWidget> {
+class _SectionScreenState extends State<SectionScreen> {
   final titleController = TextEditingController();
   Future<List<Question>> questionsFuture;
   Future<PdfDocument> documentFuture;
@@ -99,15 +100,15 @@ class _SectionWidgetState extends State<SectionWidget> {
       );
 
   Widget buildActionMenu() => PopupMenuButton(
-        onSelected: (Action action) async {
+        onSelected: (MenuAction action) async {
           switch (action) {
-            case Action.delete:
+            case MenuAction.delete:
               deleteSection();
               break;
-            case Action.import:
+            case MenuAction.import:
               importDocument();
               break;
-            case Action.reset:
+            case MenuAction.reset:
               resetQuestions();
               break;
           }
@@ -115,15 +116,15 @@ class _SectionWidgetState extends State<SectionWidget> {
         itemBuilder: (_) => [
           const PopupMenuItem(
             child: Text('Delete section'),
-            value: Action.delete,
+            value: MenuAction.delete,
           ),
           const PopupMenuItem(
             child: Text('Reset questions'),
-            value: Action.reset,
+            value: MenuAction.reset,
           ),
           const PopupMenuItem(
             child: Text('Import document'),
-            value: Action.import,
+            value: MenuAction.import,
           ),
         ],
       );
@@ -164,7 +165,7 @@ class _SectionWidgetState extends State<SectionWidget> {
               var document;
               if (documentFuture != null) document = await documentFuture;
               await Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => QuestionWidget(
+                builder: (_) => QuestionScreen(
                   question,
                   widget.section,
                   document,
@@ -272,5 +273,4 @@ class _SectionWidgetState extends State<SectionWidget> {
   dynamic hideBeforeSave(w) => widget.section.id == null ? null : w;
 }
 
-/// Actions for popup menu items.
-enum Action { delete, import, reset }
+

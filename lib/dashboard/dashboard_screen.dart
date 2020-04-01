@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'package:questions/course.dart';
+import 'package:questions/course/course_screen.dart';
 import 'package:questions/dashboard/course_item.dart';
 import 'package:questions/models.dart';
 import 'package:questions/storage.dart';
@@ -37,7 +36,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         padding: const EdgeInsets.all(8),
         shape: CircleBorder(),
         onPressed: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => CourseWidget(Course())),
+          MaterialPageRoute(builder: (_) => CourseScreen(Course())),
         ),
       ));
 }
