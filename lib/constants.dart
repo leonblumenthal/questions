@@ -10,6 +10,9 @@ class Constants {
     Colors.amberAccent,
     Colors.lightGreenAccent,
     Colors.tealAccent,
+    Colors.lightBlueAccent,
+    Colors.indigoAccent,
+    Colors.black
   ];
 }
 

@@ -62,23 +62,25 @@ int compareQuestionsToAnswer(QuestionToAnswer a, QuestionToAnswer b) {
   return cmp;
 }
 
-Color _getStreakColor(int streak) {
-  if (streak < Constants.streakColors.length) {
-    return Constants.streakColors[streak];
-  }
-  return Constants.streakColors.last;
-}
+Widget buildStreakWidget(int streak) {
+  var cs = Constants.streakColors;
+  var color = streak < cs.length ? cs[streak] : cs.last;
 
-Widget buildStreakWidget(int streak) => Container(
-      width: 32,
-      height: 32,
-      alignment: Alignment.center,
-      child: Text(
-        streak.toString(),
-        style: const TextStyle(color: Colors.white, fontSize: 16),
+  return Container(
+    width: 32,
+    height: 32,
+    alignment: Alignment.center,
+    child: Text(
+      streak.toString(),
+      style: TextStyle(
+        color: color,
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
       ),
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: _getStreakColor(streak),
-      ),
-    );
+    ),
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      border: Border.all(color: color, width: 2),
+    ),
+  );
+}
