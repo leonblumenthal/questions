@@ -62,9 +62,13 @@ int compareQuestionsToAnswer(QuestionToAnswer a, QuestionToAnswer b) {
   return cmp;
 }
 
-Widget buildStreakWidget(int streak) {
+Color getStreakColor(int streak) {
   var cs = Constants.streakColors;
-  var color = streak < cs.length ? cs[streak] : cs.last;
+  return streak < cs.length ? cs[streak] : cs.last;
+}
+
+Widget buildStreakWidget(int streak) {
+  var color = getStreakColor(streak);
 
   return Container(
     width: 32,
@@ -81,6 +85,7 @@ Widget buildStreakWidget(int streak) {
     decoration: BoxDecoration(
       shape: BoxShape.circle,
       border: Border.all(color: color, width: 2),
+      color: Colors.white,
     ),
   );
 }

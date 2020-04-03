@@ -45,7 +45,7 @@ class _SectionScreenState extends State<SectionScreen> {
         onPressed: addQuestion,
       )),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(4, 4, 4, 84),
+        padding: Constants.listViewPadding,
         children: <Widget>[
           if (documentFuture != null)
             FutureBuilder(

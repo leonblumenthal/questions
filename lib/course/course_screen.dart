@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:questions/constants.dart';
 import 'package:questions/models.dart';
 import 'package:questions/section/section_screen.dart';
 import 'package:questions/storage.dart';
@@ -96,7 +97,7 @@ class _CourseScreenState extends State<CourseScreen> {
         if (snapshot.hasData) {
           List<Section> sections = snapshot.data;
           return ListView.builder(
-            padding: const EdgeInsets.fromLTRB(4, 4, 4, 84),
+            padding: Constants.listViewPadding,
             itemBuilder: (_, i) => buildSectionItem(sections[i]),
             itemCount: sections.length,
           );

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:pdf_render/pdf_render.dart';
+import 'package:questions/constants.dart';
 import 'package:questions/document/document_screen.dart';
 import 'package:questions/models.dart';
+import 'package:questions/question/question_timeline.dart';
 import 'package:questions/storage.dart';
 import 'package:questions/utils/dialog_utils.dart';
 import 'package:toast/toast.dart';
@@ -33,7 +35,8 @@ class _QuestionScreenState extends State<QuestionScreen> {
                 ? buildFab()
                 : null,
         body: ListView(
-          children: [buildTextWidget()],
+          padding: Constants.listViewPadding,
+          children: [buildTextWidget(), buildTimeLineWidget()],
         ),
       );
 
@@ -65,6 +68,21 @@ class _QuestionScreenState extends State<QuestionScreen> {
           ),
         ),
       );
+
+  Widget buildTimeLineWidget() => FutureBuilder(
+      future: Storage.getAnswers(widget.question),
+      builder: (_, snapshot) {
+        if (snapshot.hasData) {
+          if (snapshot.data.isNotEmpty) {
+            return QuestionTimeline(widget.question, snapshot.data);
+          }
+          return const Padding(
+            padding: EdgeInsets.all(16),
+            child: Center(child: Text('Not answered')),
+          );
+        }
+        return Container();
+      });
 
   Future<void> delete() async {
     bool result = await showDialog(
