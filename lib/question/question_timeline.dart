@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:questions/models.dart';
 import 'package:questions/utils/utils.dart';
+import 'package:questions/widgets/streak_widget.dart';
 
 class QuestionTimeline extends StatelessWidget {
   final Question question;
@@ -54,7 +55,7 @@ class QuestionTimeline extends StatelessWidget {
               bottom: answer == answers.last ? 32 : 0,
             ),
           ),
-          buildStreakWidget(streak),
+          StreakWidget(streak),
         ],
       ),
       title: Text(getDurationString(answer.dateTime, nowDate)),

@@ -67,25 +67,3 @@ Color getStreakColor(int streak) {
   return streak < cs.length ? cs[streak] : cs.last;
 }
 
-Widget buildStreakWidget(int streak) {
-  var color = getStreakColor(streak);
-
-  return Container(
-    width: 32,
-    height: 32,
-    alignment: Alignment.center,
-    child: Text(
-      streak.toString(),
-      style: TextStyle(
-        color: color,
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-    decoration: BoxDecoration(
-      shape: BoxShape.circle,
-      border: Border.all(color: color, width: 2),
-      color: Colors.white,
-    ),
-  );
-}

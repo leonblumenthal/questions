@@ -7,6 +7,7 @@ import 'package:questions/section/section_screen.dart';
 import 'package:questions/storage.dart';
 import 'package:questions/utils/dialog_utils.dart';
 import 'package:questions/utils/utils.dart';
+import 'package:questions/widgets/app_bar_text_field.dart';
 import 'package:toast/toast.dart';
 
 class CourseScreen extends StatefulWidget {
@@ -37,17 +38,8 @@ class _CourseScreenState extends State<CourseScreen> {
       );
 
   Widget buildAppBar() => AppBar(
-      title: TextField(
+      title: AppBarTextField(
         controller: titleController,
-        decoration: const InputDecoration(border: InputBorder.none),
-        style: const TextStyle(
-          fontSize: 22,
-          color: Colors.white,
-          fontWeight: FontWeight.w500,
-        ),
-        cursorColor: Colors.white,
-        autofocus: titleController.text.isEmpty,
-        textCapitalization: TextCapitalization.sentences,
         onSubmitted: (title) async {
           await Storage.insert(widget.course..title = title.trim());
           setState(() {});
@@ -135,7 +127,7 @@ class _CourseScreenState extends State<CourseScreen> {
       // Delete all document for the course.
       for (var section in await sectionsFuture) {
         var path = section.documentPath;
-        if (path != null) await File(path).delete().catchError((_){});
+        if (path != null) await File(path).delete().catchError((_) {});
       }
       // Delete course with sections and questions.
       await Storage.delete(widget.course);

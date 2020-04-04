@@ -5,7 +5,7 @@ import 'package:questions/models.dart';
 import 'package:questions/question/question_screen.dart';
 import 'package:questions/storage.dart';
 import 'package:questions/utils/dialog_utils.dart';
-import 'package:questions/utils/utils.dart';
+import 'package:questions/widgets/streak_widget.dart';
 import 'package:toast/toast.dart';
 
 class DocumentViewer extends StatefulWidget {
@@ -95,7 +95,7 @@ class _DocumentViewerState extends State<DocumentViewer> {
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: buildStreakWidget(question.streak),
+                  child: StreakWidget(question.streak),
                 ),
                 Flexible(
                   child: Text(question.text, overflow: TextOverflow.ellipsis),

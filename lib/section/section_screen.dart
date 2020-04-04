@@ -2,13 +2,15 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:pdf_render/pdf_render.dart';
+import 'package:questions/constants.dart';
 import 'package:questions/document/document_screen.dart';
 import 'package:questions/models.dart';
 import 'package:questions/question/question_screen.dart';
 import 'package:questions/storage.dart';
 import 'package:questions/utils/dialog_utils.dart';
 import 'package:questions/utils/utils.dart';
-import 'package:questions/constants.dart';
+import 'package:questions/widgets/app_bar_text_field.dart';
+import 'package:questions/widgets/streak_widget.dart';
 import 'package:toast/toast.dart';
 
 class SectionScreen extends StatefulWidget {
@@ -80,17 +82,8 @@ class _SectionScreenState extends State<SectionScreen> {
   }
 
   Widget buildAppBar() => AppBar(
-        title: TextField(
+        title: AppBarTextField(
           controller: titleController,
-          decoration: const InputDecoration(border: InputBorder.none),
-          style: const TextStyle(
-            fontSize: 22,
-            color: Colors.white,
-            fontWeight: FontWeight.w500,
-          ),
-          cursorColor: Colors.white,
-          autofocus: titleController.text.isEmpty,
-          textCapitalization: TextCapitalization.sentences,
           onSubmitted: (title) async {
             await Storage.insert(widget.section..title = title.trim());
             setState(() {});
@@ -157,7 +150,7 @@ class _SectionScreenState extends State<SectionScreen> {
   Widget buildQuestionItem(Question question, List<Question> questions) => Card(
         child: ListTile(
             title: Text(question.text),
-            leading: buildStreakWidget(question.streak),
+            leading: StreakWidget(question.streak),
             trailing: question.marker == null
                 ? const Icon(Icons.location_off, size: 16)
                 : null,
@@ -272,5 +265,3 @@ class _SectionScreenState extends State<SectionScreen> {
 
   dynamic hideBeforeSave(w) => widget.section.id == null ? null : w;
 }
-
-

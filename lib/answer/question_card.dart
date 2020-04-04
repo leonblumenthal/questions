@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:questions/models.dart';
-import 'package:questions/utils/utils.dart';
+import 'package:questions/widgets/streak_widget.dart';
 
 class QuestionCard extends StatelessWidget {
   final QuestionToAnswer qta;
@@ -29,7 +29,7 @@ class QuestionCard extends StatelessWidget {
           ),
           Align(
             alignment: Alignment.centerRight,
-            child: buildStreakWidget(qta.question.streak),
+            child: StreakWidget(qta.question.streak),
           )
         ]),
       ));
