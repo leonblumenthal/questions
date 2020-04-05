@@ -15,8 +15,9 @@ import 'package:toast/toast.dart';
 
 class SectionScreen extends StatefulWidget {
   final Section section;
+  final Color color;
 
-  SectionScreen(this.section);
+  SectionScreen(this.section, this.color);
 
   @override
   _SectionScreenState createState() => _SectionScreenState();
@@ -45,6 +46,7 @@ class _SectionScreenState extends State<SectionScreen> {
       floatingActionButton: hideBeforeSave(FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: addQuestion,
+        backgroundColor: widget.color,
       )),
       body: ListView(
         padding: Constants.listViewPadding,
@@ -89,6 +91,7 @@ class _SectionScreenState extends State<SectionScreen> {
             setState(() {});
           },
         ),
+        backgroundColor: widget.color,
         actions: hideBeforeSave([buildActionMenu()]),
       );
 
@@ -104,6 +107,7 @@ class _SectionScreenState extends State<SectionScreen> {
             case MenuAction.reset:
               resetQuestions();
               break;
+            default:
           }
         },
         itemBuilder: (_) => [
@@ -140,6 +144,7 @@ class _SectionScreenState extends State<SectionScreen> {
                 builder: (_) => DocumentScreen(
                   widget.section,
                   document,
+                  widget.color,
                   questions: questions,
                 ),
               ));
@@ -161,6 +166,7 @@ class _SectionScreenState extends State<SectionScreen> {
                 builder: (_) => QuestionScreen(
                   question,
                   widget.section,
+                  widget.color,
                   document,
                   questions,
                 ),

@@ -11,10 +11,11 @@ import 'package:toast/toast.dart';
 class QuestionScreen extends StatefulWidget {
   final Question question;
   final Section section;
+  final Color color;
   final List<Question> questions;
   final PdfDocument document;
 
-  QuestionScreen(this.question, this.section, [this.document, this.questions]);
+  QuestionScreen(this.question, this.section, this.color, [this.document, this.questions]);
 
   @override
   _QuestionScreenState createState() => _QuestionScreenState();
@@ -25,6 +26,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           title: const Text('Question'),
+          backgroundColor: widget.color,
           actions: [
             IconButton(icon: const Icon(Icons.delete), onPressed: delete),
             IconButton(icon: const Icon(Icons.restore), onPressed: reset)
@@ -42,11 +44,13 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
   Widget buildFab() => FloatingActionButton(
         child: const Icon(Icons.location_on),
+        backgroundColor: widget.color,
         onPressed: () =>
             Navigator.of(context).pushReplacement(MaterialPageRoute(
           builder: (context) => DocumentScreen(
             widget.section,
             widget.document,
+            widget.color,
             initialPageOffset: widget.question.marker.y,
             questions: widget.questions,
           ),

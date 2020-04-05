@@ -7,6 +7,7 @@ import 'package:questions/utils/utils.dart';
 
 class DocumentScreen extends StatelessWidget {
   final Section section;
+  final Color color;
   final PdfDocument document;
   final double initialPageOffset;
   final Map<int, List<Question>> questionsMap = {};
@@ -15,7 +16,8 @@ class DocumentScreen extends StatelessWidget {
 
   DocumentScreen(
     this.section,
-    this.document, {
+    this.document, 
+    this.color,{
     List<Question> questions,
     this.initialPageOffset = 0,
     this.editable = true,
@@ -63,6 +65,7 @@ class DocumentScreen extends StatelessWidget {
               return DocumentViewer(
                 document,
                 section,
+                color,
                 pageFutures,
                 questionsMap,
                 offset,

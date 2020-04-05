@@ -7,7 +7,8 @@ class Storage {
   static const _createTables = [
     'CREATE TABLE Course('
         'id INTEGER PRIMARY KEY AUTOINCREMENT,'
-        'title TEXT'
+        'title TEXT,'
+        'color INTEGER'
         ');',
     'CREATE TABLE Section('
         'id INTEGER PRIMARY KEY AUTOINCREMENT,'

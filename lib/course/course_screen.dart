@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:questions/constants.dart';
@@ -13,7 +14,13 @@ import 'package:toast/toast.dart';
 class CourseScreen extends StatefulWidget {
   final Course course;
 
-  CourseScreen(this.course);
+  CourseScreen(this.course) {
+    if (course.id == null) {
+      // Set random course color.
+      var cs = Constants.courseColors;
+      course.color = cs[Random().nextInt(cs.length)];
+    }
+  }
 
   @override
   _CourseScreenState createState() => _CourseScreenState();
@@ -38,19 +45,40 @@ class _CourseScreenState extends State<CourseScreen> {
       );
 
   Widget buildAppBar() => AppBar(
-      title: AppBarTextField(
-        controller: titleController,
-        onSubmitted: (title) async {
-          await Storage.insert(widget.course..title = title.trim());
-          setState(() {});
+        backgroundColor: widget.course.color,
+        title: AppBarTextField(
+          controller: titleController,
+          onSubmitted: (title) async {
+            await Storage.insert(widget.course..title = title.trim());
+            setState(() {});
+          },
+        ),
+        actions: hideBeforeSave([buildActionMenu()]),
+      );
+
+  Widget buildActionMenu() => PopupMenuButton(
+        onSelected: (MenuAction action) async {
+          switch (action) {
+            case MenuAction.delete:
+              deleteCourse();
+              break;
+            case MenuAction.color:
+              changeColor();
+              break;
+            default:
+          }
         },
-      ),
-      actions: hideBeforeSave([
-        IconButton(
-          icon: const Icon(Icons.delete),
-          onPressed: deleteCourse,
-        )
-      ]));
+        itemBuilder: (_) => [
+          const PopupMenuItem(
+            child: Text('Delete course'),
+            value: MenuAction.delete,
+          ),
+          const PopupMenuItem(
+            child: Text('Change color'),
+            value: MenuAction.color,
+          ),
+        ],
+      );
 
   Widget buildFabs() => Wrap(
         spacing: 16,
@@ -61,10 +89,12 @@ class _CourseScreenState extends State<CourseScreen> {
             child: const Icon(Icons.add),
             onPressed: () => goToSection(Section(courseId: widget.course.id)),
             mini: true,
+            backgroundColor: widget.course.color,
           ),
           FloatingActionButton(
             child: const Icon(Icons.library_add),
             onPressed: addSectionWithDocument,
+            backgroundColor: widget.course.color,
           ),
         ],
       );
@@ -113,9 +143,6 @@ class _CourseScreenState extends State<CourseScreen> {
   }
 
   Future<void> deleteCourse() async {
-    // Course has not been saved.
-    if (widget.course.id == null) Navigator.of(context).pop();
-
     bool result = await showDialog(
       context: context,
       builder: boolDialogBuilder(
@@ -136,9 +163,42 @@ class _CourseScreenState extends State<CourseScreen> {
     }
   }
 
+  Future<void> changeColor() async {
+    var color = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Choose course color', textAlign: TextAlign.center),
+        content: Wrap(
+          spacing: 16,
+          runSpacing: 16,
+          alignment: WrapAlignment.center,
+          children: Constants.courseColors
+              .map(
+                (c) => ButtonTheme(
+                  minWidth: 48,
+                  height: 48,
+                  buttonColor: c,
+                  shape: const CircleBorder(),
+                  child: RaisedButton(
+                    onPressed: () => Navigator.of(context).pop(c),
+                  ),
+                ),
+              )
+              .toList(),
+        ),
+      ),
+    );
+
+    if (color != null) {
+      await Storage.insert(widget.course..color = color);
+      setState(() {});
+    }
+  }
+
   Future goToSection(Section section) async {
     await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => SectionScreen(section)),
+      MaterialPageRoute(
+          builder: (_) => SectionScreen(section, widget.course.color)),
     );
     reloadSections();
   }

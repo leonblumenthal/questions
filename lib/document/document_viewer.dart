@@ -11,6 +11,7 @@ import 'package:toast/toast.dart';
 class DocumentViewer extends StatefulWidget {
   final PdfDocument document;
   final Section section;
+  final Color color;
   final List<Future<PdfPageImage>> pageImageFutures;
   final Map<int, List<Question>> questionsMap;
   final double initialScrollOffset;
@@ -20,6 +21,7 @@ class DocumentViewer extends StatefulWidget {
   DocumentViewer(
       this.document,
       this.section,
+      this.color,
       this.pageImageFutures,
       this.questionsMap,
       this.initialScrollOffset,
@@ -42,6 +44,7 @@ class _DocumentViewerState extends State<DocumentViewer> {
               title: Text(widget.section.title),
               floating: true,
               snap: true,
+              backgroundColor: widget.color,
             ),
             SliverList(
               delegate: SliverChildBuilderDelegate(
@@ -89,7 +92,7 @@ class _DocumentViewerState extends State<DocumentViewer> {
           child: InkWell(
             borderRadius: BorderRadius.circular(4),
             onTap: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => QuestionScreen(question, widget.section),
+              builder: (_) => QuestionScreen(question, widget.section, widget.color),
             )),
             child: Row(
               children: [

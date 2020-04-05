@@ -15,7 +15,8 @@ class Constants {
     Colors.indigoAccent,
     Colors.black
   ];
+  static final courseColors = Colors.accents.map((c) => c.shade100).toList();
 }
 
 /// Actions for popup menu items.
-enum MenuAction { delete, import, reset }
+enum MenuAction { delete, import, reset, color }

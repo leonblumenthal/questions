@@ -15,6 +15,7 @@ class AppBarTextField extends StatelessWidget {
           fontWeight: FontWeight.w500,
           color: Colors.white,
         ),
+        cursorColor: Colors.white,
         decoration: const InputDecoration(border: InputBorder.none),
         autofocus: controller.text.isEmpty,
         textCapitalization: TextCapitalization.sentences,

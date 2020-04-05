@@ -23,7 +23,10 @@ class CourseItem extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(course.title, style: TextStyle(fontSize: 18)),
+                Text(
+                  course.title,
+                  style: TextStyle(fontSize: 18, color: course.color),
+                ),
                 buildAnswerFutureBuilder()
               ],
             ),
@@ -37,9 +40,9 @@ class CourseItem extends StatelessWidget {
           if (snapshot.hasData) {
             List<QuestionToAnswer> qs = snapshot.data;
             if (qs.isNotEmpty) return buildAnswerButton(context, qs);
-            return const Icon(
+            return Icon(
               Icons.check_circle_outline,
-              color: Colors.grey,
+              color: Colors.grey.shade200,
             );
           }
           return Container();
@@ -52,7 +55,7 @@ class CourseItem extends StatelessWidget {
   ) =>
       RaisedButton(
         child: Text(qs.length.toString(), style: const TextStyle(fontSize: 20)),
-        color: color,
+        color: course.color,
         colorBrightness: Brightness.dark,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(64)),
         onPressed: () => Navigator.of(context).push(

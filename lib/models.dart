@@ -1,15 +1,20 @@
 import 'dart:math';
 
+import 'package:flutter/material.dart';
 import 'package:questions/storage.dart';
 
 class Course extends StorageModel {
   String title;
+  Color color;
 
-  Course({int id, this.title}) : super(id);
+  Course({int id, this.title, this.color}) : super(id);
 
-  void fromMap(Map<String, dynamic> map) => title = map['title'];
+  void fromMap(Map<String, dynamic> map) {
+    title = map['title'];
+    if (map['color'] != null) color = Color(map['color']);
+  }
 
-  Map<String, dynamic> toMap() => {'title': title};
+  Map<String, dynamic> toMap() => {'title': title, 'color': color?.value};
 
   @override
   String toString() => 'Course $title';

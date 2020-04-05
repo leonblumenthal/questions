@@ -46,16 +46,20 @@ class _AnswerScreenState extends State<AnswerScreen> {
       ));
 
   Widget buildAppBar() => AppBar(
+        iconTheme: IconThemeData(color: Colors.black),
         title: Text(
           'Question ${currentIndex + 1} of ${widget.questions.length}',
+          style: TextStyle(color: Colors.black),
         ),
+        backgroundColor: Colors.white,
         actions: [
           IconButton(
             icon: Icon(Icons.edit),
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) {
                 var qta = widget.questions[currentIndex];
-                return QuestionScreen(qta.question, qta.section);
+                return QuestionScreen(
+                    qta.question, qta.section, qta.course.color);
               },
             )),
           )
@@ -96,9 +100,10 @@ class _AnswerScreenState extends State<AnswerScreen> {
         var document = await sectionDocumentFutures[qta.section];
         Navigator.of(context).push(MaterialPageRoute(
           builder: (_) => DocumentScreen(
-            widget.questions[currentIndex].section,
+            qta.section,
             document,
-            initialPageOffset: widget.questions[currentIndex].question.marker.y,
+            qta.course.color,
+            initialPageOffset: qta.question.marker.y,
             editable: false,
           ),
         ));
