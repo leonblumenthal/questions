@@ -5,6 +5,7 @@ import 'package:questions/models.dart';
 import 'package:questions/question/question_screen.dart';
 import 'package:questions/storage.dart';
 import 'package:questions/utils/dialog_utils.dart';
+import 'package:questions/utils/utils.dart';
 import 'package:questions/widgets/streak_widget.dart';
 import 'package:toast/toast.dart';
 
@@ -12,21 +13,22 @@ class DocumentViewer extends StatefulWidget {
   final PdfDocument document;
   final Section section;
   final Color color;
-  final List<Future<PdfPageImage>> pageImageFutures;
+  final Map<int, Future<PdfPageImage>> pageImageFutures;
   final Map<int, List<Question>> questionsMap;
   final double initialScrollOffset;
   final double pageHeight;
   final bool editable;
 
   DocumentViewer(
-      this.document,
-      this.section,
-      this.color,
-      this.pageImageFutures,
-      this.questionsMap,
-      this.initialScrollOffset,
-      this.pageHeight,
-      this.editable);
+    this.document,
+    this.section,
+    this.color,
+    this.pageImageFutures,
+    this.questionsMap,
+    this.initialScrollOffset,
+    this.pageHeight,
+    this.editable,
+  );
 
   @override
   _DocumentViewerState createState() => _DocumentViewerState();
@@ -49,7 +51,7 @@ class _DocumentViewerState extends State<DocumentViewer> {
             SliverList(
               delegate: SliverChildBuilderDelegate(
                 (_, i) => buildPage(i),
-                childCount: widget.pageImageFutures.length,
+                childCount: widget.document.pageCount,
               ),
             ),
           ],
@@ -59,7 +61,7 @@ class _DocumentViewerState extends State<DocumentViewer> {
   @override
   void dispose() {
     super.dispose();
-    for (var it in widget.pageImageFutures) {
+    for (var it in widget.pageImageFutures.values) {
       it.then((p) => p.dispose());
     }
   }
@@ -68,7 +70,10 @@ class _DocumentViewerState extends State<DocumentViewer> {
         Container(
             height: widget.pageHeight,
             child: FutureBuilder(
-                future: widget.pageImageFutures[pageIndex],
+                future: widget.pageImageFutures.putIfAbsent(
+                  pageIndex,
+                  () => loadPageImage(widget.document, pageIndex),
+                ),
                 builder: (_, snapshot) {
                   if (snapshot.hasData) {
                     return GestureDetector(
@@ -92,7 +97,8 @@ class _DocumentViewerState extends State<DocumentViewer> {
           child: InkWell(
             borderRadius: BorderRadius.circular(4),
             onTap: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => QuestionScreen(question, widget.section, widget.color),
+              builder: (_) =>
+                  QuestionScreen(question, widget.section, widget.color),
             )),
             child: Row(
               children: [

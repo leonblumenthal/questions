@@ -11,7 +11,7 @@ class DocumentScreen extends StatelessWidget {
   final PdfDocument document;
   final double initialPageOffset;
   final Map<int, List<Question>> questionsMap = {};
-  final List<Future<PdfPageImage>> pageFutures = [];
+  final Map<int, Future<PdfPageImage>> pageImageFutures = {};
   final bool editable;
 
   DocumentScreen(
@@ -32,15 +32,14 @@ class DocumentScreen extends StatelessWidget {
         if (q.marker != null) questionsMap[q.marker.pageIndex].add(q);
       }
     }
-    for (var i = 0; i < document.pageCount; i++) {
-      pageFutures.add(loadPageImage(document, i));
-    }
+    var i = initialPageOffset.toInt();
+    pageImageFutures[i] = loadPageImage(document, i);
   }
 
   @override
   Widget build(BuildContext context) => Scaffold(
         body: FutureBuilder(
-          future: pageFutures[initialPageOffset.toInt()],
+          future: pageImageFutures[initialPageOffset.toInt()],
           builder: (_, snapshot) {
             if (snapshot.hasData) {
               var pageImage = snapshot.data;
@@ -66,7 +65,7 @@ class DocumentScreen extends StatelessWidget {
                 document,
                 section,
                 color,
-                pageFutures,
+                pageImageFutures,
                 questionsMap,
                 offset,
                 pageHeight,
