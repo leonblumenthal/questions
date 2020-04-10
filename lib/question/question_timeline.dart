@@ -29,7 +29,7 @@ class QuestionTimeline extends StatelessWidget {
     return Card(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 6),
-        child: Column(children: items),
+        child: Column(children: items.reversed.toList()),
       ),
     );
   }
@@ -51,8 +51,8 @@ class QuestionTimeline extends StatelessWidget {
             width: 2,
             margin: EdgeInsets.only(
               // Display connection properly for first/last item.
-              top: answer == answers.first ? 32 : 0,
-              bottom: answer == answers.last ? 32 : 0,
+              top: answer == answers.last ? 32 : 0,
+              bottom: answer == answers.first ? 32 : 0,
             ),
           ),
           StreakWidget(streak),

@@ -78,7 +78,7 @@ class Storage {
         whereArgs: [question.id ?? -1],
         orderBy: 'dateTime',
       )
-      .then((v) => v.reversed.map((map) => Answer().._fromMap(map)).toList());
+      .then((v) => v.map((map) => Answer().._fromMap(map)).toList());
 
   static Future<Course> getCourse(int id) =>
       _database.query('Course', where: 'id = ?', whereArgs: [id]).then(
