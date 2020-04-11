@@ -9,8 +9,6 @@ import 'package:questions/utils/dialog_utils.dart';
 import 'package:questions/widgets/streak_widget.dart';
 import 'package:toast/toast.dart';
 
-/// Widget for showing document pages with questions
-/// and creating new questions on a page.
 class SectionDocumentScreen extends DocumentScreen {
   final Section section;
   final Map<int, List<Question>> questionsMap = {};

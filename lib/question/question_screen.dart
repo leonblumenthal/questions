@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pdf_render/pdf_render.dart';
 import 'package:questions/constants.dart';
+import 'package:questions/document/locate_document_screen.dart';
 import 'package:questions/document/section_document_screen.dart';
 import 'package:questions/models.dart';
 import 'package:questions/question/question_timeline.dart';
@@ -35,13 +36,15 @@ class _QuestionScreenState extends State<QuestionScreen> {
           backgroundColor: widget.color,
           actions: [
             IconButton(icon: const Icon(Icons.delete), onPressed: delete),
-            IconButton(icon: const Icon(Icons.restore), onPressed: reset)
+            IconButton(icon: const Icon(Icons.restore), onPressed: reset),
+            if (widget.question.marker != null && widget.document != null)
+              IconButton(
+                icon: const Icon(Icons.edit_location),
+                onPressed: editLocation,
+              ),
           ],
         ),
-        floatingActionButton:
-            widget.document != null && widget.question.marker != null
-                ? buildFab()
-                : null,
+        floatingActionButton: widget.document != null ? buildFab() : null,
         body: ListView(
           padding: Constants.listViewPadding,
           children: [buildTextWidget(), buildTimeLineWidget()],
@@ -49,18 +52,27 @@ class _QuestionScreenState extends State<QuestionScreen> {
       );
 
   Widget buildFab() => FloatingActionButton(
-        child: const Icon(Icons.location_on),
+        child: Icon(
+          widget.question.marker == null
+              ? Icons.edit_location
+              : Icons.location_on,
+        ),
         backgroundColor: widget.color,
-        onPressed: () =>
-            Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => SectionDocumentScreen(
-            widget.section,
-            widget.document,
-            widget.questions,
-            widget.color,
-            pageOffset: widget.question.marker.y,
-          ),
-        )),
+        onPressed: () {
+          if (widget.question.marker == null) {
+            editLocation();
+          } else {
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => SectionDocumentScreen(
+                widget.section,
+                widget.document,
+                widget.questions,
+                widget.color,
+                pageOffset: widget.question.marker.y,
+              ),
+            ));
+          }
+        },
       );
 
   Widget buildTextWidget() => Card(
@@ -124,6 +136,21 @@ class _QuestionScreenState extends State<QuestionScreen> {
       await Storage.insert(widget.question);
       await Storage.deleteAnswers(widget.question);
       Toast.show('Reset ${widget.question} with answers', context, duration: 2);
+      setState(() {});
+    }
+  }
+
+  Future<void> editLocation() async {
+    int pageIndex = await Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => LocateDocumentScreen(
+        widget.section.title,
+        widget.document,
+        widget.color,
+      ),
+    ));
+    if (pageIndex != null) {
+      widget.question.marker = Marker(0.5, pageIndex + 0.5);
+      Storage.insert(widget.question);
       setState(() {});
     }
   }
