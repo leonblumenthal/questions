@@ -169,7 +169,6 @@ class _SectionScreenState extends State<SectionScreen> {
                   widget.section,
                   widget.color,
                   document,
-                  questions,
                 ),
               ));
               reloadQuestions();

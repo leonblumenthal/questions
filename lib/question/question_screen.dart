@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pdf_render/pdf_render.dart';
 import 'package:questions/constants.dart';
+import 'package:questions/document/document_screen.dart';
 import 'package:questions/document/locate_document_screen.dart';
-import 'package:questions/document/section_document_screen.dart';
 import 'package:questions/models.dart';
 import 'package:questions/question/question_timeline.dart';
 import 'package:questions/storage.dart';
@@ -13,7 +13,6 @@ class QuestionScreen extends StatefulWidget {
   final Question question;
   final Section section;
   final Color color;
-  final List<Question> questions;
   final PdfDocument document;
 
   QuestionScreen(
@@ -21,7 +20,6 @@ class QuestionScreen extends StatefulWidget {
     this.section,
     this.color, [
     this.document,
-    this.questions,
   ]);
 
   @override
@@ -54,7 +52,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
   Widget buildFab() => FloatingActionButton(
         child: Icon(
           widget.question.marker == null
-              ? Icons.edit_location
+              ? Icons.add_location
               : Icons.location_on,
         ),
         backgroundColor: widget.color,
@@ -63,10 +61,9 @@ class _QuestionScreenState extends State<QuestionScreen> {
             editLocation();
           } else {
             Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => SectionDocumentScreen(
-                widget.section,
+              builder: (context) => DocumentScreen(
+                widget.section.title,
                 widget.document,
-                widget.questions,
                 widget.color,
                 pageOffset: widget.question.marker.y,
               ),
@@ -142,11 +139,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
   Future<void> editLocation() async {
     int pageIndex = await Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => LocateDocumentScreen(
-        widget.section.title,
-        widget.document,
-        widget.color,
-      ),
+      builder: (_) => LocateDocumentScreen(widget.document, widget.color),
     ));
     if (pageIndex != null) {
       widget.question.marker = Marker(0.5, pageIndex + 0.5);

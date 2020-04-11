@@ -4,10 +4,9 @@ import 'package:questions/document/document_screen.dart';
 
 class LocateDocumentScreen extends DocumentScreen {
   LocateDocumentScreen(
-    String title,
     PdfDocument document,
     Color color,
-  ) : super(title, document, color);
+  ) : super('Locate question page', document, color);
 
   @override
   Widget buildPage(BuildContext context, int pageIndex, double pageHeight) =>
