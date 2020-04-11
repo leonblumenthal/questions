@@ -4,18 +4,26 @@ import 'package:questions/course/course_screen.dart';
 import 'package:questions/models.dart';
 import 'package:questions/storage.dart';
 
-class CourseItem extends StatelessWidget {
+class CourseItem extends StatefulWidget {
   final Course course;
   final Color color;
 
   CourseItem(this.course, this.color);
 
   @override
+  _CourseItemState createState() => _CourseItemState();
+}
+
+class _CourseItemState extends State<CourseItem> {
+  @override
   Widget build(BuildContext context) => Card(
         child: InkWell(
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => CourseScreen(course)),
-          ),
+          onTap: () async {
+            await Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => CourseScreen(widget.course)),
+            );
+            setState(() {});
+          },
           borderRadius: BorderRadius.circular(4),
           child: Container(
             padding: const EdgeInsets.only(left: 16, right: 8),
@@ -24,8 +32,8 @@ class CourseItem extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  course.title,
-                  style: TextStyle(fontSize: 18, color: course.color),
+                  widget.course.title,
+                  style: TextStyle(fontSize: 18, color: widget.course.color),
                 ),
                 buildAnswerFutureBuilder()
               ],
@@ -35,7 +43,7 @@ class CourseItem extends StatelessWidget {
       );
 
   Widget buildAnswerFutureBuilder() => FutureBuilder(
-        future: Storage.getQuestionsToAnswer(course),
+        future: Storage.getQuestionsToAnswer(widget.course),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             List<QuestionToAnswer> qs = snapshot.data;
@@ -49,17 +57,17 @@ class CourseItem extends StatelessWidget {
         },
       );
 
-  Widget buildAnswerButton(
-    BuildContext context,
-    List<QuestionToAnswer> qs,
-  ) =>
+  Widget buildAnswerButton(BuildContext context, List<QuestionToAnswer> qs) =>
       RaisedButton(
         child: Text(qs.length.toString(), style: const TextStyle(fontSize: 20)),
-        color: course.color,
+        color: widget.course.color,
         colorBrightness: Brightness.dark,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(64)),
-        onPressed: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => AnswerScreen(qs)),
-        ),
+        onPressed: () async {
+          await Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => AnswerScreen(qs)),
+          );
+          setState(() {});
+        },
       );
 }
