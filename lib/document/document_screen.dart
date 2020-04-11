@@ -1,78 +1,93 @@
 import 'package:flutter/material.dart';
 import 'package:pdf_render/pdf_render.dart';
 import 'package:questions/constants.dart';
-import 'package:questions/document/document_viewer.dart';
-import 'package:questions/models.dart';
 import 'package:questions/utils/utils.dart';
 
+/// Widget for showing document pages and
+/// scrolling to an inital page offset.
+///
+/// Override [buildPage] and [getExtraScrollOffset]
+/// to add additional functionality.
 class DocumentScreen extends StatelessWidget {
-  final Section section;
-  final Color color;
+  final String title;
   final PdfDocument document;
-  final double initialPageOffset;
-  final Map<int, List<Question>> questionsMap = {};
+  final Color color;
+  final double pageOffset;
+
   final Map<int, Future<PdfPageImage>> pageImageFutures = {};
-  final bool editable;
 
   DocumentScreen(
-    this.section,
-    this.document, 
-    this.color,{
-    List<Question> questions,
-    this.initialPageOffset = 0,
-    this.editable = true,
+    this.title,
+    this.document,
+    this.color, {
+    this.pageOffset = 0,
   }) {
-    // Initialize questions per page map.
-    for (var i = 0; i < document.pageCount; i++) {
-      questionsMap[i] = [];
-    }
-    // Fill map with questions.
-    if (questions != null) {
-      for (var q in questions) {
-        if (q.marker != null) questionsMap[q.marker.pageIndex].add(q);
-      }
-    }
-    var i = initialPageOffset.toInt();
+    var i = pageOffset.toInt();
     pageImageFutures[i] = loadPageImage(document, i);
   }
 
   @override
   Widget build(BuildContext context) => Scaffold(
         body: FutureBuilder(
-          future: pageImageFutures[initialPageOffset.toInt()],
-          builder: (_, snapshot) {
+          future: pageImageFutures[pageOffset.toInt()],
+          builder: (context, snapshot) {
             if (snapshot.hasData) {
-              var pageImage = snapshot.data;
+              PdfPageImage pageImage = snapshot.data;
 
               var ratio = pageImage.width / pageImage.height;
               var size = MediaQuery.of(context).size;
               var pageHeight = size.width / ratio;
 
-              // Count questions that belong to preceding pages.
-              var c = 0;
-              for (var i = 0; i < initialPageOffset.toInt(); i++) {
-                c += questionsMap[i].length;
-              }
+              var scrollOffset = Constants.appBarHeight +
+                  pageOffset * pageHeight -
+                  size.height / 3 +
+                  getExtraScrollOffset(pageOffset.toInt());
 
-              var offset = Constants.appBarHeight +
-                  c * Constants.questionPreviewHeight +
-                  initialPageOffset * pageHeight -
-                  size.height / 3;
+              if (scrollOffset <= Constants.appBarHeight) scrollOffset = 0;
 
-              if (offset <= Constants.appBarHeight) offset = 0;
-
-              return DocumentViewer(
-                document,
-                section,
-                color,
-                pageImageFutures,
-                questionsMap,
-                offset,
-                pageHeight,
-                editable,
-              );
+              return _buildScrollView(scrollOffset, pageHeight);
             }
             return Container();
+          },
+        ),
+      );
+
+  /// Override this to account for changed page height
+  /// caused by overriden [buildPageWidget] method.
+  double getExtraScrollOffset(int pageIndex) => 0;
+
+  Widget _buildScrollView(double scrollOffset, double pageHeight) =>
+      CustomScrollView(
+        controller: ScrollController(initialScrollOffset: scrollOffset),
+        slivers: [
+          SliverAppBar(
+            title: Text(title),
+            floating: true,
+            snap: true,
+            backgroundColor: color,
+          ),
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, i) => buildPage(context, i, pageHeight),
+              childCount: document.pageCount,
+            ),
+          ),
+        ],
+      );
+
+  /// Override this to alter the page widget.
+  /// Don't forget to to alter [getExtraScrollOffset] if height is altered.
+  Widget buildPage(BuildContext context, int pageIndex, double pageHeight) =>
+      SizedBox(
+        height: pageHeight,
+        child: FutureBuilder(
+          future: pageImageFutures.putIfAbsent(
+            pageIndex,
+            () => loadPageImage(document, pageIndex),
+          ),
+          builder: (_, snapshot) {
+            if (snapshot.hasData) return RawImage(image: snapshot.data.image);
+            return const Center(child: CircularProgressIndicator());
           },
         ),
       );

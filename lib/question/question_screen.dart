@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pdf_render/pdf_render.dart';
 import 'package:questions/constants.dart';
-import 'package:questions/document/document_screen.dart';
+import 'package:questions/document/section_document_screen.dart';
 import 'package:questions/models.dart';
 import 'package:questions/question/question_timeline.dart';
 import 'package:questions/storage.dart';
@@ -15,7 +15,13 @@ class QuestionScreen extends StatefulWidget {
   final List<Question> questions;
   final PdfDocument document;
 
-  QuestionScreen(this.question, this.section, this.color, [this.document, this.questions]);
+  QuestionScreen(
+    this.question,
+    this.section,
+    this.color, [
+    this.document,
+    this.questions,
+  ]);
 
   @override
   _QuestionScreenState createState() => _QuestionScreenState();
@@ -47,12 +53,12 @@ class _QuestionScreenState extends State<QuestionScreen> {
         backgroundColor: widget.color,
         onPressed: () =>
             Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => DocumentScreen(
+          builder: (context) => SectionDocumentScreen(
             widget.section,
             widget.document,
+            widget.questions,
             widget.color,
-            initialPageOffset: widget.question.marker.y,
-            questions: widget.questions,
+            pageOffset: widget.question.marker.y,
           ),
         )),
       );

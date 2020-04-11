@@ -100,11 +100,10 @@ class _AnswerScreenState extends State<AnswerScreen> {
         var document = await sectionDocumentFutures[qta.section];
         Navigator.of(context).push(MaterialPageRoute(
           builder: (_) => DocumentScreen(
-            qta.section,
+            qta.section.title,
             document,
             qta.course.color,
-            initialPageOffset: qta.question.marker.y,
-            editable: false,
+            pageOffset: qta.question.marker.y,
           ),
         ));
       };

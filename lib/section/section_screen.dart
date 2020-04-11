@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:pdf_render/pdf_render.dart';
 import 'package:questions/constants.dart';
 import 'package:questions/document/document_screen.dart';
+import 'package:questions/document/section_document_screen.dart';
 import 'package:questions/models.dart';
 import 'package:questions/question/question_screen.dart';
 import 'package:questions/storage.dart';
@@ -141,11 +142,11 @@ class _SectionScreenState extends State<SectionScreen> {
             onPressed: () async {
               var questions = await questionsFuture;
               await Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => DocumentScreen(
+                builder: (_) => SectionDocumentScreen(
                   widget.section,
                   document,
+                  questions,
                   widget.color,
-                  questions: questions,
                 ),
               ));
               reloadQuestions();
