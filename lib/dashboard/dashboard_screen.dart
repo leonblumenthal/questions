@@ -7,7 +7,8 @@ import 'package:questions/models.dart';
 
 class DashboardScreen extends StatelessWidget {
   @override
-  Widget build(BuildContext context) => ChangeNotifierProvider(
+  Widget build(BuildContext context) =>
+      ChangeNotifierProvider<DashboardProvider>(
         create: (_) => DashboardProvider(),
         child: Scaffold(
           backgroundColor: Colors.white,
@@ -15,10 +16,10 @@ class DashboardScreen extends StatelessWidget {
             slivers: [
               buildAppBar(),
               buildCourseList(),
-              SliverPadding(padding: const EdgeInsets.all(42))
+              const SliverPadding(padding: EdgeInsets.all(38))
             ],
           ),
-          floatingActionButton: buildAddButton(context),
+          floatingActionButton: buildAddButton(),
         ),
       );
 
@@ -44,15 +45,17 @@ class DashboardScreen extends StatelessWidget {
             ),
           ));
 
-  Widget buildAddButton(BuildContext context) => FloatingActionButton(
-        child: const Icon(Icons.add, size: 32, color: Colors.black),
-        backgroundColor: Colors.white,
-        shape: CircleBorder(),
-        onPressed: () async {
-          await Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => CourseScreen(Course()),
-          ));
-          Provider.of<DashboardProvider>(context).reload();
-        },
+  Widget buildAddButton() => Consumer<DashboardProvider>(
+        builder: (context, provider, _) => FloatingActionButton(
+          child: const Icon(Icons.add, size: 32, color: Colors.black),
+          backgroundColor: Colors.white,
+          shape: CircleBorder(),
+          onPressed: () async {
+            await Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => CourseScreen(Course()),
+            ));
+            provider.reload();
+          },
+        ),
       );
 }
