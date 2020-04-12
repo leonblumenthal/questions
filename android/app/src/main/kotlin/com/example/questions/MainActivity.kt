@@ -1,4 +1,4 @@
-package com.example.questions
+package de.blumenthal.leon.questions
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity
