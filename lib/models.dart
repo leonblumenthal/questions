@@ -114,3 +114,18 @@ class QuestionToAnswer {
   final Course course;
   const QuestionToAnswer(this.question, this.section, this.course);
 }
+
+class CourseWithStats {
+  final Course course;
+  final CourseStats stats;
+
+  CourseWithStats(this.course, this.stats);
+}
+
+class CourseStats {
+  final int sectionCount;
+  final int questionCount;
+  final double averageStreak;
+
+  CourseStats(this.sectionCount, this.questionCount, this.averageStreak);
+}

@@ -115,8 +115,8 @@ class Storage {
     );
   }
 
-  // Get all questions to answer from a course where streak
-  // is less than the difference of days between last answered and today.
+  /// Get all questions to answer from a course where streak
+  /// is less than the difference of days between last answered and today.
   static Future<List<QuestionToAnswer>> getQuestionsToAnswer(
     Course course,
   ) async {
@@ -134,6 +134,23 @@ class Storage {
     return rows.map((r) {
       var q = Question().._fromMap(r);
       return QuestionToAnswer(q, sectionMap[q.sectionId], course);
+    }).toList();
+  }
+
+  /// Get all courses with stats;
+  static Future<List<CourseWithStats>> getCoursesWithStats() async {
+    var rows = await _database.rawQuery(
+      'Select c.*, count(q.id) as qCount, avg(q.streak) as avgStreak, '
+      '(Select count(*) from Section where courseId = c.id) as sCount '
+      'FROM Course c left outer join Section s on c.id = s.courseId '
+      'left outer join Question q on s.id = q.sectionId '
+      'GROUP BY c.id, c.title, c.color;',
+    );
+    return rows.map((r) {
+      return CourseWithStats(
+        Course().._fromMap(r),
+        CourseStats(r['sCount'], r['qCount'], r['avgStreak']),
+      );
     }).toList();
   }
 }
