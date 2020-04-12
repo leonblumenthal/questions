@@ -1,51 +1,58 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:questions/course/course_screen.dart';
 import 'package:questions/dashboard/course_item.dart';
+import 'package:questions/dashboard/dashboard_provider.dart';
 import 'package:questions/models.dart';
-import 'package:questions/storage.dart';
 
-class DashboardScreen extends StatefulWidget {
+class DashboardScreen extends StatelessWidget {
   @override
-  _DashboardScreenState createState() => _DashboardScreenState();
-}
-
-class _DashboardScreenState extends State<DashboardScreen> {
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: const Text(
-            'Dashboard',
-            style: TextStyle(color: Colors.black),
-          ),
+  Widget build(BuildContext context) => ChangeNotifierProvider(
+        create: (_) => DashboardProvider(),
+        child: Scaffold(
           backgroundColor: Colors.white,
+          body: CustomScrollView(
+            slivers: [
+              buildAppBar(),
+              buildCourseList(),
+              SliverPadding(padding: const EdgeInsets.all(42))
+            ],
+          ),
+          floatingActionButton: buildAddButton(context),
         ),
-        body: ListView(children: [buildCourseList(), buildAddButton()]),
       );
 
-  Widget buildCourseList() => FutureBuilder(
-      future: Storage.getCourses(),
-      builder: (_, snapshot) {
-        List<Course> courses = [];
-        if (snapshot.hasData) courses.addAll(snapshot.data);
-        return ListView.builder(
-          itemBuilder: (_, i) => CourseItem(courses[i], Colors.tealAccent),
-          shrinkWrap: true,
-          itemCount: courses.length,
-        );
-      });
+  Widget buildAppBar() => SliverAppBar(
+        title: const Text('Dashboard', style: TextStyle(color: Colors.black)),
+        backgroundColor: Colors.white,
+        floating: true,
+        snap: true,
+        forceElevated: true,
+      );
 
-  Widget buildAddButton() => Padding(
-      padding: const EdgeInsets.all(8),
-      child: RaisedButton(
-        child: const Icon(Icons.add, size: 32),
-        color: Colors.white,
-        padding: const EdgeInsets.all(8),
+  Widget buildCourseList() => Consumer<DashboardProvider>(
+      builder: (_, provider, __) => SliverPadding(
+            padding: const EdgeInsets.all(12),
+            sliver: SliverGrid.count(
+              crossAxisCount: 2,
+              children: provider.coursesWithStats
+                  .map((c) => CourseItem(c.course, c.stats))
+                  .toList(),
+              childAspectRatio: 1.618, // golden ratio
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+            ),
+          ));
+
+  Widget buildAddButton(BuildContext context) => FloatingActionButton(
+        child: const Icon(Icons.add, size: 32, color: Colors.black),
+        backgroundColor: Colors.white,
         shape: CircleBorder(),
         onPressed: () async {
           await Navigator.of(context).push(MaterialPageRoute(
             builder: (_) => CourseScreen(Course()),
           ));
-          setState(() {});
+          Provider.of<DashboardProvider>(context).reload();
         },
-      ));
+      );
 }
