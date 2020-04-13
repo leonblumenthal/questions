@@ -39,13 +39,11 @@ class _CourseScreenState extends State<CourseScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: buildAppBar(),
+        body: CustomScrollView(slivers: [buildAppBar(), buildSectionList()]),
         floatingActionButton: hideBeforeSave(buildFabs()),
-        body: buildSectionList(),
       );
 
-  Widget buildAppBar() => AppBar(
-        backgroundColor: widget.course.color,
+  Widget buildAppBar() => SliverAppBar(
         title: AppBarTextField(
           controller: titleController,
           onSubmitted: (title) async {
@@ -54,35 +52,24 @@ class _CourseScreenState extends State<CourseScreen> {
           },
         ),
         actions: hideBeforeSave([buildActionMenu()]),
+        backgroundColor: widget.course.color,
+        floating: true,
+        snap: true,
+        forceElevated: true,
       );
 
   Widget buildActionMenu() => PopupMenuButton(
         onSelected: (MenuAction action) async {
-          switch (action) {
-            case MenuAction.delete:
-              deleteCourse();
-              break;
-            case MenuAction.color:
-              changeColor();
-              break;
-            default:
-          }
+          if (action == MenuAction.delete) deleteCourse();
+          if (action == MenuAction.color) changeColor();
         },
-        itemBuilder: (_) => [
-          const PopupMenuItem(
-            child: Text('Delete course'),
-            value: MenuAction.delete,
-          ),
-          const PopupMenuItem(
-            child: Text('Change color'),
-            value: MenuAction.color,
-          ),
+        itemBuilder: (_) => const [
+          PopupMenuItem(child: Text('Delete course'), value: MenuAction.delete),
+          PopupMenuItem(child: Text('Change color'), value: MenuAction.color),
         ],
       );
 
   Widget buildFabs() => Wrap(
-        spacing: 16,
-        crossAxisAlignment: WrapCrossAlignment.end,
         children: [
           FloatingActionButton(
             heroTag: 1,
@@ -97,6 +84,8 @@ class _CourseScreenState extends State<CourseScreen> {
             backgroundColor: widget.course.color,
           ),
         ],
+        crossAxisAlignment: WrapCrossAlignment.end,
+        spacing: 16,
       );
 
   Future addSectionWithDocument() async {
@@ -116,25 +105,42 @@ class _CourseScreenState extends State<CourseScreen> {
   Widget buildSectionList() => FutureBuilder(
       future: sectionsFuture,
       builder: (_, snapshot) {
-        if (snapshot.hasData) {
-          List<Section> sections = snapshot.data;
-          return ListView.builder(
-            padding: Constants.listViewPadding,
-            itemBuilder: (_, i) => buildSectionItem(sections[i]),
-            itemCount: sections.length,
-          );
-        }
-        return const Center(child: CircularProgressIndicator());
+        List<Section> sections = [];
+        if (snapshot.hasData) sections.addAll(snapshot.data);
+        return SliverPadding(
+          padding: const EdgeInsets.only(top: 6, bottom: 84),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (_, i) => buildSectionItem(sections[i]),
+              childCount: sections.length,
+            ),
+          ),
+        );
       });
 
   Widget buildSectionItem(Section section) => Card(
-        child: ListTile(
-          title: Text(section.title),
-          trailing: section.documentPath == null
-              ? const Icon(Icons.location_off, size: 16)
-              : null,
+        child: InkWell(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Text(
+                  section.title,
+                  style: const TextStyle(fontSize: 18),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (section.documentPath == null)
+                  const Icon(Icons.location_off, size: 16, color: Colors.grey)
+              ],
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            ),
+          ),
           onTap: () => goToSection(section),
+          borderRadius: BorderRadius.circular(8),
         ),
+        margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       );
 
   void reloadSections() {
@@ -166,29 +172,11 @@ class _CourseScreenState extends State<CourseScreen> {
   Future<void> changeColor() async {
     var color = await showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Choose course color', textAlign: TextAlign.center),
-        content: Wrap(
-          spacing: 16,
-          runSpacing: 16,
-          alignment: WrapAlignment.center,
-          children: Constants.courseColors
-              .map(
-                (c) => ButtonTheme(
-                  minWidth: 48,
-                  height: 48,
-                  buttonColor: c,
-                  shape: const CircleBorder(),
-                  child: RaisedButton(
-                    onPressed: () => Navigator.of(context).pop(c),
-                  ),
-                ),
-              )
-              .toList(),
-        ),
+      builder: colorDialogBuilder(
+        'Choose course color',
+        Constants.courseColors,
       ),
     );
-
     if (color != null) {
       await Storage.insert(widget.course..color = color);
       setState(() {});
