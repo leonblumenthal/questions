@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:pdf_render/pdf_render.dart';
 import 'package:questions/constants.dart';
-import 'package:questions/document/document_screen.dart';
 import 'package:questions/document/section_document_screen.dart';
 import 'package:questions/models.dart';
 import 'package:questions/question/question_screen.dart';
@@ -41,50 +40,28 @@ class _SectionScreenState extends State<SectionScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: buildAppBar(),
-      floatingActionButton: hideBeforeSave(FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: addQuestion,
-        backgroundColor: widget.color,
-      )),
-      body: ListView(
-        padding: Constants.listViewPadding,
-        children: <Widget>[
-          if (documentFuture != null)
-            FutureBuilder(
-              future: documentFuture,
-              builder: (_, snapshot) => snapshot.hasData
-                  ? buildDocumentButton(snapshot.data)
-                  : Container(),
-            ),
-          FutureBuilder(
-            future: questionsFuture,
-            builder: (_, snapshot) {
-              if (snapshot.hasData) {
-                List<Question> questions = snapshot.data;
-                return Column(
-                  children: questions
-                      .map((q) => buildQuestionItem(q, questions))
-                      .toList(),
-                );
-              }
-              return const Center(child: CircularProgressIndicator());
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
   void dispose() {
     super.dispose();
     documentFuture?.then((doc) => doc.dispose());
   }
 
-  Widget buildAppBar() => AppBar(
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        body: CustomScrollView(
+          slivers: [
+            buildAppBar(),
+            if (documentFuture != null) buildDocumentButton(),
+            buildQuestionList()
+          ],
+        ),
+        floatingActionButton: hideBeforeSave(FloatingActionButton(
+          child: const Icon(Icons.add),
+          onPressed: addQuestion,
+          backgroundColor: widget.color,
+        )),
+      );
+
+  Widget buildAppBar() => SliverAppBar(
         title: AppBarTextField(
           controller: titleController,
           onSubmitted: (title) async {
@@ -92,88 +69,122 @@ class _SectionScreenState extends State<SectionScreen> {
             setState(() {});
           },
         ),
-        backgroundColor: widget.color,
         actions: hideBeforeSave([buildActionMenu()]),
+        floating: true,
+        snap: true,
+        forceElevated: true,
+        backgroundColor: widget.color,
       );
 
-  Widget buildActionMenu() => PopupMenuButton(
-        onSelected: (MenuAction action) async {
-          switch (action) {
-            case MenuAction.delete:
-              deleteSection();
-              break;
-            case MenuAction.import:
-              importDocument();
-              break;
-            case MenuAction.reset:
-              resetQuestions();
-              break;
-            default:
-          }
-        },
-        itemBuilder: (_) => [
-          const PopupMenuItem(
-            child: Text('Delete section'),
-            value: MenuAction.delete,
-          ),
-          const PopupMenuItem(
-            child: Text('Reset questions'),
-            value: MenuAction.reset,
-          ),
-          const PopupMenuItem(
-            child: Text('Import document'),
-            value: MenuAction.import,
-          ),
-        ],
+  Widget buildDocumentButton() => SliverToBoxAdapter(
+        child: FutureBuilder(
+          future: documentFuture,
+          builder: (_, snapshot) {
+            if (snapshot.hasData) {
+              return Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+                  child: RaisedButton(
+                    child: const Text(
+                      'View Document',
+                      style: TextStyle(fontSize: 20, color: Colors.white),
+                    ),
+                    padding: const EdgeInsets.all(12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    color: widget.color,
+                    onPressed: () => goToDocument(snapshot.data),
+                  ));
+            }
+            return const SizedBox();
+          },
+        ),
       );
 
-  Widget buildDocumentButton(PdfDocument document) => Padding(
-        padding: const EdgeInsets.all(8),
-        child: RaisedButton(
-            child: const Text(
-              'View Document',
-              style: const TextStyle(fontSize: 20),
+  void goToDocument(PdfDocument document) async {
+    var questions = await questionsFuture;
+    await Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => SectionDocumentScreen(
+        widget.section,
+        document,
+        questions,
+        widget.color,
+      ),
+    ));
+    reloadQuestions();
+  }
+
+  Widget buildQuestionList() => FutureBuilder(
+      future: questionsFuture,
+      builder: (_, snapshot) {
+        List<Question> questions = [];
+        if (snapshot.hasData) questions.addAll(snapshot.data);
+        return SliverPadding(
+          padding: const EdgeInsets.only(top: 6, bottom: 84),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (_, i) => buildQuestionItem(questions[i], questions),
+              childCount: questions.length,
             ),
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-            ),
-            color: Colors.white,
-            onPressed: () async {
-              var questions = await questionsFuture;
-              await Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => SectionDocumentScreen(
-                  widget.section,
-                  document,
-                  questions,
-                  widget.color,
-                ),
-              ));
-              reloadQuestions();
-            }),
-      );
+          ),
+        );
+      });
+
+  Widget buildActionMenu() {
+    return PopupMenuButton(
+      onSelected: (MenuAction action) async {
+        if (action == MenuAction.delete) deleteSection();
+        if (action == MenuAction.import) importDocument();
+        if (action == MenuAction.reset) reloadQuestions();
+      },
+      itemBuilder: (_) => const [
+        PopupMenuItem(child: Text('Delete section'), value: MenuAction.delete),
+        PopupMenuItem(child: Text('Reset questions'), value: MenuAction.reset),
+        PopupMenuItem(child: Text('Import document'), value: MenuAction.import),
+      ],
+    );
+  }
 
   Widget buildQuestionItem(Question question, List<Question> questions) => Card(
-        child: ListTile(
-            title: Text(question.text),
-            leading: StreakWidget(question.streak),
-            trailing: question.marker == null
-                ? const Icon(Icons.location_off, size: 16)
-                : null,
-            onTap: () async {
-              var document;
-              if (documentFuture != null) document = await documentFuture;
-              await Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => QuestionScreen(
-                  question,
-                  widget.section,
-                  widget.color,
-                  document,
+        child: InkWell(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                StreakWidget(question.streak),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    question.text,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ));
-              reloadQuestions();
-            }),
+                if (question.marker == null)
+                  const Icon(Icons.location_off, size: 16, color: Colors.grey)
+              ],
+            ),
+          ),
+          onTap: () => goToQuestion(question),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       );
+
+  void goToQuestion(Question question) async {
+    var document;
+    if (documentFuture != null) document = await documentFuture;
+    await Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => QuestionScreen(
+        question,
+        widget.section,
+        widget.color,
+        document,
+      ),
+    ));
+    reloadQuestions();
+  }
 
   void reloadQuestions() {
     questionsFuture = Storage.getQuestions(widget.section);
@@ -191,7 +202,7 @@ class _SectionScreenState extends State<SectionScreen> {
     if (result) {
       // Delete document from local directory.
       if (widget.section.documentPath != null)
-        await File(widget.section.documentPath).delete();
+        await File(widget.section.documentPath).delete().catchError((_) {});
 
       await Storage.delete(widget.section);
 
@@ -241,19 +252,20 @@ class _SectionScreenState extends State<SectionScreen> {
     var result = true;
     if (widget.section.documentPath != null) {
       result = await showDialog(
-          context: context,
-          builder: boolDialogBuilder(
-            'Import new document',
-            'Are you sure that you want to import a new document and '
-                'remove all question markers of ${widget.section}?',
-          ));
+        context: context,
+        builder: boolDialogBuilder(
+          'Import new document',
+          'Are you sure that you want to import a new document and '
+              'remove all question markers of ${widget.section}?',
+        ),
+      );
     }
     if (result) {
       var file = await importFile();
       if (file != null) {
         // Delete old file if it exists.
         if (widget.section.documentPath != null) {
-          await File(widget.section.documentPath).delete();
+          await File(widget.section.documentPath).delete().catchError((_) {});
         }
         // Save section and remove all question markers.
         await Storage.insert(widget.section..documentPath = file.path);
@@ -264,7 +276,8 @@ class _SectionScreenState extends State<SectionScreen> {
           context,
           duration: 2,
         );
-        reloadQuestions();
+        documentFuture = PdfDocument.openFile(file.path);
+        setState(() {});
       }
     }
   }
