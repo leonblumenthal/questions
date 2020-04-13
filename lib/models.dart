@@ -123,9 +123,13 @@ class CourseWithStats {
 }
 
 class CourseStats {
-  final int sectionCount;
-  final int questionCount;
-  final double averageStreak;
+  final int _sectionCount;
+  final int _questionCount;
+  final double _averageStreak;
 
-  CourseStats(this.sectionCount, this.questionCount, this.averageStreak);
+  CourseStats(this._sectionCount, this._questionCount, this._averageStreak);
+
+  String get sectionCount => _sectionCount.toString();
+  String get questionCount => _questionCount.toString();
+  String get averageStreak => _averageStreak?.toStringAsFixed(1);
 }

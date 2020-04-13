@@ -13,18 +13,13 @@ class DashboardScreen extends StatelessWidget {
         child: Scaffold(
           backgroundColor: Colors.white,
           body: CustomScrollView(
-            slivers: [
-              buildAppBar(),
-              buildCourseList(),
-              const SliverPadding(padding: EdgeInsets.all(38))
-            ],
+            slivers: [buildAppBar(), buildCourseList(), buildAddButton()],
           ),
-          floatingActionButton: buildAddButton(),
         ),
       );
 
   Widget buildAppBar() => SliverAppBar(
-        title: const Text('Dashboard', style: TextStyle(color: Colors.black)),
+        title: const Text('Questions', style: TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
         floating: true,
         snap: true,
@@ -33,29 +28,32 @@ class DashboardScreen extends StatelessWidget {
 
   Widget buildCourseList() => Consumer<DashboardProvider>(
       builder: (_, provider, __) => SliverPadding(
-            padding: const EdgeInsets.all(12),
-            sliver: SliverGrid.count(
-              crossAxisCount: 2,
-              children: provider.coursesWithStats
-                  .map((c) => CourseItem(c.course, c.stats))
-                  .toList(),
-              childAspectRatio: 1.618, // golden ratio
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                for (var c in provider.coursesWithStats)
+                  CourseItem(c.course, c.stats)
+              ]),
             ),
           ));
 
-  Widget buildAddButton() => Consumer<DashboardProvider>(
-        builder: (context, provider, _) => FloatingActionButton(
-          child: const Icon(Icons.add, size: 32, color: Colors.black),
-          backgroundColor: Colors.white,
-          shape: CircleBorder(),
-          onPressed: () async {
-            await Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => CourseScreen(Course()),
-            ));
-            provider.reload();
-          },
+  Widget buildAddButton() => SliverPadding(
+        padding: const EdgeInsets.only(top: 12, bottom: 24),
+        sliver: SliverToBoxAdapter(
+          child: Consumer<DashboardProvider>(
+            builder: (context, provider, _) => RaisedButton(
+              child: const Icon(Icons.add, size: 32, color: Colors.black),
+              onPressed: () async {
+                await Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => CourseScreen(Course()),
+                ));
+                provider.reload();
+              },
+              padding: const EdgeInsets.all(8),
+              shape: CircleBorder(),
+              color: Colors.white,
+            ),
+          ),
         ),
       );
 }
