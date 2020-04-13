@@ -44,7 +44,6 @@ class CourseItem extends StatelessWidget {
               course.title,
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
               overflow: TextOverflow.ellipsis,
-              maxLines: 1,
             ),
             Padding(
               padding: const EdgeInsets.only(left: 2, top: 2),
