@@ -135,7 +135,7 @@ class _SectionScreenState extends State<SectionScreen> {
       onSelected: (MenuAction action) async {
         if (action == MenuAction.delete) deleteSection();
         if (action == MenuAction.import) importDocument();
-        if (action == MenuAction.reset) reloadQuestions();
+        if (action == MenuAction.reset) resetQuestions();
       },
       itemBuilder: (_) => const [
         PopupMenuItem(child: Text('Delete section'), value: MenuAction.delete),
