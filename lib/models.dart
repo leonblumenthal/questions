@@ -6,15 +6,21 @@ import 'package:questions/storage.dart';
 class Course extends StorageModel {
   String title;
   Color color;
+  int order;
 
-  Course({int id, this.title, this.color}) : super(id);
+  Course({int id, this.title, this.color, this.order}) : super(id);
 
   void fromMap(Map<String, dynamic> map) {
     title = map['title'];
     if (map['color'] != null) color = Color(map['color']);
+    order = map['order'];
   }
 
-  Map<String, dynamic> toMap() => {'title': title, 'color': color?.value};
+  Map<String, dynamic> toMap() => {
+        'title': title,
+        'color': color?.value,
+        'order': order,
+      };
 
   @override
   String toString() => 'Course $title';
@@ -22,21 +28,25 @@ class Course extends StorageModel {
 
 class Section extends StorageModel {
   String title;
-  int courseId;
   String documentPath;
+  int order;
+  int courseId;
 
-  Section({int id, this.title, this.courseId, this.documentPath}) : super(id);
+  Section({int id, this.title, this.documentPath, this.order, this.courseId})
+      : super(id);
 
   fromMap(Map<String, dynamic> map) {
     title = map['title'];
-    courseId = map['courseId'];
     documentPath = map['documentPath'];
+    order = map['order'];
+    courseId = map['courseId'];
   }
 
   Map<String, dynamic> toMap() => {
         'title': title,
         'courseId': courseId,
         'documentPath': documentPath,
+        'order': order
       };
 
   @override

@@ -8,12 +8,14 @@ class Storage {
     'CREATE TABLE Course('
         'id INTEGER PRIMARY KEY AUTOINCREMENT,'
         'title TEXT,'
-        'color INTEGER'
+        'color INTEGER,'
+        '"order" INTEGER'
         ');',
     'CREATE TABLE Section('
         'id INTEGER PRIMARY KEY AUTOINCREMENT,'
         'title TEXT,'
         'documentPath TEXT,'
+        '"order" INTEGER,'
         'courseId INTEGER REFERENCES Course(id) ON DELETE CASCADE'
         ');',
     'CREATE TABLE Question('
