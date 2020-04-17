@@ -11,6 +11,7 @@ import 'package:questions/storage.dart';
 import 'package:questions/utils/dialog_utils.dart';
 import 'package:questions/utils/utils.dart';
 import 'package:questions/widgets/app_bar_text_field.dart';
+import 'package:reorderables/reorderables.dart';
 import 'package:toast/toast.dart';
 
 class CourseScreen extends StatelessWidget {
@@ -87,7 +88,24 @@ class CourseScreen extends StatelessWidget {
         ),
       );
 
-  Future addSectionWithDocument(
+  Widget buildSectionList() => Consumer<CourseProvider>(
+        builder: (_, provider, __) => SliverPadding(
+            padding: const EdgeInsets.only(top: 6, bottom: 84),
+            sliver: ReorderableSliverList(
+              delegate: ReorderableSliverChildBuilderDelegate(
+                (_, i) => SectionItem(provider.sections[i], course.color),
+                childCount: provider.sections.length,
+              ),
+              onReorder: (from, to) async {
+                await Storage.reorder(provider.sections[from], to);
+                provider.reload();
+              },
+              buildDraggableFeedback: (_, constraints, child) =>
+                  Container(child: child, constraints: constraints),
+            )),
+      );
+
+  void addSectionWithDocument(
     BuildContext context,
     Section section,
   ) async {
@@ -101,18 +119,7 @@ class CourseScreen extends StatelessWidget {
     }
   }
 
-  Widget buildSectionList() => Consumer<CourseProvider>(
-        builder: (_, provider, __) => SliverPadding(
-            padding: const EdgeInsets.only(top: 6, bottom: 84),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (_, i) => SectionItem(provider.sections[i], course.color),
-                childCount: provider.sections.length,
-              ),
-            )),
-      );
-
-  Future<void> deleteCourse(BuildContext context) async {
+  void deleteCourse(BuildContext context) async {
     bool result = await showDialog(
       context: context,
       builder: boolDialogBuilder(
@@ -127,7 +134,7 @@ class CourseScreen extends StatelessWidget {
     }
   }
 
-  Future<void> changeColor(BuildContext context) async {
+  void changeColor(BuildContext context) async {
     var color = await showDialog(
       context: context,
       builder: colorDialogBuilder(
@@ -138,7 +145,7 @@ class CourseScreen extends StatelessWidget {
     if (color != null) Provider.of<CourseProvider>(context).setColor(color);
   }
 
-  Future goToSection(BuildContext context, Section section) async {
+  void goToSection(BuildContext context, Section section) async {
     await Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => SectionScreen(section, course.color),
     ));

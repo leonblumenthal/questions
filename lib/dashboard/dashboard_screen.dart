@@ -4,6 +4,8 @@ import 'package:questions/course/course_screen.dart';
 import 'package:questions/dashboard/course_item.dart';
 import 'package:questions/dashboard/dashboard_provider.dart';
 import 'package:questions/models.dart';
+import 'package:questions/storage.dart';
+import 'package:reorderables/reorderables.dart';
 
 class DashboardScreen extends StatelessWidget {
   @override
@@ -28,11 +30,20 @@ class DashboardScreen extends StatelessWidget {
   Widget buildCourseList() => Consumer<DashboardProvider>(
       builder: (_, provider, __) => SliverPadding(
             padding: const EdgeInsets.symmetric(vertical: 6),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
+            sliver: ReorderableSliverList(
+              delegate: ReorderableSliverChildListDelegate([
                 for (var c in provider.coursesWithStats)
                   CourseItem(c.course, c.stats)
               ]),
+              onReorder: (from, to) async {
+                await Storage.reorder(
+                  provider.coursesWithStats[from].course,
+                  to,
+                );
+                provider.reload();
+              },
+              buildDraggableFeedback: (_, constraints, child) =>
+                  Container(child: child, constraints: constraints),
             ),
           ));
 
