@@ -160,8 +160,7 @@ class _SectionScreenState extends State<SectionScreen> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                if (question.marker == null)
-                  const Icon(Icons.location_off, size: 16, color: Colors.grey)
+                buildQuestionItemTrailing(question),
               ],
             ),
           ),
@@ -171,6 +170,16 @@ class _SectionScreenState extends State<SectionScreen> {
         margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       );
+
+  Widget buildQuestionItemTrailing(Question question) {
+    Widget widget;
+    if (question.marker == null) {
+      widget = const Icon(Icons.location_off, size: 16, color: Colors.grey);
+    } else {
+      widget = Text(question.marker.y.ceil().toString() + '.');
+    }
+    return SizedBox(width: 16, child: Center(child: widget));
+  }
 
   void goToQuestion(Question question) async {
     var document;
