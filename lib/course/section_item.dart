@@ -30,8 +30,8 @@ class SectionItem extends StatelessWidget {
 
   Widget _buildTitle() => Expanded(
         child: Text(
-          section.title,
-          style: const TextStyle(fontSize: 18),
+          '${section.order + 1}. ${section.title}',
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
