@@ -59,19 +59,15 @@ class Storage {
   static Future<void> delete(StorageModel model) =>
       _database.delete(model.tableName, where: 'id = ?', whereArgs: [model.id]);
 
-  static Future<List<Course>> getCourses() => _database
-      .query('Course')
-      .then((v) => v.map((map) => Course().._fromMap(map)).toList());
-
   static Future<List<Section>> getSections(Course course) =>
       _database.query('Section', where: 'courseId = ?', whereArgs: [
         course.id ?? -1
-      ]).then((v) => v.map((map) => Section().._fromMap(map)).toList());
+      ], orderBy: '"order"').then((v) => v.map((map) => Section().._fromMap(map)).toList());
 
   static Future<List<Question>> getQuestions(Section section) =>
       _database.query('Question', where: 'sectionId = ?', whereArgs: [
         section.id ?? -1
-      ]).then((v) => v.map((map) => Question().._fromMap(map)).toList());
+      ], orderBy: 'y').then((v) => v.map((map) => Question().._fromMap(map)).toList());
 
   static Future<List<Answer>> getAnswers(Question question) => _database
       .query(
@@ -81,12 +77,6 @@ class Storage {
         orderBy: 'dateTime',
       )
       .then((v) => v.map((map) => Answer().._fromMap(map)).toList());
-
-  static Future<Course> getCourse(int id) =>
-      _database.query('Course', where: 'id = ?', whereArgs: [id]).then(
-        (v) => v.length == 0 ? null : Course()
-          .._fromMap(v.first),
-      );
 
   static Future<void> removeQuestionMarkers(Section section) =>
       _database.update(
@@ -139,21 +129,34 @@ class Storage {
     }).toList();
   }
 
-  /// Get all courses with stats;
   static Future<List<CourseWithStats>> getCoursesWithStats() async {
     var rows = await _database.rawQuery(
-      'Select c.*, count(q.id) as qCount, avg(q.streak) as avgStreak, '
-      '(Select count(*) from Section where courseId = c.id) as sCount '
-      'FROM Course c left outer join Section s on c.id = s.courseId '
-      'left outer join Question q on s.id = q.sectionId '
-      'GROUP BY c.id, c.title, c.color;',
-    );
+        'Select c.*, count(q.id) as qCount, avg(q.streak) as avgStreak, '
+        '(Select count(*) from Section where courseId = c.id) as sCount '
+        'from Course c left outer join Section s on c.id = s.courseId '
+        'left outer join Question q on s.id = q.sectionId '
+        'group by c.id order by c."order";');
     return rows.map((r) {
       return CourseWithStats(
         Course().._fromMap(r),
         CourseStats(r['sCount'], r['qCount'], r['avgStreak']),
       );
     }).toList();
+  }
+
+  /// Change order of [obj] to [order] and reorder
+  /// other objects in the same table accordingly.
+  static Future<void> reorder(dynamic obj, int order) async {
+    if (order == null) order = 99999;
+    var ops = obj.order < order
+        ? ['-', obj.order + 1, order]
+        : ['+', order, obj.order - 1];
+    await _database.rawUpdate(
+      'Update ${obj.tableName} '
+      'set "order" = "order" ${ops[0]} 1 '
+      'where "order" between ${ops[1]} and ${ops[2]};',
+    );
+    await insert(obj..order = order);
   }
 }
 

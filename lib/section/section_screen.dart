@@ -201,9 +201,11 @@ class _SectionScreenState extends State<SectionScreen> {
     );
     if (result) {
       // Delete document from local directory.
-      if (widget.section.documentPath != null)
+      if (widget.section.documentPath != null) {
         await File(widget.section.documentPath).delete().catchError((_) {});
-
+      }
+      // Reorder other sections before deleting.
+      await Storage.reorder(widget.section, null);
       await Storage.delete(widget.section);
 
       Toast.show('Deleted ${widget.section}', context, duration: 2);

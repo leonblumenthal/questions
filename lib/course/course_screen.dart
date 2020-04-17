@@ -68,14 +68,17 @@ class CourseScreen extends StatelessWidget {
               child: const Icon(Icons.add),
               onPressed: () => goToSection(
                 context,
-                Section(courseId: course.id),
+                Section(courseId: course.id, order: provider.sections.length),
               ),
               mini: true,
               backgroundColor: course.color,
             ),
             FloatingActionButton(
               child: const Icon(Icons.library_add),
-              onPressed: () => addSectionWithDocument(context),
+              onPressed: () => addSectionWithDocument(
+                context,
+                Section(courseId: course.id, order: provider.sections.length),
+              ),
               backgroundColor: course.color,
             ),
           ],
@@ -84,14 +87,15 @@ class CourseScreen extends StatelessWidget {
         ),
       );
 
-  Future addSectionWithDocument(BuildContext context) async {
+  Future addSectionWithDocument(
+    BuildContext context,
+    Section section,
+  ) async {
     var file = await importFile();
     if (file != null) {
-      var section = Section(
-        title: file.uri.pathSegments.last.split('.').first,
-        courseId: course.id,
-        documentPath: file.path,
-      );
+      section
+        ..title = file.uri.pathSegments.last.split('.').first
+        ..documentPath = file.path;
       await Storage.insert(section);
       goToSection(context, section);
     }

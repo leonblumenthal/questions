@@ -7,8 +7,7 @@ import 'package:questions/models.dart';
 
 class DashboardScreen extends StatelessWidget {
   @override
-  Widget build(BuildContext context) =>
-      ChangeNotifierProvider<DashboardProvider>(
+  Widget build(BuildContext context) => ChangeNotifierProvider(
         create: (_) => DashboardProvider(),
         child: Scaffold(
           backgroundColor: Colors.white,
@@ -45,7 +44,9 @@ class DashboardScreen extends StatelessWidget {
               child: const Icon(Icons.add, size: 32, color: Colors.black),
               onPressed: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => CourseScreen(Course()),
+                  builder: (_) => CourseScreen(
+                    Course(order: provider.coursesWithStats.length),
+                  ),
                 ));
                 provider.reload();
               },
