@@ -8,9 +8,9 @@ import 'package:questions/constants.dart';
 import 'package:questions/models.dart';
 
 /// Get current date as [DateTime].
-DateTime getDate() {
-  var now = DateTime.now();
-  return DateTime(now.year, now.month, now.day);
+DateTime getDate([DateTime dateTime]) {
+  var dt = dateTime ?? DateTime.now();
+  return DateTime(dt.year, dt.month, dt.day);
 }
 
 /// Choose and copy file to local directory and return the new file.

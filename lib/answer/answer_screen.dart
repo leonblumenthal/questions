@@ -46,24 +46,33 @@ class _AnswerScreenState extends State<AnswerScreen> {
       ));
 
   Widget buildAppBar() => AppBar(
-        iconTheme: IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(color: Colors.black),
         title: Text(
           'Question ${currentIndex + 1} of ${widget.questions.length}',
-          style: TextStyle(color: Colors.black),
+          style: const TextStyle(color: Colors.black),
         ),
         backgroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.edit),
-            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) {
-                var qta = widget.questions[currentIndex];
-                return QuestionScreen(
-                    qta.question, qta.section, qta.course.color);
-              },
-            )),
-          )
-        ],
+        actions: [if (currentIndex > 0) buildUndoButton(), buildEditButton()],
+      );
+
+  Widget buildUndoButton() => IconButton(
+        icon: const Icon(Icons.undo),
+        onPressed: () async {
+          currentIndex--;
+          var question = widget.questions[currentIndex].question;
+          await Storage.undoLastAnswer(question);
+          setState(() {});
+        },
+      );
+
+  Widget buildEditButton() => IconButton(
+        icon: const Icon(Icons.edit),
+        onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) {
+            var qta = widget.questions[currentIndex];
+            return QuestionScreen(qta.question, qta.section, qta.course.color);
+          },
+        )),
       );
 
   Widget buildAnswerRow() => Padding(
@@ -80,10 +89,9 @@ class _AnswerScreenState extends State<AnswerScreen> {
       );
 
   Widget buildAnswerButton(bool correct) => RaisedButton(
-        child: Icon(
-          correct ? Icons.sentiment_satisfied : Icons.sentiment_dissatisfied,
-          size: 48,
-        ),
+        child: correct
+            ? const Icon(Icons.sentiment_satisfied, size: 48)
+            : const Icon(Icons.sentiment_dissatisfied, size: 48),
         color:
             correct ? Colors.tealAccent.shade200 : Colors.pinkAccent.shade200,
         colorBrightness: Brightness.dark,
@@ -109,7 +117,7 @@ class _AnswerScreenState extends State<AnswerScreen> {
       };
     }
     return RaisedButton(
-      child: Icon(Icons.location_on, size: 24),
+      child: const Icon(Icons.location_on, size: 24),
       color: Colors.blue,
       disabledColor: Colors.grey.shade200,
       colorBrightness: Brightness.dark,

@@ -56,18 +56,29 @@ class Storage {
     return model..id = id;
   }
 
-  static Future<void> delete(StorageModel model) =>
-      _database.delete(model.tableName, where: 'id = ?', whereArgs: [model.id]);
+  static Future<void> delete(StorageModel model) => _database.delete(
+        model.tableName,
+        where: 'id = ?',
+        whereArgs: [model.id],
+      );
 
-  static Future<List<Section>> getSections(Course course) =>
-      _database.query('Section', where: 'courseId = ?', whereArgs: [
-        course.id ?? -1
-      ], orderBy: '"order"').then((v) => v.map((map) => Section().._fromMap(map)).toList());
+  static Future<List<Section>> getSections(Course course) => _database
+      .query(
+        'Section',
+        where: 'courseId = ?',
+        whereArgs: [course.id ?? -1],
+        orderBy: '"order"',
+      )
+      .then((v) => v.map((map) => Section().._fromMap(map)).toList());
 
-  static Future<List<Question>> getQuestions(Section section) =>
-      _database.query('Question', where: 'sectionId = ?', whereArgs: [
-        section.id ?? -1
-      ], orderBy: 'y').then((v) => v.map((map) => Question().._fromMap(map)).toList());
+  static Future<List<Question>> getQuestions(Section section) => _database
+      .query(
+        'Question',
+        where: 'sectionId = ?',
+        whereArgs: [section.id ?? -1],
+        orderBy: 'y',
+      )
+      .then((v) => v.map((map) => Question().._fromMap(map)).toList());
 
   static Future<List<Answer>> getAnswers(Question question) => _database
       .query(
@@ -157,6 +168,17 @@ class Storage {
       'where "order" between ${ops[1]} and ${ops[2]};',
     );
     await insert(obj..order = order);
+  }
+
+  static Future<void> undoLastAnswer(Question question) async {
+    var answers = await getAnswers(question).then((v) => v.reversed.toList());
+    await delete(answers[0]);
+    var lastAnswered = getDate(answers[1].dateTime);
+    var streak = answers.skip(1).takeWhile((a) => a.correct).length;
+    question
+      ..streak = streak
+      ..lastAnswered = lastAnswered;
+    await insert(question);
   }
 }
 
