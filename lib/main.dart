@@ -10,5 +10,9 @@ void main() async {
     DeviceOrientation.portraitUp,
   ]);
   await Storage.init();
-  runApp(MaterialApp(title: 'Questions', home: DashboardScreen()));
+  runApp(MaterialApp(
+    title: 'Questions',
+    home: DashboardScreen(),
+    debugShowCheckedModeBanner: false,
+  ));
 }
