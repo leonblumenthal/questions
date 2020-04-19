@@ -15,15 +15,16 @@ class DashboardScreen extends StatelessWidget {
           body: CustomScrollView(
             slivers: [buildAppBar(), buildCourseList(), buildAddButton()],
           ),
+          backgroundColor: Colors.white,
         ),
       );
 
   Widget buildAppBar() => SliverAppBar(
-        title: const Text('Questions', style: TextStyle(color: Colors.black)),
+        title: const Text('Courses', style: TextStyle(color: Colors.black)),
+        centerTitle: true,
         backgroundColor: Colors.white,
         floating: true,
         snap: true,
-        forceElevated: true,
       );
 
   Widget buildCourseList() => Consumer<DashboardProvider>(
@@ -48,8 +49,9 @@ class DashboardScreen extends StatelessWidget {
         padding: const EdgeInsets.only(top: 12, bottom: 24),
         sliver: SliverToBoxAdapter(
           child: Consumer<DashboardProvider>(
-            builder: (context, provider, _) => RaisedButton(
-              child: const Icon(Icons.add, size: 32, color: Colors.black),
+            builder: (context, provider, _) => IconButton(
+              icon: const Icon(Icons.add, color: Colors.black),
+              iconSize: 32,
               onPressed: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => CourseScreen(
@@ -58,9 +60,6 @@ class DashboardScreen extends StatelessWidget {
                 ));
                 provider.reload();
               },
-              padding: const EdgeInsets.all(8),
-              shape: const CircleBorder(),
-              color: Colors.white,
             ),
           ),
         ),

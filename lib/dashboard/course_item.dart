@@ -27,12 +27,13 @@ class CourseItem extends StatelessWidget {
             Provider.of<DashboardProvider>(context).reload();
           },
           borderRadius: BorderRadius.circular(16),
-          splashColor: course.color.withOpacity(0.1),
-          highlightColor: course.color.withOpacity(0.1),
+          splashColor: Colors.white.withOpacity(0.1),
+          highlightColor: Colors.white.withOpacity(0.1),
         ),
+        color: course.color,
+        shadowColor: course.color,
         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        shadowColor: Colors.white,
         elevation: 2,
       );
 
@@ -42,11 +43,14 @@ class CourseItem extends StatelessWidget {
           children: [
             Text(
               course.title,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+              style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white),
               overflow: TextOverflow.ellipsis,
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 2, top: 2),
+              padding: const EdgeInsets.only(left: 2, top: 4),
               child: _buildStatsRow(),
             )
           ],
@@ -62,14 +66,14 @@ class CourseItem extends StatelessWidget {
             return RaisedButton(
               child: Text(
                 qs.length.toString(),
-                style: const TextStyle(fontSize: 24, color: Colors.white),
+                style: TextStyle(fontSize: 24, color: course.color),
               ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
-              color: course.color,
-              splashColor: Colors.white.withOpacity(0.1),
-              highlightColor: Colors.white.withOpacity(0.2),
+              color: Colors.white,
+              splashColor: course.color.withOpacity(0.1),
+              highlightColor: course.color.withOpacity(0.2),
               padding: const EdgeInsets.all(10),
               onPressed: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
@@ -80,9 +84,9 @@ class CourseItem extends StatelessWidget {
             );
           }
 
-          return Padding(
-            padding: const EdgeInsets.all(12),
-            child: Icon(Icons.check_circle_outline, color: course.color),
+          return const Padding(
+            padding: EdgeInsets.all(12),
+            child: Icon(Icons.check_circle_outline, color: Colors.white),
           );
         },
       );
@@ -95,9 +99,9 @@ class CourseItem extends StatelessWidget {
       ]);
 
   Widget _buildStatItem(IconData icon, String text) => Row(children: [
-        FaIcon(icon, size: 10, color: Colors.grey.shade400),
+        FaIcon(icon, size: 10, color: Colors.white),
         const SizedBox(width: 4),
-        Text(text, style: TextStyle(color: Colors.grey.shade400)),
+        Text(text, style: TextStyle(color: Colors.white)),
         const SizedBox(width: 8),
       ]);
 }
