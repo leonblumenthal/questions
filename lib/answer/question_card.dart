@@ -9,28 +9,39 @@ class QuestionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Card(
-      margin: const EdgeInsets.all(16),
-      child: Container(
+        child: Container(
+          child: Column(children: [
+            buildTitle(),
+            const Divider(),
+            buildContent(),
+            Align(
+              alignment: Alignment.centerRight,
+              child: StreakWidget(qta.question.streak),
+            )
+          ]),
+          padding: const EdgeInsets.all(8),
+        ),
+        margin: const EdgeInsets.all(16),
+        elevation: 2,
+      );
+
+  Widget buildTitle() => Padding(
+        child: Text(
+          '${qta.course.title} - ${qta.section.title}',
+          style: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
         padding: const EdgeInsets.all(8),
-        child: Column(children: [
-          Text(qta.course.title, style: const TextStyle(fontSize: 12)),
-          Text(
-            qta.section.title,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          Divider(),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-            child: Text(
-              qta.question.text,
-              style: const TextStyle(fontSize: 22),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: StreakWidget(qta.question.streak),
-          )
-        ]),
-      ));
+      );
+
+  Widget buildContent() => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 8),
+        child: Text(
+          qta.question.text,
+          style: const TextStyle(fontSize: 22),
+          textAlign: TextAlign.center,
+        ),
+      );
 }

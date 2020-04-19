@@ -36,22 +36,26 @@ class _AnswerScreenState extends State<AnswerScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-      appBar: buildAppBar(),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          QuestionCard(widget.questions[currentIndex]),
-          buildAnswerRow(),
-        ],
-      ));
-
-  Widget buildAppBar() => AppBar(
-        iconTheme: const IconThemeData(color: Colors.black),
-        title: Text(
-          'Question ${currentIndex + 1} of ${widget.questions.length}',
-          style: const TextStyle(color: Colors.black),
+        appBar: buildAppBar(),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            QuestionCard(widget.questions[currentIndex]),
+            buildAnswerRow(),
+          ],
         ),
         backgroundColor: Colors.white,
+      );
+
+  Widget buildAppBar() => AppBar(
+        title: Text(
+          '${currentIndex + 1} of ${widget.questions.length}',
+          style: const TextStyle(color: Colors.black12),
+        ),
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.black12),
+        backgroundColor: Colors.white,
+        elevation: 0,
         actions: [if (currentIndex > 0) buildUndoButton(), buildEditButton()],
       );
 
@@ -67,12 +71,16 @@ class _AnswerScreenState extends State<AnswerScreen> {
 
   Widget buildEditButton() => IconButton(
         icon: const Icon(Icons.edit),
-        onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) {
-            var qta = widget.questions[currentIndex];
-            return QuestionScreen(qta.question, qta.section, qta.course.color);
-          },
-        )),
+        onPressed: () async {
+          await Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) {
+              var qta = widget.questions[currentIndex];
+              return QuestionScreen(
+                  qta.question, qta.section, qta.course.color);
+            },
+          ));
+          setState(() {});
+        },
       );
 
   Widget buildAnswerRow() => Padding(
@@ -117,10 +125,9 @@ class _AnswerScreenState extends State<AnswerScreen> {
       };
     }
     return RaisedButton(
-      child: const Icon(Icons.location_on, size: 24),
+      child: const Icon(Icons.location_on, size: 24, color: Colors.white),
       color: Colors.blue,
       disabledColor: Colors.grey.shade200,
-      colorBrightness: Brightness.dark,
       shape: const CircleBorder(),
       padding: const EdgeInsets.all(12),
       onPressed: onPressed,
