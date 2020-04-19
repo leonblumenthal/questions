@@ -23,7 +23,7 @@ class QuestionTimeline extends StatelessWidget {
 
       items.add(buildItemWidget(answer, streak, nowDate));
 
-      if (answer != answers.last) items.add(Divider(height: 0));
+      if (answer != answers.last) items.add(const Divider(height: 0));
     }
 
     return Card(
@@ -38,9 +38,10 @@ class QuestionTimeline extends StatelessWidget {
     var color = getStreakColor(streak);
 
     // Only show incorrect answer icon.
-    Widget trailing = answer.correct
-        ? null
-        : Icon(Icons.sentiment_dissatisfied, color: color);
+    Widget trailing;
+    if (answer.correct) {
+      trailing = Icon(Icons.sentiment_dissatisfied, color: color);
+    }
 
     return ListTile(
       leading: Stack(

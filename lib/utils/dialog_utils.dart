@@ -49,7 +49,7 @@ AlertDialog Function(BuildContext) stringDialogBuilder(
           ),
           FlatButton(
             child: Text(positive),
-            onPressed: popText ,
+            onPressed: popText,
           )
         ],
       );
@@ -60,25 +60,24 @@ AlertDialog Function(BuildContext) colorDialogBuilder(
   List<Color> colors,
 ) =>
     (context) => AlertDialog(
-          title: Text('Choose course color', textAlign: TextAlign.center),
-          content: Padding(
-            padding: const EdgeInsets.only(top: 8, bottom: 20),
-            child: Wrap(
-              spacing: 16,
-              runSpacing: 16,
-              alignment: WrapAlignment.center,
-              children: [
-                for (var c in colors)
-                  ButtonTheme(
-                    minWidth: 48,
-                    height: 48,
-                    buttonColor: c,
-                    shape: const CircleBorder(),
-                    child: RaisedButton(
-                      onPressed: () => Navigator.of(context).pop(c),
-                    ),
-                  )
-              ],
-            ),
+        title: Text(title, textAlign: TextAlign.center),
+        content: Padding(
+          padding: const EdgeInsets.only(top: 8, bottom: 20),
+          child: Wrap(
+            spacing: 16,
+            runSpacing: 16,
+            alignment: WrapAlignment.center,
+            children: [
+              for (var c in colors)
+                ButtonTheme(
+                  minWidth: 48,
+                  height: 48,
+                  buttonColor: c,
+                  shape: const CircleBorder(),
+                  child: RaisedButton(
+                    onPressed: () => Navigator.of(context).pop(c),
+                  ),
+                )
+            ],
           ),
-        );
+        ));

@@ -171,15 +171,14 @@ class _SectionScreenState extends State<SectionScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       );
 
-  Widget buildQuestionItemTrailing(Question question) {
-    Widget widget;
-    if (question.marker == null) {
-      widget = const Icon(Icons.location_off, size: 16, color: Colors.grey);
-    } else {
-      widget = Text(question.marker.y.ceil().toString() + '.');
-    }
-    return SizedBox(width: 16, child: Center(child: widget));
-  }
+  Widget buildQuestionItemTrailing(Question question) => SizedBox(
+        width: 16,
+        child: Center(
+          child: question.marker == null
+              ? const Icon(Icons.location_off, size: 16, color: Colors.grey)
+              : Text(question.marker.y.ceil().toString() + '.'),
+        ),
+      );
 
   void goToQuestion(Question question) async {
     var document;

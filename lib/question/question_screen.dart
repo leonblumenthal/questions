@@ -50,11 +50,9 @@ class _QuestionScreenState extends State<QuestionScreen> {
       );
 
   Widget buildFab() => FloatingActionButton(
-        child: Icon(
-          widget.question.marker == null
-              ? Icons.add_location
-              : Icons.location_on,
-        ),
+        child: widget.question.marker == null
+            ? const Icon(Icons.add_location)
+            : const Icon(Icons.location_on),
         backgroundColor: widget.color,
         onPressed: () {
           if (widget.question.marker == null) {

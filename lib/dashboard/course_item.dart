@@ -56,8 +56,7 @@ class CourseItem extends StatelessWidget {
   Widget _buildAnswerButton() => FutureBuilder(
         future: Storage.getQuestionsToAnswer(course),
         builder: (context, snapshot) {
-          List<QuestionToAnswer> qs = [];
-          if (snapshot.hasData) qs.addAll(snapshot.data);
+          List<QuestionToAnswer> qs = snapshot.data ?? [];
 
           if (qs.isNotEmpty) {
             return RaisedButton(

@@ -59,7 +59,7 @@ class DashboardScreen extends StatelessWidget {
                 provider.reload();
               },
               padding: const EdgeInsets.all(8),
-              shape: CircleBorder(),
+              shape: const CircleBorder(),
               color: Colors.white,
             ),
           ),
