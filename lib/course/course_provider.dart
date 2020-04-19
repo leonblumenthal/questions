@@ -17,7 +17,11 @@ class CourseProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setTitle(String title) => Storage.insert(course..title = title);
+  void setTitle(String title) async {
+    await Storage.insert(course..title = title);
+    notifyListeners();
+  }
+
   void setColor(Color color) async {
     await Storage.insert(course..color = color);
     notifyListeners();
