@@ -28,11 +28,13 @@ AlertDialog Function(BuildContext) stringDialogBuilder(
 }) =>
     (context) {
       var controller = TextEditingController();
+      var popText = () => Navigator.of(context).pop(controller.text);
       return AlertDialog(
         title: Text(title),
         content: Container(
           child: TextField(
             controller: controller,
+            onSubmitted: (_) => popText(),
             maxLines: 1,
             style: const TextStyle(fontSize: 16),
             autofocus: true,
@@ -47,7 +49,7 @@ AlertDialog Function(BuildContext) stringDialogBuilder(
           ),
           FlatButton(
             child: Text(positive),
-            onPressed: () => Navigator.of(context).pop(controller.text),
+            onPressed: popText ,
           )
         ],
       );
