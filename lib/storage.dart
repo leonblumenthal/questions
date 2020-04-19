@@ -173,7 +173,7 @@ class Storage {
   static Future<void> undoLastAnswer(Question question) async {
     var answers = await getAnswers(question).then((v) => v.reversed.toList());
     await delete(answers[0]);
-    var lastAnswered = getDate(answers[1].dateTime);
+    var lastAnswered = answers.length > 1 ? getDate(answers[1].dateTime) : null;
     var streak = answers.skip(1).takeWhile((a) => a.correct).length;
     question
       ..streak = streak
