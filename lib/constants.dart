@@ -15,7 +15,21 @@ class Constants {
     Colors.indigoAccent,
     Colors.black
   ];
-  static final courseColors = Colors.accents.map((c) => c.shade100).toList();
+  static final courseColors = [
+    Colors.redAccent.shade100,
+    Colors.pinkAccent.shade100,
+    Colors.purpleAccent.shade100,
+    Colors.deepPurpleAccent.shade100,
+    Colors.indigoAccent.shade100,
+    Colors.blueAccent.shade100,
+    Colors.lightBlueAccent.shade100,
+    Colors.greenAccent.shade100,
+    Colors.amberAccent.shade100,
+    Colors.orangeAccent.shade100,
+    Colors.deepOrangeAccent.shade100,
+    Colors.brown.shade300,
+    Colors.blueGrey.shade200,
+  ];
 }
 
 /// Actions for popup menu items.

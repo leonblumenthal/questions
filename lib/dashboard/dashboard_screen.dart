@@ -12,7 +12,6 @@ class DashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) => ChangeNotifierProvider(
         create: (_) => DashboardProvider(),
         child: Scaffold(
-          backgroundColor: Colors.white,
           body: CustomScrollView(
             slivers: [buildAppBar(), buildCourseList(), buildAddButton()],
           ),
@@ -36,10 +35,8 @@ class DashboardScreen extends StatelessWidget {
                   CourseItem(c.course, c.stats)
               ]),
               onReorder: (from, to) async {
-                await Storage.reorder(
-                  provider.coursesWithStats[from].course,
-                  to,
-                );
+                var course = provider.coursesWithStats[from].course;
+                await Storage.reorder(course, to);
                 provider.reload();
               },
               buildDraggableFeedback: (_, constraints, child) =>
