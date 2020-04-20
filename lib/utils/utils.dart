@@ -30,7 +30,7 @@ Future<File> importFile() async {
 Future<PdfPageImage> loadPageImage(
   PdfDocument document,
   int pageIndex, {
-  double scale = 1.5,
+  double scale = 2.5,
 }) async {
   var page = await document.getPage(pageIndex + 1);
   var w = page.width;
@@ -48,7 +48,7 @@ Future<PdfPageImage> loadPageImage(
 int compareQuestionsToAnswer(QuestionToAnswer a, QuestionToAnswer b) {
   var cmp = a.question.streak.compareTo(b.question.streak);
   if (cmp == 0) {
-    cmp = a.section.title.compareTo(b.section.title);
+    cmp = a.section.order.compareTo(b.section.order);
     if (cmp == 0) {
       if (a.question.lastAnswered == null) {
         cmp = -1;

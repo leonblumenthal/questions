@@ -127,7 +127,7 @@ class CourseScreen extends StatelessWidget {
         'Are you sure that you want to delete $course ?',
       ),
     );
-    if (result) {
+    if (result ?? false) {
       await Provider.of<CourseProvider>(context).deleteCourse();
       Toast.show('Deleted $course', context, duration: 2);
       Navigator.of(context).pop();

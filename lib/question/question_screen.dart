@@ -106,10 +106,10 @@ class _QuestionScreenState extends State<QuestionScreen> {
       context: context,
       builder: boolDialogBuilder(
         'Delete question',
-        'Are you sure that you want to delete ${widget.question} ?',
+        'Are you sure that you want to delete this question ?',
       ),
     );
-    if (result) {
+    if (result ?? false) {
       await Storage.delete(widget.question);
       Toast.show('Deleted ${widget.question}', context, duration: 2);
       Navigator.of(context).pop(false);
@@ -120,17 +120,17 @@ class _QuestionScreenState extends State<QuestionScreen> {
     bool result = await showDialog(
       context: context,
       builder: boolDialogBuilder(
-        'Reset question with answers',
-        'Are you sure that you want to reset ${widget.question} with answers ?',
+        'Reset this question',
+        'Are you sure that you want to reset this question with all answers ?',
       ),
     );
-    if (result) {
+    if (result ?? false) {
       widget.question
         ..lastAnswered = null
         ..streak = 0;
       await Storage.insert(widget.question);
       await Storage.deleteAnswers(widget.question);
-      Toast.show('Reset ${widget.question} with answers', context, duration: 2);
+      Toast.show('Reset question with all answers', context, duration: 2);
       setState(() {});
     }
   }

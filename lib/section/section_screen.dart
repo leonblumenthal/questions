@@ -171,14 +171,9 @@ class _SectionScreenState extends State<SectionScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       );
 
-  Widget buildQuestionItemTrailing(Question question) => SizedBox(
-        width: 16,
-        child: Center(
-          child: question.marker == null
-              ? const Icon(Icons.location_off, size: 16, color: Colors.grey)
-              : Text(question.marker.y.ceil().toString() + '.'),
-        ),
-      );
+  Widget buildQuestionItemTrailing(Question question) => question.marker == null
+      ? const Icon(Icons.location_off, size: 16, color: Colors.grey)
+      : Text(question.marker.y.ceil().toString() + '.', maxLines: 1);
 
   void goToQuestion(Question question) async {
     var document;
@@ -207,13 +202,13 @@ class _SectionScreenState extends State<SectionScreen> {
         'Are you sure that you want to delete ${widget.section} ?',
       ),
     );
-    if (result) {
+    if (result ?? false) {
       // Delete document from local directory.
       if (widget.section.documentPath != null) {
         await File(widget.section.documentPath).delete().catchError((_) {});
       }
       // Reorder other sections before deleting.
-      await Storage.reorder(widget.section, null);
+      await Storage.reorder(widget.section);
       await Storage.delete(widget.section);
 
       Toast.show('Deleted ${widget.section}', context, duration: 2);
@@ -230,7 +225,7 @@ class _SectionScreenState extends State<SectionScreen> {
           'Are you sure that you want to reset all questions and answers of ${widget.section} ?',
         ),
       );
-      if (result) {
+      if (result ?? false) {
         await Storage.resetQuestions(widget.section);
 
         Toast.show(
@@ -270,7 +265,7 @@ class _SectionScreenState extends State<SectionScreen> {
         ),
       );
     }
-    if (result) {
+    if (result ?? false) {
       var file = await importFile();
       if (file != null) {
         // Delete old file if it exists.

@@ -19,6 +19,7 @@ AlertDialog Function(BuildContext) boolDialogBuilder(
               onPressed: () => Navigator.of(context).pop(true),
             )
           ],
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         );
 
 AlertDialog Function(BuildContext) stringDialogBuilder(
@@ -34,11 +35,12 @@ AlertDialog Function(BuildContext) stringDialogBuilder(
         content: Container(
           child: TextField(
             controller: controller,
-            onSubmitted: (_) => popText(),
-            maxLines: 1,
-            style: const TextStyle(fontSize: 16),
-            autofocus: true,
+            style: const TextStyle(fontSize: 18),
             textCapitalization: TextCapitalization.sentences,
+            maxLines: 3,
+            minLines: 3,
+            autofocus: true,
+            onSubmitted: (_) => popText(),
           ),
           width: 1000,
         ),
@@ -47,11 +49,10 @@ AlertDialog Function(BuildContext) stringDialogBuilder(
             child: Text(negative),
             onPressed: Navigator.of(context).pop,
           ),
-          FlatButton(
-            child: Text(positive),
-            onPressed: popText,
-          )
+          FlatButton(child: Text(positive), onPressed: popText)
         ],
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        insetPadding: const EdgeInsets.all(24),
       );
     };
 
@@ -60,24 +61,26 @@ AlertDialog Function(BuildContext) colorDialogBuilder(
   List<Color> colors,
 ) =>
     (context) => AlertDialog(
-        title: Text(title, textAlign: TextAlign.center),
-        content: Padding(
-          padding: const EdgeInsets.only(top: 8, bottom: 20),
-          child: Wrap(
-            spacing: 16,
-            runSpacing: 16,
-            alignment: WrapAlignment.center,
-            children: [
-              for (var c in colors)
-                ButtonTheme(
-                  minWidth: 48,
-                  height: 48,
-                  buttonColor: c,
-                  shape: const CircleBorder(),
-                  child: RaisedButton(
-                    onPressed: () => Navigator.of(context).pop(c),
-                  ),
-                )
-            ],
+          title: Text(title, textAlign: TextAlign.center),
+          content: Padding(
+            padding: const EdgeInsets.only(top: 8, bottom: 20),
+            child: Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              alignment: WrapAlignment.center,
+              children: [
+                for (var c in colors)
+                  ButtonTheme(
+                    minWidth: 48,
+                    height: 48,
+                    buttonColor: c,
+                    shape: const CircleBorder(),
+                    child: RaisedButton(
+                      onPressed: () => Navigator.of(context).pop(c),
+                    ),
+                  )
+              ],
+            ),
           ),
-        ));
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        );

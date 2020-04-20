@@ -34,7 +34,7 @@ class CourseProvider extends ChangeNotifier {
       if (path != null) await File(path).delete().catchError((_) {});
     }
     // Reorder others courses.
-    await Storage.reorder(course, null);
+    await Storage.reorder(course);
     // Delete course with sections and questions.
     await Storage.delete(course);
   }

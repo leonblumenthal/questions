@@ -157,15 +157,18 @@ class Storage {
 
   /// Change order of [obj] to [order] and reorder
   /// other objects in the same table accordingly.
-  static Future<void> reorder(dynamic obj, int order) async {
-    if (order == null) order = 99999;
+  static Future<void> reorder(dynamic obj, [int order = 99999]) async {
     var ops = obj.order < order
         ? ['-', obj.order + 1, order]
         : ['+', order, obj.order - 1];
+    String extra = '';
+    if (obj is Section) {
+      extra = 'courseId = ${obj.courseId} and';
+    }
     await _database.rawUpdate(
       'Update ${obj.tableName} '
       'set "order" = "order" ${ops[0]} 1 '
-      'where "order" between ${ops[1]} and ${ops[2]};',
+      'where $extra "order" between ${ops[1]} and ${ops[2]};',
     );
     await insert(obj..order = order);
   }

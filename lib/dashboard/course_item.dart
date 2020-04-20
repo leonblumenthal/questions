@@ -6,6 +6,7 @@ import 'package:questions/course/course_screen.dart';
 import 'package:questions/dashboard/dashboard_provider.dart';
 import 'package:questions/models.dart';
 import 'package:questions/storage.dart';
+import 'package:questions/utils/utils.dart';
 
 class CourseItem extends StatelessWidget {
   final Course course;
@@ -61,7 +62,8 @@ class CourseItem extends StatelessWidget {
         future: Storage.getQuestionsToAnswer(course),
         builder: (context, snapshot) {
           List<QuestionToAnswer> qs = snapshot.data ?? [];
-
+          qs.shuffle();
+          qs.sort(compareQuestionsToAnswer);
           if (qs.isNotEmpty) {
             return RaisedButton(
               child: Text(

@@ -39,7 +39,7 @@ class QuestionTimeline extends StatelessWidget {
 
     // Only show incorrect answer icon.
     Widget trailing;
-    if (answer.correct) {
+    if (!answer.correct) {
       trailing = Icon(Icons.sentiment_dissatisfied, color: color);
     }
 

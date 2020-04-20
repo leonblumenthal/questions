@@ -27,7 +27,7 @@ class QuestionCard extends StatelessWidget {
 
   Widget buildTitle() => Padding(
         child: Text(
-          '${qta.course.title} - ${qta.section.title}',
+          '${qta.course.title} - ${qta.section.order + 1}. ${qta.section.title}',
           style: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w500,
