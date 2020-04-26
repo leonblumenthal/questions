@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pdf_render/pdf_render.dart';
 import 'package:questions/constants.dart';
 import 'package:questions/document/document_screen.dart';
 import 'package:questions/document/locate_document_screen.dart';
@@ -13,13 +12,13 @@ class QuestionScreen extends StatefulWidget {
   final Question question;
   final Section section;
   final Color color;
-  final PdfDocument document;
+  final PdfDocumentWrapper documentWrapper;
 
   QuestionScreen(
     this.question,
     this.section,
     this.color, [
-    this.document,
+    this.documentWrapper,
   ]);
 
   @override
@@ -35,14 +34,16 @@ class _QuestionScreenState extends State<QuestionScreen> {
           actions: [
             IconButton(icon: const Icon(Icons.delete), onPressed: delete),
             IconButton(icon: const Icon(Icons.restore), onPressed: reset),
-            if (widget.question.marker != null && widget.document != null)
+            if (widget.question.marker != null &&
+                widget.documentWrapper != null)
               IconButton(
                 icon: const Icon(Icons.edit_location),
                 onPressed: editLocation,
               ),
           ],
         ),
-        floatingActionButton: widget.document != null ? buildFab() : null,
+        floatingActionButton:
+            widget.documentWrapper != null ? buildFab() : null,
         body: ListView(
           padding: Constants.listViewPadding,
           children: [buildTextWidget(), buildTimeLineWidget()],
@@ -61,7 +62,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
             Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => DocumentScreen(
                 widget.section.title,
-                widget.document,
+                widget.documentWrapper,
                 widget.color,
                 pageOffset: widget.question.marker.y,
               ),
@@ -137,7 +138,10 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
   Future<void> editLocation() async {
     int pageIndex = await Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => LocateDocumentScreen(widget.document, widget.color),
+      builder: (_) => LocateDocumentScreen(
+        widget.documentWrapper,
+        widget.color,
+      ),
     ));
     if (pageIndex != null) {
       widget.question.marker = Marker(0.5, pageIndex + 0.5);

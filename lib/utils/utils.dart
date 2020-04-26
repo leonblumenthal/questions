@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf_render/pdf_render.dart';
 import 'package:questions/constants.dart';
+import 'package:questions/document/range_document_screen.dart';
 import 'package:questions/models.dart';
+import 'package:questions/storage.dart';
 
 /// Get current date as [DateTime].
 DateTime getDate([DateTime dateTime]) {
@@ -13,26 +15,14 @@ DateTime getDate([DateTime dateTime]) {
   return DateTime(dt.year, dt.month, dt.day);
 }
 
-/// Choose and copy file to local directory and return the new file.
-Future<File> importFile() async {
-  var file = await FilePicker.getFile();
-  if (file == null) return null;
-
-  // Copy selected file to local directory.
-  var dir = await getApplicationDocumentsDirectory();
-  var path = '${dir.path}/${file.uri.pathSegments.last}';
-  await file.copy(path);
-
-  return File(path);
-}
-
 /// Load page and render page image with scale.
 Future<PdfPageImage> loadPageImage(
-  PdfDocument document,
+  PdfDocumentWrapper documentWrapper,
   int pageIndex, {
   double scale = 2.5,
 }) async {
-  var page = await document.getPage(pageIndex + 1);
+  var i = documentWrapper.startOffset + pageIndex + 1;
+  var page = await documentWrapper.pdfDocument.getPage(i);
   var w = page.width;
   var h = page.height;
   var pageImage = await page.render(
@@ -42,6 +32,38 @@ Future<PdfPageImage> loadPageImage(
     height: (h * scale).toInt(),
   );
   return pageImage;
+}
+
+/// Import document for section with page range.
+Future<void> importSectionDocument(
+  BuildContext context,
+  Section section,
+) async {
+  // Select pdf file.
+  var file = await FilePicker.getFile();
+  if (file == null) return;
+
+  // Select page range.
+  var pdfDocument = await PdfDocument.openFile(file.path);
+  List<int> range = await Navigator.of(context).push(MaterialPageRoute(
+    builder: (context) => RangeDocumentScreen(
+      PdfDocumentWrapper(pdfDocument),
+      Colors.black,
+    ),
+  ));
+  if (range == null) return;
+
+  // Copy selected file to local directory.
+  var dir = await getApplicationDocumentsDirectory();
+  var path = '${dir.path}/${DateTime.now().millisecondsSinceEpoch}';
+  await file.copy(path);
+
+  // Delete old document if exists.
+  if (section.document != null) {
+    await File(section.document.path).delete().catchError((_) {});
+  }
+
+  await Storage.insert(section..document = Document(path, range[0], range[1]));
 }
 
 /// Compare questions by streak, section and last answered
@@ -66,4 +88,3 @@ Color getStreakColor(int streak) {
   var cs = Constants.streakColors;
   return streak < cs.length ? cs[streak] : cs.last;
 }
-

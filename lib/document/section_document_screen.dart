@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pdf_render/pdf_render.dart';
 import 'package:questions/constants.dart';
 import 'package:questions/document/document_screen.dart';
 import 'package:questions/models.dart';
@@ -15,18 +14,18 @@ class SectionDocumentScreen extends DocumentScreen {
 
   SectionDocumentScreen(
     this.section,
-    PdfDocument document,
+    PdfDocumentWrapper documentWrapper,
     List<Question> questions,
     Color color, {
     double pageOffset = 0,
   }) : super(
           section.title,
-          document,
+          documentWrapper,
           color,
           pageOffset: pageOffset,
         ) {
     // Initialize questions per page map.
-    for (var i = 0; i < document.pageCount; i++) questionsMap[i] = [];
+    for (var i = 0; i < documentWrapper.pageCount; i++) questionsMap[i] = [];
     // Fill map with questions.
     if (questions != null) {
       for (var q in questions) {

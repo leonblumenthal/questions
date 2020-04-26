@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pdf_render/pdf_render.dart';
 import 'package:questions/constants.dart';
+import 'package:questions/models.dart';
 import 'package:questions/utils/utils.dart';
 
 /// Widget for showing document pages and
@@ -10,7 +11,7 @@ import 'package:questions/utils/utils.dart';
 /// to add additional functionality.
 class DocumentScreen extends StatelessWidget {
   final String title;
-  final PdfDocument document;
+  final PdfDocumentWrapper documentWrapper;
   final Color color;
   final double pageOffset;
 
@@ -18,12 +19,12 @@ class DocumentScreen extends StatelessWidget {
 
   DocumentScreen(
     this.title,
-    this.document,
+    this.documentWrapper,
     this.color, {
     this.pageOffset = 0,
   }) {
     var i = pageOffset.toInt();
-    pageImageFutures[i] = loadPageImage(document, i);
+    pageImageFutures[i] = loadPageImage(documentWrapper, i);
   }
 
   @override
@@ -69,7 +70,7 @@ class DocumentScreen extends StatelessWidget {
           SliverList(
             delegate: SliverChildBuilderDelegate(
               (context, i) => buildPage(context, i, pageHeight),
-              childCount: document.pageCount,
+              childCount: documentWrapper.pageCount,
             ),
           ),
         ],
@@ -83,7 +84,7 @@ class DocumentScreen extends StatelessWidget {
         child: FutureBuilder(
           future: pageImageFutures.putIfAbsent(
             pageIndex,
-            () => loadPageImage(document, pageIndex),
+            () => loadPageImage(documentWrapper, pageIndex),
           ),
           builder: (_, snapshot) {
             if (snapshot.hasData) return RawImage(image: snapshot.data.image);

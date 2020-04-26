@@ -109,14 +109,8 @@ class CourseScreen extends StatelessWidget {
     BuildContext context,
     Section section,
   ) async {
-    var file = await importFile();
-    if (file != null) {
-      section
-        ..title = file.uri.pathSegments.last.split('.').first
-        ..documentPath = file.path;
-      await Storage.insert(section);
-      goToSection(context, section);
-    }
+    await importSectionDocument(context, section);
+    if (section.document != null) goToSection(context, section);
   }
 
   void deleteCourse(BuildContext context) async {

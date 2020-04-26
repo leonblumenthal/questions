@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:pdf_render/pdf_render.dart';
 import 'package:questions/document/document_screen.dart';
+import 'package:questions/models.dart';
 
 class LocateDocumentScreen extends DocumentScreen {
-  LocateDocumentScreen(
-    PdfDocument document,
-    Color color,
-  ) : super('Locate question page', document, color);
+  LocateDocumentScreen(PdfDocumentWrapper documentWrapper, Color color)
+      : super('Locate question page', documentWrapper, color);
 
   @override
   Widget buildPage(BuildContext context, int pageIndex, double pageHeight) =>

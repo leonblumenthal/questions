@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:pdf_render/pdf_render.dart';
 import 'package:questions/storage.dart';
 
 class Course extends StorageModel {
@@ -28,29 +29,42 @@ class Course extends StorageModel {
 
 class Section extends StorageModel {
   String title;
-  String documentPath;
   int order;
+  Document document;
   int courseId;
 
-  Section({int id, this.title, this.documentPath, this.order, this.courseId})
+  Section({int id, this.title, this.order, this.document, this.courseId})
       : super(id);
 
   fromMap(Map<String, dynamic> map) {
     title = map['title'];
-    documentPath = map['documentPath'];
     order = map['order'];
+    if (map['documentPath'] != null) {
+      document =
+          Document(map['documentPath'], map['startOffset'], map['endOffset']);
+    }
     courseId = map['courseId'];
   }
 
   Map<String, dynamic> toMap() => {
         'title': title,
+        'order': order,
+        'documentPath': document?.path,
+        'startOffset': document?.startOffset,
+        'endOffset': document?.endOffset,
         'courseId': courseId,
-        'documentPath': documentPath,
-        'order': order
       };
 
   @override
   String toString() => 'Section $title';
+}
+
+class Document {
+  String path;
+  int startOffset;
+  int endOffset;
+
+  Document(this.path, [this.startOffset = 0, this.endOffset = -1]);
 }
 
 class Question extends StorageModel {
@@ -142,4 +156,25 @@ class CourseStats {
   String get sectionCount => _sectionCount.toString();
   String get questionCount => _questionCount.toString();
   String get averageStreak => _averageStreak?.toStringAsFixed(1);
+}
+
+class PdfDocumentWrapper {
+  final PdfDocument pdfDocument;
+  final int startOffset;
+  final int endOffset;
+
+  PdfDocumentWrapper(
+    this.pdfDocument, [
+    this.startOffset = 0,
+    this.endOffset = -1,
+  ]);
+
+  PdfDocumentWrapper.fromDocument(this.pdfDocument, Document document)
+      : startOffset = document.startOffset,
+        endOffset = document.endOffset;
+
+  int get pageCount {
+    if (endOffset == -1) return pdfDocument.pageCount - startOffset;
+    return endOffset - startOffset;
+  }
 }

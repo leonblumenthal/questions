@@ -28,7 +28,7 @@ class _AnswerScreenState extends State<AnswerScreen> {
       if (q.question.marker != null) {
         sectionDocumentFutures.putIfAbsent(
           q.section,
-          () => PdfDocument.openFile(q.section.documentPath),
+          () => PdfDocument.openFile(q.section.document.path),
         );
       }
     }
@@ -117,7 +117,7 @@ class _AnswerScreenState extends State<AnswerScreen> {
         Navigator.of(context).push(MaterialPageRoute(
           builder: (_) => DocumentScreen(
             qta.section.title,
-            document,
+            PdfDocumentWrapper.fromDocument(document, qta.section.document),
             qta.course.color,
             pageOffset: qta.question.marker.y,
           ),

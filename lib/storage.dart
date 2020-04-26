@@ -15,6 +15,8 @@ class Storage {
         'id INTEGER PRIMARY KEY AUTOINCREMENT,'
         'title TEXT,'
         'documentPath TEXT,'
+        'startOffset INTEGER,'
+        'endOffset INTEGER,'
         '"order" INTEGER,'
         'courseId INTEGER REFERENCES Course(id) ON DELETE CASCADE'
         ');',

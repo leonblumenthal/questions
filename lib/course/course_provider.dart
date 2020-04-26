@@ -30,7 +30,7 @@ class CourseProvider extends ChangeNotifier {
   Future<void> deleteCourse() async {
     // Delete all document for the course.
     for (var section in sections) {
-      var path = section.documentPath;
+      var path = section.document.path;
       if (path != null) await File(path).delete().catchError((_) {});
     }
     // Reorder others courses.

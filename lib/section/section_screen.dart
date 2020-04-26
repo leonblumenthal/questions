@@ -34,8 +34,8 @@ class _SectionScreenState extends State<SectionScreen> {
     titleController.text = widget.section.title;
     questionsFuture = Storage.getQuestions(widget.section);
 
-    if (widget.section.documentPath != null) {
-      documentFuture = PdfDocument.openFile(widget.section.documentPath);
+    if (widget.section.document != null) {
+      documentFuture = PdfDocument.openFile(widget.section.document.path);
     }
   }
 
@@ -106,7 +106,7 @@ class _SectionScreenState extends State<SectionScreen> {
     await Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => SectionDocumentScreen(
         widget.section,
-        document,
+        PdfDocumentWrapper.fromDocument(document, widget.section.document),
         questions,
         widget.color,
       ),
@@ -183,7 +183,7 @@ class _SectionScreenState extends State<SectionScreen> {
         question,
         widget.section,
         widget.color,
-        document,
+        PdfDocumentWrapper.fromDocument(document, widget.section.document),
       ),
     ));
     reloadQuestions();
@@ -204,8 +204,8 @@ class _SectionScreenState extends State<SectionScreen> {
     );
     if (result ?? false) {
       // Delete document from local directory.
-      if (widget.section.documentPath != null) {
-        await File(widget.section.documentPath).delete().catchError((_) {});
+      if (widget.section.document != null) {
+        await File(widget.section.document.path).delete().catchError((_) {});
       }
       // Reorder other sections before deleting.
       await Storage.reorder(widget.section);
@@ -255,7 +255,7 @@ class _SectionScreenState extends State<SectionScreen> {
 
   Future<void> importDocument() async {
     var result = true;
-    if (widget.section.documentPath != null) {
+    if (widget.section.document != null) {
       result = await showDialog(
         context: context,
         builder: boolDialogBuilder(
@@ -266,24 +266,14 @@ class _SectionScreenState extends State<SectionScreen> {
       );
     }
     if (result ?? false) {
-      var file = await importFile();
-      if (file != null) {
-        // Delete old file if it exists.
-        if (widget.section.documentPath != null) {
-          await File(widget.section.documentPath).delete().catchError((_) {});
-        }
-        // Save section and remove all question markers.
-        await Storage.insert(widget.section..documentPath = file.path);
-        await Storage.removeQuestionMarkers(widget.section);
+      // Import new document und reset question markers.
+      await importSectionDocument(context, widget.section);
+      await Storage.removeQuestionMarkers(widget.section);
 
-        Toast.show(
-          'Imported ${file.uri.pathSegments.last}',
-          context,
-          duration: 2,
-        );
-        documentFuture = PdfDocument.openFile(file.path);
-        setState(() {});
-      }
+      Toast.show('Imported document', context);
+
+      documentFuture = PdfDocument.openFile(widget.section.document.path);
+      setState(() {});
     }
   }
 

@@ -18,7 +18,7 @@ class SectionItem extends StatelessWidget {
               child: Row(
                 children: [
                   _buildTitle(),
-                  if (section.documentPath == null) _buildNoDocumentIcon()
+                  if (section.document == null) _buildNoDocumentIcon()
                 ],
               )),
           onTap: () => _goToSection(context),
